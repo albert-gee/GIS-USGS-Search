@@ -4,9 +4,7 @@ project(final)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(final
-        main.cpp
         src/GIS.cpp
-        src/GIS.h
         src/GISRecord.cpp
         include/GISRecord.h
         src/NameIndex.cpp
