@@ -8,17 +8,17 @@ add_executable(final
         src/GIS.cpp
         src/GIS.h
         src/GISRecord.cpp
-        src/GISRecord.h
+        include/GISRecord.h
         src/NameIndex.cpp
-        src/NameIndex.h
+        include/NameIndex.h
         src/CoordinateIndex.cpp
-        src/CoordinateIndex.h
+        include/CoordinateIndex.h
         src/BufferPool.cpp
-        src/BufferPool.h
+        include/BufferPool.h
         src/Logger.cpp
-        src/Logger.h
+        include/Logger.h
         src/SystemManager.cpp
-        src/SystemManager.h
+        include/SystemManager.h
         src/CommandProcessor.cpp
-        src/CommandProcessor.h
+        include/CommandProcessor.h
         )
