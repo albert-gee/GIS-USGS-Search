@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
-project(final)
+project(GIS)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(final
+add_executable(GIS
         src/GIS.cpp
         src/GISRecord.cpp
         include/GISRecord.h
