@@ -9,7 +9,7 @@ public:
     GISRecord* searchForRecord(int featrureId);
 private:
     const int maxSize = 15;
-    list<GISRecord> buffer;
+    list<GISRecord> *buffer;
 };
 
 
