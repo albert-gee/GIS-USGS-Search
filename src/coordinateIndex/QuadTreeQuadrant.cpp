@@ -1,7 +1,7 @@
 #include "../../include/coordinateIndex/QuadTreeQuadrant.h"
 
 QuadTreeQuadrant::QuadTreeQuadrant(Point northWestPoint, Point southEastPoint) :
-        northWestPoint{northWestPoint}, southEastPoint{southEastPoint}, points() {
+        northWestPoint{northWestPoint}, southEastPoint{southEastPoint}, entries{} {
     this->northWest = nullptr;
     this->northEast = nullptr;
     this->southWest = nullptr;
@@ -15,14 +15,61 @@ QuadTreeQuadrant::~QuadTreeQuadrant() {
     delete this->southEast;
 }
 
-void QuadTreeQuadrant::insert(Point point) {
-    points.push_back(point);
+void QuadTreeQuadrant::insert(const Entry& entry, int bucketCapacity) {
+
+    // Check if the bucket has space
+    if (getEntries().size() < bucketCapacity) {
+        // Add the point to the bucket if it has space
+        entries.push_back(entry);
+
+    } else {
+        // Otherwise, divide the quadrant into four sub-quadrants:
+
+        // 1. Find the center coordinates of the quadrant
+        double centerX = (getNorthWestPoint().x + getSouthEastPoint().x) / 2.0;
+        double centerY = (getNorthWestPoint().y + getSouthEastPoint().y) / 2.0;
+
+        // 2. Create the four sub-quadrants
+        setNorthWest(new QuadTreeQuadrant(
+                getNorthWestPoint(),
+                Point(centerX, centerY)));
+        setNorthEast(new QuadTreeQuadrant(
+                Point(centerX, getNorthWestPoint().y),
+                Point(getSouthEastPoint().x, centerY)));
+        setSouthWest(new QuadTreeQuadrant(
+                Point(getNorthWestPoint().x, centerY),
+                Point(centerX, getSouthEastPoint().y)));
+        setSouthEast(new QuadTreeQuadrant(
+                Point(centerX, centerY),
+                getSouthEastPoint()));
+
+        // 3. Insert the points into the sub-quadrants
+        entries.push_back(entry);
+        for (const Entry& entry : getEntries()) {
+
+            // Check if the point is in the north-west quadrant
+            if (entry.location.x <= centerX && entry.location.y <= centerY) {
+                getNorthWest()->insert(entry, bucketCapacity);
+                // Check if the point is in the north-east quadrant
+            } else if (entry.location.x > centerX && entry.location.y <= centerY) {
+                getNorthEast()->insert(entry, bucketCapacity);
+                // Check if the point is in the south-west quadrant
+            } else if (entry.location.x <= centerX && entry.location.y > centerY) {
+                getSouthWest()->insert(entry, bucketCapacity);
+                // Check if the point is in the south-east quadrant
+            } else if (entry.location.x > centerX && entry.location.y > centerY) {
+                getSouthEast()->insert(entry, bucketCapacity);
+            }
+        }
+        clearPoints();
+    }
 }
 
 void QuadTreeQuadrant::clearPoints() {
-    points.clear();
+    entries.clear();
 }
 
+// Getters and setters
 const Point &QuadTreeQuadrant::getNorthWestPoint() const {
     return northWestPoint;
 }
@@ -31,50 +78,39 @@ const Point &QuadTreeQuadrant::getSouthEastPoint() const {
     return southEastPoint;
 }
 
-void QuadTreeQuadrant::setNorthWestPoint(const Point &northWestPoint) {
-    QuadTreeQuadrant::northWestPoint = northWestPoint;
+const std::vector<Entry> &QuadTreeQuadrant::getEntries() const {
+    return entries;
 }
 
-void QuadTreeQuadrant::setSouthEastPoint(const Point &southEastPoint) {
-    QuadTreeQuadrant::southEastPoint = southEastPoint;
-}
-
-const std::vector<Point> &QuadTreeQuadrant::getPoints() const {
-    return points;
-}
-
-void QuadTreeQuadrant::setPoints(const std::vector<Point> &points) {
-    QuadTreeQuadrant::points = points;
-}
-
+// Getters and setters for sub-quadrants
 QuadTreeQuadrant *QuadTreeQuadrant::getNorthWest() const {
     return northWest;
 }
 
-void QuadTreeQuadrant::setNorthWest(QuadTreeQuadrant *northWest) {
-    QuadTreeQuadrant::northWest = northWest;
+void QuadTreeQuadrant::setNorthWest(QuadTreeQuadrant *newNorthWest) {
+    QuadTreeQuadrant::northWest = newNorthWest;
 }
 
 QuadTreeQuadrant *QuadTreeQuadrant::getNorthEast() const {
     return northEast;
 }
 
-void QuadTreeQuadrant::setNorthEast(QuadTreeQuadrant *northEast) {
-    QuadTreeQuadrant::northEast = northEast;
+void QuadTreeQuadrant::setNorthEast(QuadTreeQuadrant *newNorthEast) {
+    QuadTreeQuadrant::northEast = newNorthEast;
 }
 
 QuadTreeQuadrant *QuadTreeQuadrant::getSouthWest() const {
     return southWest;
 }
 
-void QuadTreeQuadrant::setSouthWest(QuadTreeQuadrant *southWest) {
-    QuadTreeQuadrant::southWest = southWest;
+void QuadTreeQuadrant::setSouthWest(QuadTreeQuadrant *newSouthWest) {
+    QuadTreeQuadrant::southWest = newSouthWest;
 }
 
 QuadTreeQuadrant *QuadTreeQuadrant::getSouthEast() const {
     return southEast;
 }
 
-void QuadTreeQuadrant::setSouthEast(QuadTreeQuadrant *southEast) {
-    QuadTreeQuadrant::southEast = southEast;
+void QuadTreeQuadrant::setSouthEast(QuadTreeQuadrant *newSouthEast) {
+    QuadTreeQuadrant::southEast = newSouthEast;
 }

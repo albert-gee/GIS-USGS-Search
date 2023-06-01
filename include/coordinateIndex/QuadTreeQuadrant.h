@@ -3,27 +3,27 @@
 
 #include <vector>
 #include "Point.h"
+#include "Entry.h"
 
 class QuadTreeQuadrant {
 public:
     QuadTreeQuadrant(Point northWestPoint, Point southEastPoint);
     ~QuadTreeQuadrant();
 
-    void insert(Point point);
-    void clearPoints();
+    // Insert an entry into the quadrant
+    void insert(const Entry& entry, int bucketCapacity);
 
+    // Getters and setters
+
+    // Getters and setters for Borders
     const Point &getNorthWestPoint() const;
 
     const Point &getSouthEastPoint() const;
 
-    void setNorthWestPoint(const Point &northWestPoint);
+    // Getters and setters for Entries
+    const std::vector<Entry> &getEntries() const;
 
-    void setSouthEastPoint(const Point &southEastPoint);
-
-    const std::vector<Point> &getPoints() const;
-
-    void setPoints(const std::vector<Point> &points);
-
+    // Getters and setters for sub-quadrants
     QuadTreeQuadrant *getNorthWest() const;
 
     void setNorthWest(QuadTreeQuadrant *northWest);
@@ -45,14 +45,17 @@ private:
     Point northWestPoint;
     Point southEastPoint;
 
-    // Points in quadrant
-    std::vector<Point> points;
+    // Entries in quadrant
+    std::vector<Entry> entries;
 
     // Children quadrants
     QuadTreeQuadrant *northWest;
     QuadTreeQuadrant *northEast;
     QuadTreeQuadrant *southWest;
     QuadTreeQuadrant *southEast;
+
+    void clearPoints();
+
 };
 
 #endif //GIS_QUADTREEQUADRANT_H
