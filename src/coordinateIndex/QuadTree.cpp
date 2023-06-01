@@ -6,7 +6,7 @@ QuadTree::QuadTree(Point northWestPoint, Point southEastPoint) {
 
 QuadTree::~QuadTree() = default;
 
-void QuadTree::insert(Point point) {
+void QuadTree::insert(const Entry& entry) {
     // This method goes through the tree recursively and inserts the point into the correct quadrant
-    this->root->insert(point, BUCKET_CAPACITY);
+    this->root->insert(entry, BUCKET_CAPACITY);
 }

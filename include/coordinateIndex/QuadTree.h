@@ -10,7 +10,7 @@ public:
     QuadTree(Point northWestPoint, Point southEastPoint);
     ~QuadTree();
 
-    void insert(Point point);
+    void insert(const Entry& entry);
 
 private:
     const int BUCKET_CAPACITY{4};
