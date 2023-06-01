@@ -15,8 +15,6 @@ public:
 private:
     const int BUCKET_CAPACITY{4};
     QuadTreeQuadrant* root;
-
-    void insertIntoQuadrant(QuadTreeQuadrant* quadrant, Point point);
 };
 
 
