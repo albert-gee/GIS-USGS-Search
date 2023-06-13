@@ -1,15 +1,23 @@
 #ifndef FINAL_BUFFERPOOL_H
 #define FINAL_BUFFERPOOL_H
 #include "GISRecord.h"
+#include "NameIndex.h"
+#include "LineUtility.h"
 #include <list>
 using namespace std;
 
 class BufferPool {
 public:
-    GISRecord* searchForRecord(int featrureId);
+    list<GISRecord *> getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName);
+    const list<GISRecord *> getRecordsByCoorindates();
+    BufferPool() = default;
+    void printBuffer();
 private:
-    const int maxSize = 15;
-    list<GISRecord> *buffer;
+    static const int MAX_SIZE = 15;
+    struct BufferedRecord;
+    list<BufferedRecord*> buffer;
+    string getLineFromDB(int, string);
+    GISRecord * createGISRecordFromLine(string);
 };
 
 
