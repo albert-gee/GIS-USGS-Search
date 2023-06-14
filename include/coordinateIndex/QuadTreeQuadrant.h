@@ -13,6 +13,9 @@ public:
     // Insert an entry into the quadrant
     void insert(const Entry& entry, int bucketCapacity);
 
+    // Get the offsets of the GIS records in the quadrant
+    std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint) const;
+
     // Getters and setters
 
     // Getters and setters for Borders

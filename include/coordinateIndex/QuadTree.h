@@ -11,6 +11,7 @@ public:
     ~QuadTree();
 
     void insert(const Entry& entry);
+    std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint);
 
 private:
     const int BUCKET_CAPACITY{4};
