@@ -17,4 +17,10 @@ add_executable(GIS
         include/SystemManager.h
         src/CommandProcessor.cpp
         include/CommandProcessor.h
-        src/coordinateIndex/QuadTreeQuadrant.cpp include/coordinateIndex/QuadTreeQuadrant.h src/coordinateIndex/QuadTree.cpp include/coordinateIndex/QuadTree.h include/coordinateIndex/Point.h include/coordinateIndex/Entry.h)
+        src/coordinateIndex/QuadTreeQuadrant.cpp
+        include/coordinateIndex/QuadTreeQuadrant.h
+        src/coordinateIndex/QuadTree.cpp
+        include/coordinateIndex/QuadTree.h
+        include/coordinateIndex/Point.h
+        include/coordinateIndex/Entry.h
+        src/LineUtility.cpp)
