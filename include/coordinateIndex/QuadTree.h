@@ -7,14 +7,14 @@
 
 class QuadTree {
 public:
-    QuadTree(Point northWestPoint, Point southEastPoint);
+    QuadTree(Point northWestPoint, Point southEastPoint, int bucketCapacity);
     ~QuadTree();
 
     void insert(const Entry& entry);
     std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint);
 
 private:
-    const int BUCKET_CAPACITY{4};
+    int bucketCapacity;
     QuadTreeQuadrant* root;
 };
 
