@@ -7,6 +7,7 @@
 //#include <wsman.h>
 #include "Command.h"
 #include "SystemManager.h"
+#include "NameIndex.h"
 
 using namespace std;
 
@@ -15,9 +16,11 @@ private:
     string databaseFileName;
     string logFileName;
     SystemManager systemManager;
+    //NameIndex nameIndex;
 public:
     CommandProcessor(string dataBaseFileName, string logFileName);
     void processCommand(const std::string& command);
+    //static void processCommand(const std::string&, const std::string&, const std::string&);
 };
 
 

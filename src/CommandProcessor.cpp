@@ -45,8 +45,8 @@ void CommandProcessor::processCommand(const string &command) {
         string function = args.front();
         args.pop_front();
         if(function == "import"){
-            cout << command << endl;
             string recordFileName = args.front();
+            cout << "import " << recordFileName << endl;
             systemManager.import(recordFileName, databaseFileName);
         }
 

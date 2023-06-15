@@ -9,11 +9,8 @@ int main(int argc, char *argv[]) {
     // Check if exactly 3 arguments were provided
     if (argc != 4) {
         std::string programName(argv[0]);
-        std::cout << argc << std::endl;
         std::cout << "Error: Invalid number of arguments. Usage: " << programName << " name1 name2 name3" << std::endl;
-        for(int i = 0; i < argc; i++){
-            std::cout << argv[i] << std::endl;
-        };
+
         return 1; // Exit with error code 1
     }
 
@@ -40,7 +37,7 @@ int main(int argc, char *argv[]) {
     /// COMMAND SCRIPT
     // Open the command script file
     std::ifstream commandScriptFile(commandScriptFileName);
-    std::cout << commandScriptFileName << " ";
+    //std::cout << commandScriptFileName << " ";
     if (!commandScriptFile.is_open()) {
         std::cerr << "Error: Failed to open command script file." << std::endl;
         return 1;
@@ -65,6 +62,5 @@ int main(int argc, char *argv[]) {
     while (std::getline(commandScriptFile, line)) {
         cmdProcessor.processCommand(line);
     }
-
     return 0;
 }
