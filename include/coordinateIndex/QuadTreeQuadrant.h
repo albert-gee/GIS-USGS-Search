@@ -5,51 +5,33 @@
 #include "Point.h"
 #include "Entry.h"
 
+// This class describes a quadrant in the QuadTree
 class QuadTreeQuadrant {
 public:
-    QuadTreeQuadrant(Point northWestPoint, Point southEastPoint);
+    QuadTreeQuadrant(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity = 0);
+
     ~QuadTreeQuadrant();
 
     // Insert an entry into the quadrant
-    void insert(const Entry& entry, int bucketCapacity);
+    void insert(const Entry &entry);
 
     // Get the offsets of the GIS records in the quadrant
-    std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint) const;
-
-    // Getters and setters
+    [[nodiscard]] std::vector<int> getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const;
 
     // Getters and setters for Borders
-    const Point &getNorthWestPoint() const;
+    [[nodiscard]] const Point &getNorthWestPoint() const;
 
-    const Point &getSouthEastPoint() const;
-
-    // Getters and setters for Entries
-    const std::vector<Entry> &getEntries() const;
-
-    // Getters and setters for sub-quadrants
-    QuadTreeQuadrant *getNorthWest() const;
-
-    void setNorthWest(QuadTreeQuadrant *northWest);
-
-    QuadTreeQuadrant *getNorthEast() const;
-
-    void setNorthEast(QuadTreeQuadrant *northEast);
-
-    QuadTreeQuadrant *getSouthWest() const;
-
-    void setSouthWest(QuadTreeQuadrant *southWest);
-
-    QuadTreeQuadrant *getSouthEast() const;
-
-    void setSouthEast(QuadTreeQuadrant *southEast);
+    [[nodiscard]] const Point &getSouthEastPoint() const;
 
 private:
     // Bounding box
     Point northWestPoint;
     Point southEastPoint;
 
-    // Entries in quadrant
-    std::vector<Entry> entries;
+    // Bucket contains entries in quadrant up to bucket capacity
+    std::vector<Entry> bucket;
+    // Bucket capacity.
+    unsigned long bucketCapacity;
 
     // Children quadrants
     QuadTreeQuadrant *northWest;
@@ -57,7 +39,22 @@ private:
     QuadTreeQuadrant *southWest;
     QuadTreeQuadrant *southEast;
 
-    void clearPoints();
+    // Get bucket available capacity.
+    // It is the number of entries that can be inserted into the bucket.
+    // It is also the difference between the bucket capacity and the number of entries in the bucket.
+    [[nodiscard]] unsigned long getBucketAvailableCapacity() const;
+
+    // Insert an entry into the bucket
+    void insertIntoBucket(const Entry &newEntry);
+
+    // Insert an entry into the sub-quadrants if the bucket is full (bucketCapacity == 0)
+    void insertIntoSubQuadrants(const Entry &newEntry);
+
+    // If the bucket is full, divide the quadrant into sub-quadrants
+    void divideQuadrantIntoSubQuadrants();
+
+    // Clear the bucket
+    void clearBucket();
 
 };
 

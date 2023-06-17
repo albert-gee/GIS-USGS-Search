@@ -1,8 +1,8 @@
 #include <stdexcept>
 #include "../../include/coordinateIndex/QuadTreeQuadrant.h"
 
-QuadTreeQuadrant::QuadTreeQuadrant(Point northWestPoint, Point southEastPoint) :
-        northWestPoint{northWestPoint}, southEastPoint{southEastPoint}, entries{} {
+QuadTreeQuadrant::QuadTreeQuadrant(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity)
+        : northWestPoint{northWestPoint}, southEastPoint{southEastPoint}, bucket{}, bucketCapacity{bucketCapacity} {
     this->northWest = nullptr;
     this->northEast = nullptr;
     this->southWest = nullptr;
@@ -16,61 +16,91 @@ QuadTreeQuadrant::~QuadTreeQuadrant() {
     delete this->southEast;
 }
 
-void QuadTreeQuadrant::insert(const Entry& newEntry, int bucketCapacity) {
+unsigned long QuadTreeQuadrant::getBucketAvailableCapacity() const {
+    return bucketCapacity - bucket.size();
+}
 
-    // Check if the bucket has space
-    if (getEntries().size() < bucketCapacity) {
-        // Add the point to the bucket if it has space
-        entries.push_back(newEntry);
+// Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
+// divided into four sub-quadrants and the entry and all entries from the bucket are inserted into them.
+void QuadTreeQuadrant::insert(const Entry &newEntry) {
 
+    // Check if the bucket is not full
+    if (getBucketAvailableCapacity() > 0) {
+        // Insert the entry into the bucket
+        insertIntoBucket(newEntry);
     } else {
-        // Otherwise, divide the quadrant into four sub-quadrants:
 
-        // 1. Find the center coordinates of the quadrant
-        double centerX = (getNorthWestPoint().x + getSouthEastPoint().x) / 2.0;
-        double centerY = (getNorthWestPoint().y + getSouthEastPoint().y) / 2.0;
+        // Otherwise, check if the quadrant is not divided into sub-quadrants
+        if (northWest == nullptr) {
+            // If so, divide the quadrant into four sub-quadrants
+            divideQuadrantIntoSubQuadrants();
 
-        // 2. Create the four sub-quadrants
-        setNorthWest(new QuadTreeQuadrant(
-                getNorthWestPoint(),
-                Point(centerX, centerY)));
-        setNorthEast(new QuadTreeQuadrant(
-                Point(centerX, getNorthWestPoint().y),
-                Point(getSouthEastPoint().x, centerY)));
-        setSouthWest(new QuadTreeQuadrant(
-                Point(getNorthWestPoint().x, centerY),
-                Point(centerX, getSouthEastPoint().y)));
-        setSouthEast(new QuadTreeQuadrant(
-                Point(centerX, centerY),
-                getSouthEastPoint()));
-
-        // 3. Insert the points into the sub-quadrants
-        entries.push_back(newEntry);
-        for (const Entry& entry : getEntries()) {
-
-            // Check if the point is in the north-west quadrant
-            if (entry.location.x <= centerX && entry.location.y <= centerY) {
-                getNorthWest()->insert(entry, bucketCapacity);
-                // Check if the point is in the north-east quadrant
-            } else if (entry.location.x > centerX && entry.location.y <= centerY) {
-                getNorthEast()->insert(entry, bucketCapacity);
-                // Check if the point is in the south-west quadrant
-            } else if (entry.location.x <= centerX && entry.location.y > centerY) {
-                getSouthWest()->insert(entry, bucketCapacity);
-                // Check if the point is in the south-east quadrant
-            } else if (entry.location.x > centerX && entry.location.y > centerY) {
-                getSouthEast()->insert(entry, bucketCapacity);
+            // Then, move the entries from the bucket into the sub-quadrants
+            for (const auto &entry: bucket) {
+                insertIntoSubQuadrants(entry);
             }
+
+            // Clear the points from the bucket
+            clearBucket();
         }
-        clearPoints();
+
+        // Insert the entry into the sub-quadrants since the bucket is full
+        insertIntoSubQuadrants(newEntry);
     }
 }
 
-std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint) const {
+void QuadTreeQuadrant::divideQuadrantIntoSubQuadrants() {
+    // 1. Find the center coordinates of the quadrant
+    double centerX = (getNorthWestPoint().x + getSouthEastPoint().x) / 2.0;
+    double centerY = (getNorthWestPoint().y + getSouthEastPoint().y) / 2.0;
+
+    // 2. Create the four sub-quadrants
+    northWest = new QuadTreeQuadrant(
+            getNorthWestPoint(),
+            Point(centerX, centerY));
+    northEast = new QuadTreeQuadrant(
+            Point(centerX, getNorthWestPoint().y),
+            Point(getSouthEastPoint().x, centerY));
+    southWest = new QuadTreeQuadrant(
+            Point(getNorthWestPoint().x, centerY),
+            Point(centerX, getSouthEastPoint().y));
+    southEast = new QuadTreeQuadrant(
+            Point(centerX, centerY),
+            getSouthEastPoint());
+
+}
+
+void QuadTreeQuadrant::insertIntoBucket(const Entry &newEntry) {
+    bucket.push_back(newEntry);
+}
+
+void QuadTreeQuadrant::insertIntoSubQuadrants(const Entry &newEntry) {
+
+    // Check if the point is in the north-west quadrant
+    if (newEntry.location.x < northEast->getNorthWestPoint().x &&
+        newEntry.location.y < southWest->getNorthWestPoint().y) {
+        northWest->insert(newEntry);
+        // Check if the point is in the north-east quadrant
+    } else if (newEntry.location.x >= northEast->getNorthWestPoint().x &&
+               newEntry.location.y < southWest->getNorthWestPoint().y) {
+        northEast->insert(newEntry);
+        // Check if the point is in the south-west quadrant
+    } else if (newEntry.location.x < northEast->getNorthWestPoint().x &&
+               newEntry.location.y >= southWest->getNorthWestPoint().y) {
+        southWest->insert(newEntry);
+        // Check if the point is in the south-east quadrant
+    } else if (newEntry.location.x >= northEast->getNorthWestPoint().x &&
+               newEntry.location.y >= southWest->getNorthWestPoint().y) {
+        southEast->insert(newEntry);
+    }
+}
+
+
+std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
 
     // Check if the given bounding box is contained in the quadrant
     // If not, throw an exception
-    if (northWestPoint.x < getNorthWestPoint().x && southEastPoint.x > getSouthEastPoint().x) {
+    if (offsetNorthWestPoint.x < getNorthWestPoint().x && offsetSouthEastPoint.x > getSouthEastPoint().x) {
         throw std::invalid_argument("The given bounding box is not contained in the quadrant.");
     }
 
@@ -78,15 +108,16 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point northWestPoint, 
     std::vector<int> offsetsVector;
 
     // If the quadrant is a leaf node, return the offsets Vector of the GIS records
-    if (getNorthWest() == nullptr) {
-        for (const Entry& entry : getEntries()) {
+    if (northWest == nullptr) {
+        for (const Entry &entry: bucket) {
 
-            if (entry.location.x >= northWestPoint.x &&
-                entry.location.y >= northWestPoint.y &&
-                entry.location.x <= southEastPoint.x &&
-                entry.location.y <= southEastPoint.y) {
+            if (entry.location.x >= offsetNorthWestPoint.x &&
+                entry.location.y >= offsetNorthWestPoint.y &&
+                entry.location.x <= offsetSouthEastPoint.x &&
+                entry.location.y <= offsetSouthEastPoint.y) {
                 // If the point is in the bounding box, add the offsetsVector of the GIS records to the vector
-                offsetsVector.insert(offsetsVector.end(), entry.offsetsOfGISRecords.begin(), entry.offsetsOfGISRecords.end());
+                offsetsVector.insert(offsetsVector.end(), entry.offsetsOfGISRecords.begin(),
+                                     entry.offsetsOfGISRecords.end());
             }
         }
     } else {
@@ -94,42 +125,46 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point northWestPoint, 
 
         std::vector<int> offsets;
         // Check if the north-west quadrant is contained in the bounding box
-        if (northWestPoint.x <= getNorthWest()->getNorthWestPoint().x &&
-            northWestPoint.y <= getNorthWest()->getNorthWestPoint().y &&
-            southEastPoint.x >= getNorthWest()->getSouthEastPoint().x &&
-            southEastPoint.y >= getNorthWest()->getSouthEastPoint().y) {
+        if (offsetNorthWestPoint.x <= northWest->getNorthWestPoint().x &&
+            offsetNorthWestPoint.y <= northWest->getNorthWestPoint().y &&
+            offsetSouthEastPoint.x >= northWest->getSouthEastPoint().x &&
+            offsetSouthEastPoint.y >= northWest->getSouthEastPoint().y) {
             // Get the offsetsVector of the GIS records from the north-west quadrant
-            std::vector<int> offsetsFromNorthWest = getNorthWest()->getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+            std::vector<int> offsetsFromNorthWest = northWest->getOffsetsOfGISRecords(offsetNorthWestPoint,
+                                                                                      offsetSouthEastPoint);
             // Insert the offsetsVector from the north-west quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromNorthWest.begin(), offsetsFromNorthWest.end());
         }
         // Check if the north-east quadrant is contained in the bounding box
-        if (northWestPoint.x <= getNorthEast()->getNorthWestPoint().x &&
-            northWestPoint.y <= getNorthEast()->getNorthWestPoint().y &&
-            southEastPoint.x >= getNorthEast()->getSouthEastPoint().x &&
-            southEastPoint.y >= getNorthEast()->getSouthEastPoint().y) {
+        if (offsetNorthWestPoint.x <= northEast->getNorthWestPoint().x &&
+            offsetNorthWestPoint.y <= northEast->getNorthWestPoint().y &&
+            offsetSouthEastPoint.x >= northEast->getSouthEastPoint().x &&
+            offsetSouthEastPoint.y >= northEast->getSouthEastPoint().y) {
             // Get the offsetsVector of the GIS records from the north-east quadrant
-            std::vector<int> offsetsFromNorthEast = getNorthEast()->getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+            std::vector<int> offsetsFromNorthEast = northEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
+                                                                                           offsetSouthEastPoint);
             // Insert the offsetsVector from the north-east quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromNorthEast.begin(), offsetsFromNorthEast.end());
         }
         // Check if the south-west quadrant is contained in the bounding box
-        if (northWestPoint.x <= getSouthWest()->getNorthWestPoint().x &&
-            northWestPoint.y <= getSouthWest()->getNorthWestPoint().y &&
-            southEastPoint.x >= getSouthWest()->getSouthEastPoint().x &&
-            southEastPoint.y >= getSouthWest()->getSouthEastPoint().y) {
+        if (offsetNorthWestPoint.x <= southWest->getNorthWestPoint().x &&
+            offsetNorthWestPoint.y <= southWest->getNorthWestPoint().y &&
+            offsetSouthEastPoint.x >= southWest->getSouthEastPoint().x &&
+            offsetSouthEastPoint.y >= southWest->getSouthEastPoint().y) {
             // Get the offsetsVector of the GIS records from the south-west quadrant
-            std::vector<int> offsetsFromSouthWest = getSouthWest()->getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+            std::vector<int> offsetsFromSouthWest = southWest->getOffsetsOfGISRecords(offsetNorthWestPoint,
+                                                                                           offsetSouthEastPoint);
             // Insert the offsetsVector from the south-west quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromSouthWest.begin(), offsetsFromSouthWest.end());
         }
         // Check if the south-east quadrant is contained in the bounding box
-        if (northWestPoint.x <= getSouthEast()->getNorthWestPoint().x &&
-            northWestPoint.y <= getSouthEast()->getNorthWestPoint().y &&
-            southEastPoint.x >= getSouthEast()->getSouthEastPoint().x &&
-            southEastPoint.y >= getSouthEast()->getSouthEastPoint().y) {
+        if (offsetNorthWestPoint.x <= southEast->getNorthWestPoint().x &&
+            offsetNorthWestPoint.y <= southEast->getNorthWestPoint().y &&
+            offsetSouthEastPoint.x >= southEast->getSouthEastPoint().x &&
+            offsetSouthEastPoint.y >= southEast->getSouthEastPoint().y) {
             // Get the offsetsVector of the GIS records from the south-east quadrant
-            std::vector<int> offsetsFromSouthEast = getSouthEast()->getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+            std::vector<int> offsetsFromSouthEast = southEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
+                                                                                           offsetSouthEastPoint);
             // Insert the offsetsVector from the south-east quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromSouthEast.begin(), offsetsFromSouthEast.end());
         }
@@ -138,8 +173,8 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point northWestPoint, 
     return offsetsVector;
 }
 
-void QuadTreeQuadrant::clearPoints() {
-    entries.clear();
+void QuadTreeQuadrant::clearBucket() {
+    bucket.clear();
 }
 
 // Getters and setters
@@ -149,41 +184,4 @@ const Point &QuadTreeQuadrant::getNorthWestPoint() const {
 
 const Point &QuadTreeQuadrant::getSouthEastPoint() const {
     return southEastPoint;
-}
-
-const std::vector<Entry> &QuadTreeQuadrant::getEntries() const {
-    return entries;
-}
-
-// Getters and setters for sub-quadrants
-QuadTreeQuadrant *QuadTreeQuadrant::getNorthWest() const {
-    return northWest;
-}
-
-void QuadTreeQuadrant::setNorthWest(QuadTreeQuadrant *newNorthWest) {
-    QuadTreeQuadrant::northWest = newNorthWest;
-}
-
-QuadTreeQuadrant *QuadTreeQuadrant::getNorthEast() const {
-    return northEast;
-}
-
-void QuadTreeQuadrant::setNorthEast(QuadTreeQuadrant *newNorthEast) {
-    QuadTreeQuadrant::northEast = newNorthEast;
-}
-
-QuadTreeQuadrant *QuadTreeQuadrant::getSouthWest() const {
-    return southWest;
-}
-
-void QuadTreeQuadrant::setSouthWest(QuadTreeQuadrant *newSouthWest) {
-    QuadTreeQuadrant::southWest = newSouthWest;
-}
-
-QuadTreeQuadrant *QuadTreeQuadrant::getSouthEast() const {
-    return southEast;
-}
-
-void QuadTreeQuadrant::setSouthEast(QuadTreeQuadrant *newSouthEast) {
-    QuadTreeQuadrant::southEast = newSouthEast;
 }
