@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 #include "../../include/coordinateIndex/QuadTreeQuadrant.h"
 
 QuadTreeQuadrant::QuadTreeQuadrant(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity)
@@ -18,6 +19,35 @@ QuadTreeQuadrant::~QuadTreeQuadrant() {
 
 unsigned long QuadTreeQuadrant::getBucketAvailableCapacity() const {
     return bucketCapacity - bucket.size();
+}
+
+void QuadTreeQuadrant::print() const {
+    std::cout << "QuadTreeQuadrant" << std::endl;
+    std::cout << "northWestPoint: ";
+    this->northWestPoint.print();
+    std::cout << "southEastPoint: ";
+    this->southEastPoint.print();
+    std::cout << "bucketCapacity: " << this->bucketCapacity << std::endl;
+    std::cout << "bucket.size(): " << this->bucket.size() << std::endl;
+    std::cout << "bucketCapacity - bucket.size(): " << this->getBucketAvailableCapacity() << std::endl;
+    std::cout << "bucket: " << std::endl;
+    for (const auto &entry: bucket) {
+        entry.print();
+    }
+    std::cout << std::endl;
+
+    if (this->northWest != nullptr) {
+        this->northWest->print();
+    }
+    if (this->northEast != nullptr) {
+        this->northEast->print();
+    }
+    if (this->southWest != nullptr) {
+        this->southWest->print();
+    }
+    if (this->southEast != nullptr) {
+        this->southEast->print();
+    }
 }
 
 // Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
@@ -94,7 +124,6 @@ void QuadTreeQuadrant::insertIntoSubQuadrants(const Entry &newEntry) {
         southEast->insert(newEntry);
     }
 }
-
 
 std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
 

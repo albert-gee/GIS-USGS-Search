@@ -1,21 +1,28 @@
 #ifndef GIS_QUADTREE_H
 #define GIS_QUADTREE_H
 
-
 #include "Point.h"
 #include "QuadTreeQuadrant.h"
 
+// This class describes a QuadTree data structure. It is used to index the GIS records by their geographic coordinates.
 class QuadTree {
 public:
-    QuadTree(Point northWestPoint, Point southEastPoint, int bucketCapacity);
+    QuadTree(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity);
+
     ~QuadTree();
 
-    void insert(const Entry& entry);
+    // Insert an entry into the QuadTree
+    void insert(const Entry &entry);
+
+    // Get the offsets of the GIS records in the QuadTree that are within the given bounding box
     std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint);
 
+    // Print the QuadTree
+    void print();
+
 private:
-    int bucketCapacity;
-    QuadTreeQuadrant* root;
+    unsigned long bucketCapacity;
+    QuadTreeQuadrant *root;
 };
 
 

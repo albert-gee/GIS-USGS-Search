@@ -5,7 +5,11 @@
 #include "Point.h"
 #include "Entry.h"
 
-// This class describes a quadrant in the QuadTree
+// This class describes a quadrant in the QuadTree.
+// Quadrant is a leaf of a tree. In a Bucket PR QuadTree, each leaf stores up to $bucketCapacity data objects of the
+// type Entry. If a leaf's bucket is full, then the leaf will be partitioned into 4 quadrants: northWest, northEast,
+// southWest, southEast. Then. all the data objects as well as the new data object will be inserted into those
+// quadrants.
 class QuadTreeQuadrant {
 public:
     QuadTreeQuadrant(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity = 0);
@@ -14,6 +18,9 @@ public:
 
     // Insert an entry into the quadrant
     void insert(const Entry &entry);
+
+    // Print the quadrant
+    void print() const;
 
     // Get the offsets of the GIS records in the quadrant
     [[nodiscard]] std::vector<int> getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const;

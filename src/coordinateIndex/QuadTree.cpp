@@ -1,11 +1,17 @@
+#include <iostream>
 #include "../../include/coordinateIndex/QuadTree.h"
 
-QuadTree::QuadTree(Point northWestPoint, Point southEastPoint, int bucketCapacity)
+QuadTree::QuadTree(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity)
     : bucketCapacity{bucketCapacity} {
-    this->root = new QuadTreeQuadrant{northWestPoint, southEastPoint};
+    this->root = new QuadTreeQuadrant{northWestPoint, southEastPoint, bucketCapacity};
 }
 
 QuadTree::~QuadTree() = default;
+
+void QuadTree::print() {
+    std::cout << "QuadTree" << std::endl;
+    this->root->print();
+}
 
 void QuadTree::insert(const Entry& entry) {
     // This method goes through the tree recursively and inserts the point into the correct quadrant
