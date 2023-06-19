@@ -13,12 +13,10 @@ using namespace std;
 
 class CommandProcessor {
 private:
-    string databaseFileName;
-    string logFileName;
     SystemManager systemManager;
     //NameIndex nameIndex;
 public:
-    CommandProcessor(string dataBaseFileName, string logFileName);
+    CommandProcessor(SystemManager systemManager);
     void processCommand(const std::string& command);
     //static void processCommand(const std::string&, const std::string&, const std::string&);
 };

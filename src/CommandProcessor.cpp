@@ -10,11 +10,7 @@ enum Commands{
     import = 0
 };
 
-CommandProcessor::CommandProcessor(string databaseFileName, string logFileName){
-    CommandProcessor::databaseFileName = std::move(databaseFileName);
-    CommandProcessor::logFileName = std::move(logFileName);
-    CommandProcessor::systemManager = SystemManager();
-}
+CommandProcessor::CommandProcessor(SystemManager systemManager) : systemManager(std::move(systemManager)) {}
 
 // Process a command from the command file.
 // Lines beginning with a semicolon and blank lines are ignored.
@@ -59,10 +55,27 @@ void CommandProcessor::processCommand(const string &command) {
         args.pop_front();
 
         // Execute the function
+        // Import: load records into the database from external files
         if(function == "import"){
-            string recordFileName = args.front();
-            cout << "import " << recordFileName << endl;
-            systemManager.import(recordFileName, databaseFileName);
+
+            // The next argument is the name of the file containing the records
+            string recordsDataSetFileName = args.front();
+            cout << "import " << recordsDataSetFileName << endl;
+
+            // Import the records into the database
+            systemManager.import(recordsDataSetFileName);
+        } else if (function == "what_is_at") {
+            // The next argument is the latitude of the location
+            string latitude = args.front();
+            cout << "lat: " << latitude << endl;
+            args.pop_front();
+
+            // The next argument is the latitude of the location
+            string longitude = args.front();
+            cout << "lon: " << longitude << endl;
+
+            // Import the records into the database
+            systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
         }
 
         /*cout << command << endl;
