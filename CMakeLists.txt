@@ -9,8 +9,8 @@ add_executable(GIS
         include/GISRecord.h
         src/NameIndex.cpp
         include/NameIndex.h
-        src/BufferPool.cpp
-        include/BufferPool.h
+        src/bufferPool/BufferPool.cpp
+        include/bufferPool/BufferPool.h
         src/Logger.cpp
         include/Logger.h
         src/SystemManager.cpp
@@ -23,4 +23,4 @@ add_executable(GIS
         include/coordinateIndex/QuadTree.h
         include/coordinateIndex/Point.h
         include/coordinateIndex/Entry.h
-        src/LineUtility.cpp)
+        src/bufferPool/BufferRecord.h)
