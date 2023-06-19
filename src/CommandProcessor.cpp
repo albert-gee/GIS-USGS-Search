@@ -64,6 +64,19 @@ void CommandProcessor::processCommand(const string &command) {
 
             // Import the records into the database
             systemManager.import(recordsDataSetFileName);
+        } else if(function == "world"){
+            // Specify boundaries of coordinate space
+            string westLong = args.front();
+            args.pop_front();
+            string eastLong = args.front();
+            args.pop_front();
+            string southLat = args.front();
+            args.pop_front();
+            string northLat = args.front();
+            args.pop_front();
+
+            // Set the boundaries of the coordinate space
+            systemManager.setCoordinateIndexBoundaries(std::stod(westLong), std::stod(eastLong), std::stod(southLat), std::stod(northLat));
         } else if (function == "what_is_at") {
             // The next argument is the latitude of the location
             string latitude = args.front();

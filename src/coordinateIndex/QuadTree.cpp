@@ -8,6 +8,11 @@ QuadTree::QuadTree(Point northWestPoint, Point southEastPoint, unsigned long buc
 
 QuadTree::~QuadTree() = default;
 
+void QuadTree::setBoundingBox(Point northWestPoint, Point southEastPoint) {
+    this->root->setNorthWestPoint(northWestPoint);
+    this->root->setSouthEastPoint(southEastPoint);
+}
+
 void QuadTree::print() {
     std::cout << "QuadTree" << std::endl;
     this->root->print();

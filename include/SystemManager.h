@@ -26,6 +26,11 @@ public:
     void whatIs(string featureName, string state);
     void whatIsIn(DMS coordinates,int halfHeight, int halfWidth);*/
 
+    // The "world" command.
+    // Set boundaries for the coordinate index
+    void setCoordinateIndexBoundaries(double north, double south, double east, double west);
+
+    // The "import" command.
     // Add all the valid records from the file recordsDataSetFileLocation to the database file.
     void import (const string& recordsDataSetFileLocation);
 

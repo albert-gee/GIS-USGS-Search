@@ -11,6 +11,9 @@ public:
 
     ~QuadTree();
 
+    // Set the boundaries of the QuadTree
+    void setBoundingBox(Point northWestPoint, Point southEastPoint);
+
     // Insert an offset of a GIS record into the QuadTree
     void insert(Point point, int offsetOfGISRecord);
 

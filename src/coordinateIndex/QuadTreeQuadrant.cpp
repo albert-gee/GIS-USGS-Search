@@ -230,3 +230,11 @@ const Point &QuadTreeQuadrant::getNorthWestPoint() const {
 const Point &QuadTreeQuadrant::getSouthEastPoint() const {
     return southEastPoint;
 }
+
+void QuadTreeQuadrant::setNorthWestPoint(const Point &northWestPoint) {
+    QuadTreeQuadrant::northWestPoint = northWestPoint;
+}
+
+void QuadTreeQuadrant::setSouthEastPoint(const Point &southEastPoint) {
+    QuadTreeQuadrant::southEastPoint = southEastPoint;
+}

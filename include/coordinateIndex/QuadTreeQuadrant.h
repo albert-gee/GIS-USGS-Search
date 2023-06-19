@@ -33,6 +33,12 @@ public:
 private:
     // Bounding box
     Point northWestPoint;
+public:
+    void setNorthWestPoint(const Point &northWestPoint);
+
+    void setSouthEastPoint(const Point &southEastPoint);
+
+private:
     Point southEastPoint;
 
     // Bucket contains entries in quadrant up to bucket capacity

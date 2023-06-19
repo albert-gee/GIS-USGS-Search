@@ -5,6 +5,12 @@
 SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, const string& databaseFileLocation, const string& logFileLocation)
         : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseFileLocation{databaseFileLocation}, logFileLocation{logFileLocation} {}
 
+
+// Set boundaries for the coordinate index
+void SystemManager::setCoordinateIndexBoundaries(double westLong, double eastLong, double southLat, double northLat) {
+    coordinateIndex.setBoundingBox(Point(northLat, westLong), Point(southLat, eastLong));
+}
+
 // Add all the valid records from the file recordsDataSetFileLocation to the database file databaseFileLocation.
 void SystemManager::import(const string& recordsDataSetFileLocation){
     // The recordsDataSetFileLocation file is created and opened for reading
