@@ -52,12 +52,13 @@ void QuadTreeQuadrant::print() const {
 
 // Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
 // divided into four sub-quadrants and the entry and all entries from the bucket are inserted into them.
-void QuadTreeQuadrant::insert(const Entry &newEntry) {
+void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
 
     // Check if the bucket is not full
     if (getBucketAvailableCapacity() > 0) {
-        // Insert the entry into the bucket
-        insertIntoBucket(newEntry);
+
+        // Insert the offset and its location into the bucket
+        insertIntoBucket(location, offsetOfGISRecord);
     } else {
 
         // Otherwise, check if the quadrant is not divided into sub-quadrants
@@ -67,7 +68,7 @@ void QuadTreeQuadrant::insert(const Entry &newEntry) {
 
             // Then, move the entries from the bucket into the sub-quadrants
             for (const auto &entry: bucket) {
-                insertIntoSubQuadrants(entry);
+                insertIntoSubQuadrants(location, offsetOfGISRecord);
             }
 
             // Clear the points from the bucket
@@ -75,7 +76,7 @@ void QuadTreeQuadrant::insert(const Entry &newEntry) {
         }
 
         // Insert the entry into the sub-quadrants since the bucket is full
-        insertIntoSubQuadrants(newEntry);
+        insertIntoSubQuadrants(location, offsetOfGISRecord);
     }
 }
 
@@ -100,28 +101,43 @@ void QuadTreeQuadrant::divideQuadrantIntoSubQuadrants() {
 
 }
 
-void QuadTreeQuadrant::insertIntoBucket(const Entry &newEntry) {
-    bucket.push_back(newEntry);
+void QuadTreeQuadrant::insertIntoBucket(const Point location, const int offsetOfGISRecord) {
+    // Check if an entry with the same location already exists in the bucket
+    bool exists = false;
+    for (Entry &entry: bucket) {
+
+        // If so, add the offset of the GIS record to the entry and return
+        if (entry.location.x == location.x && entry.location.y == location.y) {
+            entry.offsetsOfGISRecords.push_back(offsetOfGISRecord);
+            exists = true;
+        }
+    }
+
+    // If an entry with the same location doesn't exist, create a new entry and add it to the bucket
+    if (!exists) {
+        Entry newEntry{location, {offsetOfGISRecord}};
+        bucket.push_back(newEntry);
+    }
 }
 
-void QuadTreeQuadrant::insertIntoSubQuadrants(const Entry &newEntry) {
+void QuadTreeQuadrant::insertIntoSubQuadrants(Point location, int offsetOfGISRecord) {
 
     // Check if the point is in the north-west quadrant
-    if (newEntry.location.x < northEast->getNorthWestPoint().x &&
-        newEntry.location.y < southWest->getNorthWestPoint().y) {
-        northWest->insert(newEntry);
+    if (location.x < northEast->getNorthWestPoint().x &&
+        location.y < southWest->getNorthWestPoint().y) {
+        northWest->insert(location, offsetOfGISRecord);
         // Check if the point is in the north-east quadrant
-    } else if (newEntry.location.x >= northEast->getNorthWestPoint().x &&
-               newEntry.location.y < southWest->getNorthWestPoint().y) {
-        northEast->insert(newEntry);
+    } else if (location.x >= northEast->getNorthWestPoint().x &&
+               location.y < southWest->getNorthWestPoint().y) {
+        northEast->insert(location, offsetOfGISRecord);
         // Check if the point is in the south-west quadrant
-    } else if (newEntry.location.x < northEast->getNorthWestPoint().x &&
-               newEntry.location.y >= southWest->getNorthWestPoint().y) {
-        southWest->insert(newEntry);
+    } else if (location.x < northEast->getNorthWestPoint().x &&
+               location.y >= southWest->getNorthWestPoint().y) {
+        southWest->insert(location, offsetOfGISRecord);
         // Check if the point is in the south-east quadrant
-    } else if (newEntry.location.x >= northEast->getNorthWestPoint().x &&
-               newEntry.location.y >= southWest->getNorthWestPoint().y) {
-        southEast->insert(newEntry);
+    } else if (location.x >= northEast->getNorthWestPoint().x &&
+               location.y >= southWest->getNorthWestPoint().y) {
+        southEast->insert(location, offsetOfGISRecord);
     }
 }
 

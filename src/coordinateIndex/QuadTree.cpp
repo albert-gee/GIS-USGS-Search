@@ -13,9 +13,9 @@ void QuadTree::print() {
     this->root->print();
 }
 
-void QuadTree::insert(const Entry& entry) {
+void QuadTree::insert(Point location, int offsetOfGISRecord) {
     // This method goes through the tree recursively and inserts the point into the correct quadrant
-    this->root->insert(entry);
+    this->root->insert(location, offsetOfGISRecord);
 }
 
 std::vector<int> QuadTree::getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint) {
