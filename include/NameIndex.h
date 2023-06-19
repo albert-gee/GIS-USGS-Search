@@ -27,7 +27,7 @@ private:
 
     unsigned int hashAlgorithm(const string&, int);
     unsigned int quadraticProbing(unsigned int);
-    string extractKey(string);
+    string extractKey(const string&, char delimiter);
     bool isIndexOverFilled();
 
     void resizeIndex();

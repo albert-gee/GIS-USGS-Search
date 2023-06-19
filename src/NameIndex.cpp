@@ -42,9 +42,9 @@ unsigned int NameIndex::quadraticProbing(unsigned int i){
     return(i * i + i) /2;
 }
 
-string NameIndex::extractKey(string line) {
+string NameIndex::extractKey(const string& line, char delimiter) {
     cout << line;
-    const vector<string> *parameters = LineUtility::extractParametersFromLine(line);
+    const vector<string> *parameters = LineUtility::extractParametersFromLine(line, delimiter);
     string featureName = (*parameters)[FEATURE_NAME_COL];
     string stateAlpha = (*parameters)[STATE_ALPHA_COL];
     return featureName + " " + stateAlpha;
@@ -120,7 +120,7 @@ void NameIndex::printIndex() {
             for(int j : indexPtrs[i]->lineNums){
                 os<< j << " ";
             }
-            cout << "index: " << i << ", key: " << indexPtrs[i]->key << ", line: " << os.str() << endl;
+            cout << "indexDatabaseByName: " << i << ", key: " << indexPtrs[i]->key << ", line: " << os.str() << endl;
         }
     }
 }
