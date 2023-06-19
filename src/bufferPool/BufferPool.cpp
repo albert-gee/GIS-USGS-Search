@@ -2,18 +2,15 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include "../include/BufferPool.h"
+#include "../../include/bufferPool/BufferPool.h"
 
-
-
-struct BufferPool::BufferedRecord{
-    int lineNum;
-    GISRecord* gisRecordPtr;
-    BufferedRecord(int lineNum, GISRecord* gisRecord){
-        BufferedRecord::lineNum = lineNum;
-        gisRecordPtr = gisRecord;
+// ToDo: Implement this function
+const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude, double longitude) {
+    for(BufferedRecord* bufferRecord : buffer) {
+//        if (bufferRecord->gisRecordPtr->
     }
-};
+    return list<GISRecord *>();
+}
 
 list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName)
 {
@@ -39,7 +36,8 @@ list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, 
         if(!bufferFound){
             string line = getLineFromDB(l, databaseFileName);
 
-            GISRecord* gisRecord = createGISRecordFromLine(line);
+            // ToDo: set the delimiter in createGISRecordFromLine()
+            GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '\t');
 
             if(buffer.size() >= MAX_SIZE){
                 cout << "buffer popped" << endl;
@@ -75,36 +73,10 @@ string BufferPool::getLineFromDB(int lineNum, string databaseFileName){
     return line;
 }
 
-GISRecord * BufferPool::createGISRecordFromLine(string line) {
-
-    vector<string> *params = LineUtility::extractParametersFromLine(line);
-
-    GISRecord * gisRecord = new GISRecord(stoi((*params)[0]),
-                                    (*params)[1],
-                                    (*params)[2],
-                                    (*params)[3],
-                                    (*params)[4],
-                                    (*params)[5],
-                                    (*params)[6],
-                                    (*params)[7],
-                                    (*params)[8],
-                                    (*params)[9],
-                                    (*params)[10],
-                                    (*params)[11],
-                                    (*params)[12],
-                                    (*params)[13],
-                                    (*params)[14],
-                                    stoi((*params)[15]),
-                                    stoi((*params)[16]),
-                                    (*params)[17],
-                                    (*params)[18],
-                                    (*params)[19]);
-    return gisRecord;
-}
-
 void BufferPool::printBuffer() {
     int index = 0;
     for(BufferedRecord * b: buffer){
         cout << "Buffer " << index++ << ": " << b->lineNum << ", " << b->gisRecordPtr->getFeatureName() <<endl;
     }
 }
+
