@@ -16,8 +16,8 @@ public:
 
     ~QuadTreeQuadrant();
 
-    // Insert an entry into the quadrant
-    void insert(const Entry &entry);
+    // Insert an offset of a GIS record with its location into the quadrant
+    void insert(Point location, int offsetOfGISRecord);
 
     // Print the quadrant
     void print() const;
@@ -51,11 +51,11 @@ private:
     // It is also the difference between the bucket capacity and the number of entries in the bucket.
     [[nodiscard]] unsigned long getBucketAvailableCapacity() const;
 
-    // Insert an entry into the bucket
-    void insertIntoBucket(const Entry &newEntry);
+    // Insert an offset and its location into the bucket
+    void insertIntoBucket(Point location, int offsetOfGISRecord);
 
     // Insert an entry into the sub-quadrants if the bucket is full (bucketCapacity == 0)
-    void insertIntoSubQuadrants(const Entry &newEntry);
+    void insertIntoSubQuadrants(Point location, int offsetOfGISRecord);
 
     // If the bucket is full, divide the quadrant into sub-quadrants
     void divideQuadrantIntoSubQuadrants();

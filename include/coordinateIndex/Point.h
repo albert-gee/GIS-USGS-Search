@@ -1,6 +1,8 @@
 #ifndef GIS_POINT_H
 #define GIS_POINT_H
 
+#include <iostream>
+
 // This struct describes a geographic coordinate.
 struct Point {
     double x;

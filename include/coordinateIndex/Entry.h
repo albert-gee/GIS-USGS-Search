@@ -2,16 +2,20 @@
 #define GIS_ENTRY_H
 
 #include <string>
+#include <utility>
 #include <vector>
+#include <iostream>
 #include "Point.h"
 
-// This struct describes an index entry held in QuadTree.
+// This struct describes an indexDatabaseByName entry held in QuadTree.
 // It stores a geographic coordinate of the type Point and a collection of the database file offsets of the matching GIS
 // records. One entry within one location can contain infinite GIS records offsets.
 struct Entry {
     Point location;
 
     std::vector<int> offsetsOfGISRecords;
+
+    Entry(Point location, std::vector<int> offsetsOfGISRecords) : location{location}, offsetsOfGISRecords{std::move(offsetsOfGISRecords)} {}
 
     // Print the entry
     void print() const {
