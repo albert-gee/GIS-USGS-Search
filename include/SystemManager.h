@@ -4,25 +4,50 @@
 #include <string>
 #include "DMS.h"
 #include "NameIndex.h"
-#include "BufferPool.h"
+#include "bufferPool/BufferPool.h"
+#include "coordinateIndex/QuadTree.h"
 
 using namespace std;
 
+// This class describes the system manager.
+// The SystemManager uses system components to import, index, store, and retrieve data.
 class SystemManager {
 public:
-/*    void whatIsAt(DMS coordinates);
-    void whatIs(string featureName, string state);
-    void whatIsIn(DMS coordinates,int halfHeight, int halfWidth);*/
-    void import (string, string);
-    void index(string);
-    string extractKey(string);
+    // Constants related to the format of the records in the database file
     static const int FEATURE_NAME_COL = 1;
     static const int STATE_ALPHA_COL = 3;
     static const char DELIM = '|';
-    SystemManager();
+    static const int LATITUDE_COL = 9;
+    static const int LONGITUDE_COL = 10;
+
+
+    // ToDo: implement the following methods
+/*    void whatIsAt(DMS coordinates);
+    void whatIs(string featureName, string state);
+    void whatIsIn(DMS coordinates,int halfHeight, int halfWidth);*/
+
+    // Add all the valid records from the file recordsDataSetFileLocation to the database file.
+    void import (const string& recordsDataSetFileLocation);
+
+    // Find GIS records that match the given coordinates.
+    list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude);
+
+    SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, const string& databaseFileLocation, const string& logFileLocation);
 private:
+    // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
+    QuadTree coordinateIndex;
     BufferPool bufferPool;
+
+    // The location of the database file
+    const string& databaseFileLocation;
+    // The location of the log file
+    const string& logFileLocation;
+
+    // Index the records in the database file by feature name and state
+    void indexDatabaseByName();
+    // Index the records in the database file by location
+    void indexDatabaseByCoordinates();
 };
 
 
