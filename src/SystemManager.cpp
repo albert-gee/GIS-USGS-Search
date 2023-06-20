@@ -26,13 +26,11 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         // Both the records file and the database file are open
         // Parse the records file line by line and add the valid records to the database file
         string line;
-        int lineNum = 0;
 
+        // Clear the first line as it has the headings
+        getline(recordsFile, line);
         while (getline(recordsFile, line)) {
-            if(lineNum > 0){
-                databaseFile << line << endl;
-            }
-            ++lineNum;
+            databaseFile << line << endl;
         }
         databaseFile.close();
         recordsFile.close();
