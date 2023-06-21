@@ -16,16 +16,16 @@ public:
     // ToDo: implement the following methods
     list<GISRecord *> getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName);
     const list<GISRecord *> findGISRecordsByCoordinates(double latitude, double longitude);
+    const list<GISRecord *> findGISRecordsByCoordinates(string latitude, string longitude);
     void printBuffer();
 
 private:
     // Buffering up to 15 records in the buffer pool
     static const int MAX_SIZE = 15;
-
+    void reorderBuffer(BufferedRecord * record);
+    GISRecord * searchBuffer(int lineNum, string databaseFileName);
     // List of buffered records in the buffer pool
     list<BufferedRecord*> buffer;
-
-    //
     string getLineFromDB(int, string);
 };
 

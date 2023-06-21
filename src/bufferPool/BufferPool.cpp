@@ -12,15 +12,20 @@ const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude,
     return list<GISRecord *>();
 }
 
+
+
 list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName)
 {
     list<int> lineNums = nameIndex.getLineNumsByKey(key);
     list<GISRecord*> foundRecords;
-
     for(int l : lineNums){
 
-        bool bufferFound = false;
-        unsigned int bufferIndex = 0;
+        GISRecord * gisRecordPtr = searchBuffer(l, databaseFileName);
+        if(gisRecordPtr != nullptr){
+            foundRecords.push_front(gisRecordPtr);
+        }
+ /*       bool bufferFound = false;
+
         auto b = buffer.begin();
 
         while(!bufferFound && b != buffer.end()){
@@ -37,7 +42,9 @@ list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, 
             string line = getLineFromDB(l, databaseFileName);
 
             // ToDo: set the delimiter in createGISRecordFromLine()
-            GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '\t');
+            GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+
+
 
             if(buffer.size() >= MAX_SIZE){
                 cout << "buffer popped" << endl;
@@ -46,10 +53,46 @@ list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, 
             BufferedRecord * newRecord =  new BufferedRecord(l, gisRecord);
             buffer.push_front(newRecord);
             foundRecords.push_front(gisRecord);
-        }
+        }*/
         cout << "buffer size: " << buffer.size() << endl;
     }
     return foundRecords;
+}
+
+/*void BufferPool::reorderBuffer(BufferedRecord * record){
+    BufferedRecord *recent = record;
+    buffer.erase(*record);
+    buffer.push_front(recent);
+}*/
+
+GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
+    bool bufferFound = false;
+    auto b = buffer.begin();
+    GISRecord *gisRecordptr = nullptr;
+    while(!bufferFound && b != buffer.end()){
+        if(lineNum == (*b)->lineNum){
+            BufferedRecord *recent = *b;
+            buffer.erase(b);
+            buffer.push_front(recent);
+            gisRecordptr = (*b)->gisRecordPtr;
+            bufferFound = true;
+        }
+        ++b;
+    }
+    if(!bufferFound){
+        string line = getLineFromDB(lineNum, databaseFileName);
+
+        // ToDo: set the delimiter in createGISRecordFromLine()
+        GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+
+        if(buffer.size() >= MAX_SIZE){
+            cout << "buffer popped" << endl;
+            buffer.pop_back();
+        }
+        BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
+        buffer.push_front(newRecord);
+    }
+    return gisRecordptr;
 }
 
 string BufferPool::getLineFromDB(int lineNum, string databaseFileName){
