@@ -22,7 +22,7 @@ public:
 private:
     // Buffering up to 15 records in the buffer pool
     static const int MAX_SIZE = 15;
-    void reorderBuffer(BufferedRecord * record);
+
     GISRecord * searchBuffer(int lineNum, string databaseFileName);
     // List of buffered records in the buffer pool
     list<BufferedRecord*> buffer;

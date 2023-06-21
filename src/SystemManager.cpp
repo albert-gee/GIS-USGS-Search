@@ -42,14 +42,16 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         // Log the number of records added to the database file
     }
     //Michael's test
+/*
     indexDatabaseByName();
-    //nameIndex.printIndex();
+
     const list<GISRecord*> records = bufferPool.getRecordsByKey("Alkali Creek CO", nameIndex, databaseFileLocation);
     const list<GISRecord*> records2 = bufferPool.getRecordsByKey("Bob Creek CO", nameIndex, databaseFileLocation);
     const list<GISRecord*> records4 = bufferPool.getRecordsByKey("Nipple Peak Trail CO", nameIndex, databaseFileLocation);
     const list<GISRecord*> records5 = bufferPool.getRecordsByKey("Nipple Peak Trail CO", nameIndex, databaseFileLocation);
     const list<GISRecord*> records3 = bufferPool.getRecordsByKey("Bob Lake CO", nameIndex, databaseFileLocation);
     bufferPool.printBuffer();
+*/
 
 }
 
