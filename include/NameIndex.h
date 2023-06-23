@@ -26,6 +26,7 @@ private:
     unsigned int indexesFilled;
 
     unsigned int hashAlgorithm(const string&, int);
+    unsigned int rehash(unsigned int hash, unsigned int i);
     unsigned int quadraticProbing(unsigned int);
     string extractKey(const string&, char delimiter);
     bool isIndexOverFilled();

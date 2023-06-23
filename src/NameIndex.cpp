@@ -1,29 +1,29 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <unistd.h>
-#include <array>
 #include <vector>
-#include <sstream>
 #include "../include/NameIndex.h"
-#include "../include/LineUtility.h"
 
 using namespace std;
 
+// Structure of an index in the name index
 struct NameIndex::Index{
     string key;
-    list<int> lineNums;
-    Index(string key){
+    int lineNum;
+    Index(string key, int lineNum){
         Index::key = key;
+        Index::lineNum = lineNum;
     }
 };
 
+// Constructor
 NameIndex::NameIndex() {
-    currentIndexSize = INITIAL_SIZE;
-    indexesFilled = 0;
-    indexPtrs = new Index*[currentIndexSize]{nullptr};
+    currentIndexSize = INITIAL_SIZE; // Holds the current index size
+    indexesFilled = 0; // Keeps track of how many indexes are filled
+    indexPtrs = new Index*[currentIndexSize]{nullptr}; // The array to hold th name index
 }
 
+// Generate hash
 unsigned int NameIndex::hashAlgorithm(const string &key, int indexSize){
     unsigned int hash = 0;
     unsigned int x = 0;
@@ -38,109 +38,81 @@ unsigned int NameIndex::hashAlgorithm(const string &key, int indexSize){
     return hash % indexSize;
 }
 
+// Quadratic equation
 unsigned int NameIndex::quadraticProbing(unsigned int i){
     return(i * i + i) /2;
 }
 
-string NameIndex::extractKey(const string& line, char delimiter) {
-    cout << line;
-    const vector<string> *parameters = LineUtility::extractParametersFromLine(line, delimiter);
-    string featureName = (*parameters)[FEATURE_NAME_COL];
-    string stateAlpha = (*parameters)[STATE_ALPHA_COL];
-    return featureName + " " + stateAlpha;
+// Rehash a current hash
+unsigned int NameIndex::rehash(unsigned int hash, unsigned int i){
+    unsigned int q = quadraticProbing(++i);
+    hash += q;
+    hash %= currentIndexSize;
+    return hash;
 }
 
+// Check if index size has grown past the limit
 bool NameIndex::isIndexOverFilled() {
     return indexesFilled >= currentIndexSize * MAX_FILLED_PERCENTAGE;
 }
 
+// Create a bigger index and insert all currently indexed items it
 void NameIndex::resizeIndex() {
     int oldIndexSize = currentIndexSize;
     currentIndexSize *= INDEX_GROWTH_RATE;
     indexesFilled = 0;
-    Index **newIndexPtrs = new Index *[currentIndexSize]{nullptr};
+    Index **oldIndexPtrs = indexPtrs;
+    indexPtrs = new Index *[currentIndexSize]{nullptr};
     for (int i = 0; i < oldIndexSize; ++i) {
-        if (indexPtrs[i] != nullptr) {
-            string key = indexPtrs[i]->key;
-            unsigned int hash = hashAlgorithm(key, currentIndexSize);
-            unsigned int j = 0;
-            bool keyFound = false;
-            while (newIndexPtrs[hash] != nullptr && !keyFound) {
-                if (newIndexPtrs[hash]->key == key) {
-                    keyFound = true;
-                } else {
-                    unsigned int q = quadraticProbing(++j);
-                    hash += q;
-                    hash %= currentIndexSize;
-                }
-            }
-
-            if (newIndexPtrs[hash] == nullptr) {
-                newIndexPtrs[hash] = new Index(key);
-                ++indexesFilled;
-            }
-            newIndexPtrs[hash]->lineNums = indexPtrs[i]->lineNums;
+        if (oldIndexPtrs[i] != nullptr) {
+            string key = oldIndexPtrs[i]->key;
+            int lineNum = oldIndexPtrs[i]->lineNum;
+            indexLine(key, lineNum);
         }
     }
-
-    delete[] indexPtrs;
-    indexPtrs = newIndexPtrs;
+    delete[] oldIndexPtrs;
 }
 
+// Insert the key and line into the index
 void NameIndex::indexLine(const string &key, int lineNum) {
     unsigned int hash = hashAlgorithm(key, currentIndexSize);
     unsigned int i = 0;
-    bool keyFound = false;
-    while (indexPtrs[hash] != nullptr && !keyFound) {
-        if (indexPtrs[hash]->key == key) {
-            keyFound = true;
-        } else {
-            unsigned int q = quadraticProbing(++i);
-            hash += q;
-            hash %= currentIndexSize;
-        }
+
+    // Loop until an index with nullptr is found
+    while (indexPtrs[hash] != nullptr) {
+        hash = rehash(hash, i);
     }
 
-    if(indexPtrs[hash] == nullptr) {
-        indexPtrs[hash] = new Index(key);
-        ++indexesFilled;
-    }
-
-    indexPtrs[hash]->lineNums.push_back(lineNum);
+    indexPtrs[hash] = new Index(key, lineNum);
+    ++indexesFilled;
 
     if(isIndexOverFilled()){
         resizeIndex();
     }
 }
 
+// Print contents of index
 void NameIndex::printIndex() {
     for(int i = 0; i < currentIndexSize; i++) {
         if(indexPtrs[i] != nullptr){
-            ostringstream os;
-            for(int j : indexPtrs[i]->lineNums){
-                os<< j << " ";
-            }
-            cout << "indexDatabaseByName: " << i << ", key: " << indexPtrs[i]->key << ", line: " << os.str() << endl;
+            cout << "indexDatabaseByName: " << i << ", key: " << indexPtrs[i]->key << ", line: " << indexPtrs[i]->lineNum << endl;
         }
     }
 }
 
+// Search nameIndex for entries that match the key and return the lines
 list<int> NameIndex::getLineNumsByKey(string key) {
     unsigned int i = 0;
-
     unsigned int hash = hashAlgorithm(key, currentIndexSize);
     list<int> lines;
-    bool keyFound = false;
-    while(indexPtrs[hash] != nullptr  && !keyFound){
+
+    // Go through name index until a nullptr is found
+    // If index contains key that match, add line to the list
+    while(indexPtrs[hash] != nullptr){
         if(indexPtrs[hash]->key == key){
-            keyFound = true;
-            lines = indexPtrs[hash]->lineNums;
-        } else {
-            unsigned int q = quadraticProbing(++i);
-            hash += q;
-            hash %= currentIndexSize;
+            lines.push_front(indexPtrs[hash]->lineNum);
         }
+        hash = rehash(hash, i);
     }
-    lines.sort();
     return lines;
 }

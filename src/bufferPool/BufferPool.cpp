@@ -13,88 +13,50 @@ const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude,
 }
 
 
-
+// Search and return GISRecords from the database
 list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName)
 {
     list<int> lineNums = nameIndex.getLineNumsByKey(key);
     list<GISRecord*> foundRecords;
     for(int l : lineNums){
-
         GISRecord * gisRecordPtr = searchBuffer(l, databaseFileName);
-        if(gisRecordPtr != nullptr){
+        if(gisRecordPtr != nullptr) {
             foundRecords.push_front(gisRecordPtr);
         }
- /*       bool bufferFound = false;
-
-        auto b = buffer.begin();
-
-        while(!bufferFound && b != buffer.end()){
-            if(l == (*b)->lineNum){
-                BufferedRecord *recent = *b;
-                buffer.erase(b);
-                buffer.push_front(recent);
-                foundRecords.push_front((*b)->gisRecordPtr);
-                bufferFound = true;
-            }
-            ++b;
-        }
-        if(!bufferFound){
-            string line = getLineFromDB(l, databaseFileName);
-
-            // ToDo: set the delimiter in createGISRecordFromLine()
-            GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
-
-
-
-            if(buffer.size() >= MAX_SIZE){
-                cout << "buffer popped" << endl;
-                buffer.pop_back();
-            }
-            BufferedRecord * newRecord =  new BufferedRecord(l, gisRecord);
-            buffer.push_front(newRecord);
-            foundRecords.push_front(gisRecord);
-        }*/
-        cout << "buffer size: " << buffer.size() << endl;
     }
     return foundRecords;
 }
 
-/*void BufferPool::reorderBuffer(BufferedRecord * record){
-    BufferedRecord *recent = record;
-    buffer.erase(*record);
-    buffer.push_front(recent);
-}*/
-
+// Search the buffer for a line number
 GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
-    bool bufferFound = false;
+    //bool bufferFound = false;
     auto b = buffer.begin();
     GISRecord *gisRecordptr = nullptr;
-    while(!bufferFound && b != buffer.end()){
+
+    // Loop until line is found in buffer or at the end of buffer
+    while(b != buffer.end()){
         if(lineNum == (*b)->lineNum){
             BufferedRecord *recent = *b;
             buffer.erase(b);
             buffer.push_front(recent);
-            gisRecordptr = (*b)->gisRecordPtr;
-            bufferFound = true;
+            return (*b)->gisRecordPtr;
         }
         ++b;
     }
-    if(!bufferFound){
-        string line = getLineFromDB(lineNum, databaseFileName);
 
-        // ToDo: set the delimiter in createGISRecordFromLine()
-        GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
-
-        if(buffer.size() >= MAX_SIZE){
-            cout << "buffer popped" << endl;
-            buffer.pop_back();
-        }
-        BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
-        buffer.push_front(newRecord);
+    // Line not found
+    // Get line from database and create GIS record
+    string line = getLineFromDB(lineNum, databaseFileName);
+    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+    if(buffer.size() >= MAX_SIZE){
+        buffer.pop_back();
     }
+    BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
+    buffer.push_front(newRecord);
     return gisRecordptr;
 }
 
+// Get the line from database
 string BufferPool::getLineFromDB(int lineNum, string databaseFileName){
     ifstream databaseFile(databaseFileName);
     string line;
@@ -116,10 +78,16 @@ string BufferPool::getLineFromDB(int lineNum, string databaseFileName){
     return line;
 }
 
+// Print contents of buffer
 void BufferPool::printBuffer() {
     int index = 0;
-    for(BufferedRecord * b: buffer){
-        cout << "Buffer " << index++ << ": " << b->lineNum << ", " << b->gisRecordPtr->getFeatureName() <<endl;
+    if(buffer.empty()){
+        cout << "Buffer is empty" << endl;
+    }
+    else {
+        for (BufferedRecord *b: buffer) {
+            cout << "Buffer " << index++ << ": " << b->lineNum << ", " << b->gisRecordPtr->getFeatureName() << endl;
+        }
     }
 }
 
