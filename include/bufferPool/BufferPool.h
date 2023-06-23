@@ -16,7 +16,6 @@ public:
     // ToDo: implement the following methods
     list<GISRecord *> getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName);
     const list<GISRecord *> findGISRecordsByCoordinates(double latitude, double longitude);
-    const list<GISRecord *> findGISRecordsByCoordinates(string latitude, string longitude);
     void printBuffer();
 
 private:
