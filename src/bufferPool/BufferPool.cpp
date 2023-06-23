@@ -29,7 +29,6 @@ list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, 
 
 // Search the buffer for a line number
 GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
-    //bool bufferFound = false;
     auto b = buffer.begin();
     GISRecord *gisRecordptr = nullptr;
 
