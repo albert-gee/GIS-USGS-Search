@@ -3,8 +3,7 @@
 #include "../include/SystemManager.h"
 
 SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, const string& databaseFileLocation, const string& logFileLocation)
-        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseFileLocation{databaseFileLocation}, logFileLocation{logFileLocation} {}
-
+        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseFileLocation{databaseFileLocation}, logFileLocation{logFileLocation}{}
 
 // Set boundaries for the coordinate index
 void SystemManager::setCoordinateIndexBoundaries(double westLong, double eastLong, double southLat, double northLat) {
@@ -42,6 +41,16 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         // Log the number of records added to the database file
     }
 
+    list<int>* nameImportStats = indexDatabaseByName();
+    int numofIndexedLinesByName = nameImportStats->front();
+    nameImportStats->pop_front();
+    int longestProbeSeq = nameImportStats->front();
+    nameImportStats->pop_front();
+    int avgNameLength = nameImportStats->front();
+    nameImportStats->pop_front();
+    //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
+    logger.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
+
     //Michael's test
 /*    indexDatabaseByName();
     bufferPool.printBuffer();
@@ -62,8 +71,14 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
 }
 
 // Index the records in the database file by feature name and state
-void SystemManager::indexDatabaseByName(){
+list<int> * SystemManager::indexDatabaseByName(){
     ifstream databaseFile(databaseFileLocation);
+
+    unsigned int numOfIndexedLines = 0;
+    unsigned int longestProbeSeq = 0;
+    unsigned int totalNameLength = 0;
+    unsigned int avgNameLength = 0;
+
     if(!databaseFile.is_open()){
         cerr << "Error: Failed to open database file." << endl;
     } else {
@@ -71,15 +86,29 @@ void SystemManager::indexDatabaseByName(){
         int lineNum = 0;
         while(getline(databaseFile, line)){
             ++lineNum;
-            string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
-            nameIndex.indexLine(indexKey, lineNum);
+            string featureName = LineUtility::extractParamFromLine(line, FEATURE_NAME_COL, DELIM);
+            string stateAbrv = LineUtility::extractParamFromLine(line, STATE_ALPHA_COL, DELIM);
+            totalNameLength += featureName.length();
+            //string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
+            unsigned int probes = nameIndex.indexLine(featureName, stateAbrv, lineNum);
+            ++numOfIndexedLines;
+            if(probes > longestProbeSeq){
+                longestProbeSeq = probes;
+            }
         }
+        avgNameLength = totalNameLength / numOfIndexedLines;
     }
+    list<int> *nameImportStats = new list<int>();
+    nameImportStats->push_back(numOfIndexedLines);
+    nameImportStats->push_back(longestProbeSeq);
+    nameImportStats->push_back(avgNameLength);
     databaseFile.close();
+    return nameImportStats;
 }
 
 // Index the records in the database file by location
-void SystemManager::indexDatabaseByCoordinates(){
+unsigned int SystemManager::indexDatabaseByCoordinates(){
+    unsigned int numOfIndexedLines = 0;
     ifstream databaseFile(databaseFileLocation);
     if(!databaseFile.is_open()){
         cerr << "Error: Failed to open database file." << endl;
@@ -91,10 +120,11 @@ void SystemManager::indexDatabaseByCoordinates(){
 
             Point location = LineUtility::extractLocationFromLine(line, LONGITUDE_COL, LATITUDE_COL, DELIM);
             coordinateIndex.insert(location, lineNum);
+            ++numOfIndexedLines;
         }
     }
-
     databaseFile.close();
+    return numOfIndexedLines;
 }
 
 // ToDo: implement the following method
@@ -108,6 +138,22 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
     //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
 
     return offsets;
+}
+
+void SystemManager::whatIs(string featureName, string stateAbrv){
+    ostringstream os;
+    os << featureName << " " << stateAbrv;
+    const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex, databaseFileLocation);
+    ofstream logFile(logFileLocation, ios_base::app);
+
+}
+
+void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
+    logger.logCommand(cmdNumber, function, args, delimiter);
+}
+
+void SystemManager::logComment(string comment){
+    logger.logComment(comment);
 }
 
 

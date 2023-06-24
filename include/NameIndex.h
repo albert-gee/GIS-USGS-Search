@@ -9,7 +9,8 @@ using namespace std;
 
 class NameIndex {
 public:
-    void indexLine(const string&, int);
+    unsigned int indexLine(const string &key, int lineNum);
+    unsigned int indexLine(const string &featureName, const string &stateAbrv, int lineNum);
     list<int> getLineNumsByKey(string);
     NameIndex();
     void printIndex();

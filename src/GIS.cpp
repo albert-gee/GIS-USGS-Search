@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
     QuadTree coordinateIndex = QuadTree(Constants::NORTH_WEST_POINT, Constants::SOUTH_EAST_POINT,
                                         Constants::BUCKET_CAPACITY);
 
+
     // Create the SystemManager. The SystemManager uses system components to import, index, store, and retrieve data.
     SystemManager systemManager = SystemManager(nameIndex, coordinateIndex, bufferPool, databaseFileName, logFileName);
 

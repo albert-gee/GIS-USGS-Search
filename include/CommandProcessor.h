@@ -14,6 +14,7 @@ using namespace std;
 class CommandProcessor {
 private:
     SystemManager systemManager;
+    int commandsProcessed = 0;
     //NameIndex nameIndex;
 public:
     CommandProcessor(SystemManager systemManager);

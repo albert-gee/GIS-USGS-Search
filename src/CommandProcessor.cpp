@@ -19,7 +19,7 @@ void CommandProcessor::processCommand(const string &command) {
     // Special Characters
     char commentIndicator = ';';
     char delim1 = '\t';
-    char delim2 = ' ';
+    //char delim2 = ' ';
     char end = '\0';
 
     list<string> args;
@@ -34,7 +34,7 @@ void CommandProcessor::processCommand(const string &command) {
 
             // Check if the character is not a delimiter and add it to the temp string.
             // If the character is a delimiter, add the temp string to the args list and clear the temp string.
-            if (command[i] != delim1 && command[i] != delim2) {
+            if (command[i] != delim1) {
                 temp += command[i];
             } else {
                 if (!temp.empty()) {
@@ -56,15 +56,14 @@ void CommandProcessor::processCommand(const string &command) {
 
         // Execute the function
         // Import: load records into the database from external files
-        if(function == "import"){
 
-            // The next argument is the name of the file containing the records
-            string recordsDataSetFileName = args.front();
-            cout << "import " << recordsDataSetFileName << endl;
+        if(function != "world"){
+            ++commandsProcessed;
+        }
+        systemManager.logCommand(commandsProcessed, function, args, delim1);
+        //systemManager.logComment(string(90, '-'));
 
-            // Import the records into the database
-            systemManager.import(recordsDataSetFileName);
-        } else if(function == "world"){
+        if(function == "world"){
             // Specify boundaries of coordinate space
             string westLong = args.front();
             args.pop_front();
@@ -77,6 +76,14 @@ void CommandProcessor::processCommand(const string &command) {
 
             // Set the boundaries of the coordinate space
             systemManager.setCoordinateIndexBoundaries(std::stod(westLong), std::stod(eastLong), std::stod(southLat), std::stod(northLat));
+        } else if(function == "import"){
+
+            // The next argument is the name of the file containing the records
+            string recordsDataSetFileName = args.front();
+
+
+            // Import the records into the database
+            systemManager.import(recordsDataSetFileName);
         } else if (function == "what_is_at") {
             // The next argument is the latitude of the location
             string latitude = args.front();
@@ -89,6 +96,20 @@ void CommandProcessor::processCommand(const string &command) {
 
             // Import the records into the database
             systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
+        } else if(function == "what_is"){
+            //systemManager.logCommand(commandsProcessed, function, args, delim1);
+            string featureName = args.front();
+            args.pop_front();
+            string stateAbrv = args.front();
+
+
+        } else if(function == "what_is_in") {
+
+        } else if (function == "debug"){
+
+
+        } else if (function == "quit"){
+
         }
 
         /*cout << command << endl;
@@ -96,6 +117,8 @@ void CommandProcessor::processCommand(const string &command) {
             cout << s << " ";
         }
         cout << endl;*/
+    } else {
+        systemManager.logComment(command);
     }
 
     //std::cout << "Processing command: " << command << std::endl;

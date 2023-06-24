@@ -80,6 +80,41 @@ public:
         return featureName + " " + stateAlpha;
     }
 
+    static string extractFeatureName(string line, int featureNameColumn, char delimiter) {
+        int index = 0;
+        ostringstream os;
+        int column = 0;
+        while(line[index] != '\0' && column <= featureNameColumn){
+            if(line[index] != delimiter){
+                if(column == featureNameColumn) {
+                    os << line[index];
+                }
+            } else {
+                ++column;
+            }
+            ++index;
+        }
+        return os.str();
+    }
+
+    static string extractParamFromLine(const string line, const int paramColumn, const char delimiter) {
+        int index = 0;
+        ostringstream os;
+        int column = 0;
+        while(line[index] != '\0' && column <= paramColumn){
+            if(line[index] != delimiter){
+                if(column == paramColumn) {
+                    os << line[index];
+                }
+            } else {
+                ++column;
+            }
+            ++index;
+        }
+        return os.str();
+    }
+
+
 
     static GISRecord * createGISRecordFromLine(const string& line, char delimiter) {
 

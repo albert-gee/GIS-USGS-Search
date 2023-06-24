@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include "../include/NameIndex.h"
 
 using namespace std;
@@ -16,7 +17,11 @@ struct NameIndex::Index{
     }
 };
 
-// Constructor
+void indexLine(const string &featureName, const string &stateAbrv, int lineNum);
+
+void indexLine(const string &featureName, const string &stateAbrv, int lineNum);
+
+// Constru ctor
 NameIndex::NameIndex() {
     currentIndexSize = INITIAL_SIZE; // Holds the current index size
     indexesFilled = 0; // Keeps track of how many indexes are filled
@@ -74,7 +79,30 @@ void NameIndex::resizeIndex() {
 }
 
 // Insert the key and line into the index
-void NameIndex::indexLine(const string &key, int lineNum) {
+unsigned int NameIndex::indexLine(const string &key, int lineNum) {
+    unsigned int hash = hashAlgorithm(key, currentIndexSize);
+    unsigned int i = 0;
+    unsigned int probes = 0;
+    // Loop until an index with nullptr is found
+    while (indexPtrs[hash] != nullptr) {
+        ++probes;
+        hash = rehash(hash, i);
+    }
+
+    indexPtrs[hash] = new Index(key, lineNum);
+    ++indexesFilled;
+
+    if(isIndexOverFilled()){
+        resizeIndex();
+    }
+    return probes;
+}
+
+// Insert the key and line into the index
+unsigned int NameIndex::indexLine(const string &featureName, const string &stateAbrv, int lineNum) {
+    ostringstream os;
+    os << featureName << " " << stateAbrv;
+    string key = os.str();
     unsigned int hash = hashAlgorithm(key, currentIndexSize);
     unsigned int i = 0;
 

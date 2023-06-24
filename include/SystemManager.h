@@ -6,6 +6,7 @@
 #include "NameIndex.h"
 #include "bufferPool/BufferPool.h"
 #include "coordinateIndex/QuadTree.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -36,23 +37,28 @@ public:
 
     // Find GIS records that match the given coordinates.
     list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude);
-
+    void whatIs(string featureName, string stateAbrv);
     SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, const string& databaseFileLocation, const string& logFileLocation);
+
+
+    void logCommand(int cmdNumber, string function, list <string> args, char delimiter);
+    void logComment(string comment);
 private:
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
     QuadTree coordinateIndex;
     BufferPool bufferPool;
 
+
     // The location of the database file
     const string& databaseFileLocation;
     // The location of the log file
     const string& logFileLocation;
-
+    Logger logger = Logger(logFileLocation);
     // Index the records in the database file by feature name and state
-    void indexDatabaseByName();
+    list<int> * indexDatabaseByName();
     // Index the records in the database file by location
-    void indexDatabaseByCoordinates();
+    unsigned int indexDatabaseByCoordinates();
 };
 
 
