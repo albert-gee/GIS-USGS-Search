@@ -45,12 +45,13 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     int numofIndexedLinesByName = nameImportStats->front();
     nameImportStats->pop_front();
     int longestProbeSeq = nameImportStats->front();
+    cout << longestProbeSeq;
     nameImportStats->pop_front();
     int avgNameLength = nameImportStats->front();
     nameImportStats->pop_front();
     //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
     logger.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
-
+    //nameIndex.printIndex();
     //Michael's test
 /*    indexDatabaseByName();
     bufferPool.printBuffer();
@@ -90,7 +91,9 @@ list<int> * SystemManager::indexDatabaseByName(){
             string stateAbrv = LineUtility::extractParamFromLine(line, STATE_ALPHA_COL, DELIM);
             totalNameLength += featureName.length();
             //string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
-            unsigned int probes = nameIndex.indexLine(featureName, stateAbrv, lineNum);
+            ostringstream os;
+            os << featureName << " " << stateAbrv;
+            unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
             ++numOfIndexedLines;
             if(probes > longestProbeSeq){
                 longestProbeSeq = probes;

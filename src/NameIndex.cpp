@@ -50,6 +50,7 @@ unsigned int NameIndex::quadraticProbing(unsigned int i){
 
 // Rehash a current hash
 unsigned int NameIndex::rehash(unsigned int hash, unsigned int i){
+    cout << ++i << endl;
     unsigned int q = quadraticProbing(++i);
     hash += q;
     hash %= currentIndexSize;
@@ -82,11 +83,10 @@ void NameIndex::resizeIndex() {
 unsigned int NameIndex::indexLine(const string &key, int lineNum) {
     unsigned int hash = hashAlgorithm(key, currentIndexSize);
     unsigned int i = 0;
-    unsigned int probes = 0;
+    //unsigned int probes = 0;
     // Loop until an index with nullptr is found
     while (indexPtrs[hash] != nullptr) {
-        ++probes;
-        hash = rehash(hash, i);
+        hash = rehash(hash, ++i);
     }
 
     indexPtrs[hash] = new Index(key, lineNum);
@@ -95,11 +95,11 @@ unsigned int NameIndex::indexLine(const string &key, int lineNum) {
     if(isIndexOverFilled()){
         resizeIndex();
     }
-    return probes;
+    return i;
 }
 
 // Insert the key and line into the index
-unsigned int NameIndex::indexLine(const string &featureName, const string &stateAbrv, int lineNum) {
+/*unsigned int NameIndex::indexLine(const string &featureName, const string &stateAbrv, int lineNum) {
     ostringstream os;
     os << featureName << " " << stateAbrv;
     string key = os.str();
@@ -108,7 +108,7 @@ unsigned int NameIndex::indexLine(const string &featureName, const string &state
 
     // Loop until an index with nullptr is found
     while (indexPtrs[hash] != nullptr) {
-        hash = rehash(hash, i);
+        hash = rehash(hash, ++i);
     }
 
     indexPtrs[hash] = new Index(key, lineNum);
@@ -117,7 +117,7 @@ unsigned int NameIndex::indexLine(const string &featureName, const string &state
     if(isIndexOverFilled()){
         resizeIndex();
     }
-}
+}*/
 
 // Print contents of index
 void NameIndex::printIndex() {
@@ -140,7 +140,7 @@ list<int> NameIndex::getLineNumsByKey(string key) {
         if(indexPtrs[hash]->key == key){
             lines.push_front(indexPtrs[hash]->lineNum);
         }
-        hash = rehash(hash, i);
+        hash = rehash(hash, ++i);
     }
     return lines;
 }

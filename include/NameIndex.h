@@ -10,7 +10,7 @@ using namespace std;
 class NameIndex {
 public:
     unsigned int indexLine(const string &key, int lineNum);
-    unsigned int indexLine(const string &featureName, const string &stateAbrv, int lineNum);
+    //unsigned int indexLine(const string &featureName, const string &stateAbrv, int lineNum);
     list<int> getLineNumsByKey(string);
     NameIndex();
     void printIndex();
