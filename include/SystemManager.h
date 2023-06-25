@@ -43,6 +43,9 @@ public:
 
     void logCommand(int cmdNumber, string function, list <string> args, char delimiter);
     void logComment(string comment);
+
+    void debugHash();
+
 private:
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
@@ -59,6 +62,8 @@ private:
     list<int> * indexDatabaseByName();
     // Index the records in the database file by location
     unsigned int indexDatabaseByCoordinates();
+
+    void logLine(string text);
 };
 
 

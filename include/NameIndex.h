@@ -14,6 +14,7 @@ public:
     list<int> getLineNumsByKey(string);
     NameIndex();
     void printIndex();
+    const string getIndexStats();
 private:
     static unsigned int const INITIAL_SIZE = 1024;
     static double constexpr MAX_FILLED_PERCENTAGE = 0.7;

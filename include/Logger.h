@@ -14,10 +14,10 @@ public:
     void logImportStats(const int& numOfImportsByName, const int& longestProbe, const int& importedLocations, const int& avgNameLength);
     void logComment(const string& comment);
 
+    void logLine(const string& line);
+
 private:
     string logFileLocation;
-
-    void logLine(const string& line);
 
 };
 

@@ -34,11 +34,19 @@ void Logger::logLine(const string& line){
 
 void Logger::logImportStats(const int &numOfImportsByName, const int &longestProbe, const int &importedLocations,
                             const int &avgNameLength) {
-    ostringstream  os;
-    os << "Imported Features by name:\t" << numOfImportsByName << endl;
-    os << "Longest probe sequence:\t" << longestProbe << endl;
-    os << "Imported Locations:\t" << importedLocations << endl;
-    os << "Average name length:\t" << avgNameLength <<endl;
+    stringstream  os;
+    os.width(27);
+    os.setf(ios::left);
+    os << "Imported Features by name:";
+    os << numOfImportsByName << endl;
+    os.width(27);
+    os << "Longest probe sequence:\t";
+
+    os << longestProbe << endl;
+    os.width(27);
+    os << "Imported Locations:" << importedLocations << endl;
+    os.width(27);
+    os << "Average name length:" << avgNameLength;
     logLine(os.str());
     logLine(string(90, '-'));
 }

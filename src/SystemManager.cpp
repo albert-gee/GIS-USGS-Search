@@ -159,5 +159,15 @@ void SystemManager::logComment(string comment){
     logger.logComment(comment);
 }
 
+void SystemManager::logLine(string text){
+    logger.logLine(text);
+}
+
+void SystemManager::debugHash() {
+    const string stats = nameIndex.getIndexStats();
+    logLine(stats);
+    logLine(string(90, '-'));
+}
+
 
 

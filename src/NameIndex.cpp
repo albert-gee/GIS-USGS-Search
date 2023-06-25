@@ -50,7 +50,6 @@ unsigned int NameIndex::quadraticProbing(unsigned int i){
 
 // Rehash a current hash
 unsigned int NameIndex::rehash(unsigned int hash, unsigned int i){
-    cout << ++i << endl;
     unsigned int q = quadraticProbing(++i);
     hash += q;
     hash %= currentIndexSize;
@@ -126,6 +125,41 @@ void NameIndex::printIndex() {
             cout << "indexDatabaseByName: " << i << ", key: " << indexPtrs[i]->key << ", line: " << indexPtrs[i]->lineNum << endl;
         }
     }
+}
+
+const string NameIndex::getIndexStats(){
+    ostringstream os;
+    os << "Format of display is\n";
+    os << "Slot number: data record\n";
+    os << "Current table size is " << currentIndexSize << endl;
+    os << "Number of elements in table is " << indexesFilled << endl << endl;
+    unsigned int indexesRead = 0;
+    unsigned int index = 0;
+    while(index < currentIndexSize && indexesRead <= indexesFilled){
+        if(indexPtrs[index] != nullptr){
+            string featureName = indexPtrs[index]->key.substr(0, indexPtrs[index]->key.length() - 3);
+            string stateAbrv = indexPtrs[index]->key.substr(indexPtrs[index]->key.length() - 2, 2);
+            os.width(4);
+            os << "" << index << ": [" << featureName << ":" << stateAbrv << ", [" << indexPtrs[index]->lineNum << "]]";
+            if(++indexesRead < indexesFilled){
+                os << endl;
+            }
+        }
+        ++index;
+    }
+/*
+    for(int i = 0; i < currentIndexSize; i++) {
+        if(indexPtrs[i] != nullptr){
+            string featureName = indexPtrs[i]->key.substr(0, indexPtrs[i]->key.length() - 3);
+            string stateAbrv = indexPtrs[i]->key.substr(indexPtrs[i]->key.length() - 2, 2);
+            os.width(4);
+            os << "" << i << ": [" << featureName << ":" << stateAbrv << ", [" << indexPtrs[i]->lineNum << "]]" << endl;
+        }
+    }
+
+*/
+    //cout << stats;
+    return os.str();
 }
 
 // Search nameIndex for entries that match the key and return the lines

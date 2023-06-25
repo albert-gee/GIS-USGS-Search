@@ -106,7 +106,10 @@ void CommandProcessor::processCommand(const string &command) {
         } else if(function == "what_is_in") {
 
         } else if (function == "debug"){
-
+            string debugTarget = args.front();
+            if(debugTarget == "hash"){
+                systemManager.debugHash();
+            }
 
         } else if (function == "quit"){
 
