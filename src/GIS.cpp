@@ -34,36 +34,22 @@ int main(int argc, char *argv[]) {
     /// DATABASE
     DbService dbService(databaseFileLocation);
 
-    /// COMMAND SCRIPT
-    // Open the command script file
-    std::ifstream commandScriptFile(commandScriptFileLocation);
-    //std::cout << commandScriptFileLocation << " ";
-    if (!commandScriptFile.is_open()) {
-        std::cerr << "Error: Failed to open command script file." << std::endl;
-        return 1;
-    }
-
     /// LOG
     LogService logService(logFileLocation);
 
-    // Create the system components: BufferPool, NameIndex, QuadTree
+    /// BufferPool, NameIndex, QuadTree
     BufferPool bufferPool{dbService};
     NameIndex nameIndex{};
     QuadTree coordinateIndex = QuadTree(Constants::NORTH_WEST_POINT, Constants::SOUTH_EAST_POINT,
                                         Constants::BUCKET_CAPACITY);
 
-
-    // Create the SystemManager. The SystemManager uses system components to import, index, store, and retrieve data.
+    /// SystemManager
     SystemManager systemManager = SystemManager(nameIndex, coordinateIndex, bufferPool, dbService, logService);
 
-    // Create the CommandProcessor. The CommandProcessor uses the SystemManager to execute commands.
-    CommandProcessor cmdProcessor = CommandProcessor(systemManager);
-
-    // read each line from the file and pass it to the command processor
-    std::string line;
-    while (std::getline(commandScriptFile, line)) {
-        cmdProcessor.processCommand(line);
-    }
+    /// CommandProcessor
+    CommandProcessor cmdProcessor = CommandProcessor(systemManager, commandScriptFileLocation);
+    // Process the commands from the script file
+    cmdProcessor.processCommandsFromScriptFile();
 
     return 0;
 }
