@@ -1,7 +1,7 @@
 #ifndef GIS_BUFFERRECORD_H
 #define GIS_BUFFERRECORD_H
 
-#include "../../include/GISRecord.h"
+#include "../database/GISRecord.h"
 
 struct BufferedRecord{
     int lineNum;

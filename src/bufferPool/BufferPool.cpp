@@ -4,6 +4,9 @@
 #include <limits>
 #include "../../include/bufferPool/BufferPool.h"
 
+BufferPool::BufferPool(DbService& dbService)
+    : databaseService{dbService} {}
+
 // ToDo: Implement this function
 const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude, double longitude) {
     for(BufferedRecord* bufferRecord : buffer) {
@@ -13,13 +16,13 @@ const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude,
 }
 
 
-// Search and return GISRecords from the database
-list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, const string& databaseFileName)
+// Search and return GISRecords from the databaseService
+list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex)
 {
     list<int> lineNums = nameIndex.getLineNumsByKey(key);
     list<GISRecord*> foundRecords;
     for(int l : lineNums){
-        GISRecord * gisRecordPtr = searchBuffer(l, databaseFileName);
+        GISRecord * gisRecordPtr = searchBuffer(l);
         if(gisRecordPtr != nullptr) {
             foundRecords.push_front(gisRecordPtr);
         }
@@ -28,7 +31,7 @@ list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex, 
 }
 
 // Search the buffer for a line number
-GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
+GISRecord * BufferPool::searchBuffer(int lineNum){
     auto b = buffer.begin();
     GISRecord *gisRecordptr = nullptr;
 
@@ -44,8 +47,8 @@ GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
     }
 
     // Line not found
-    // Get line from database and create GIS record
-    string line = getLineFromDB(lineNum, databaseFileName);
+    // Get line from databaseService and create GIS record
+    string line = databaseService.getLineByNumber(lineNum);
     GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
     if(buffer.size() >= MAX_SIZE){
         buffer.pop_back();
@@ -55,27 +58,7 @@ GISRecord * BufferPool::searchBuffer(int lineNum, string databaseFileName){
     return gisRecordptr;
 }
 
-// Get the line from database
-string BufferPool::getLineFromDB(int lineNum, string databaseFileName){
-    ifstream databaseFile(databaseFileName);
-    string line;
-    if(!databaseFile.is_open()){
-        cerr << "Error: Failed to open database file." << endl;
-    } else {
-        int index = 1;
-        while (index < lineNum && !databaseFile.eof()) {
-            databaseFile.ignore(numeric_limits<streamsize>::max(), '\n');
-            ++index;
-        }
-        if(!databaseFile.eof()){
-            getline(databaseFile,line);
 
-        }
-    }
-    databaseFile.close();
-
-    return line;
-}
 
 // Print contents of buffer
 void BufferPool::printBuffer() {
