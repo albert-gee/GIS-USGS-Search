@@ -1,44 +1,41 @@
 #include <fstream>
 #include <iostream>
-#include "../include/SystemManager.h"
+#include "../../include/systemManager/SystemManager.h"
+#include "../../include/database/DbService.h"
 
-SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, const string& databaseFileLocation, const string& logFileLocation)
-        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseFileLocation{databaseFileLocation}, logFileLocation{logFileLocation}{}
+SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, DbService& databaseService, LogService& logService)
+        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseService{databaseService}, logService{logService}{}
 
 // Set boundaries for the coordinate index
 void SystemManager::setCoordinateIndexBoundaries(double westLong, double eastLong, double southLat, double northLat) {
     coordinateIndex.setBoundingBox(Point(northLat, westLong), Point(southLat, eastLong));
 }
 
-// Add all the valid records from the file recordsDataSetFileLocation to the database file databaseFileLocation.
+// Add all the valid records from the file recordsDataSetFileLocation to the databaseService file databaseFileLocation.
 void SystemManager::import(const string& recordsDataSetFileLocation){
     // The recordsDataSetFileLocation file is created and opened for reading
     ifstream recordsFile (recordsDataSetFileLocation);
-    // The databaseFileLocation file is created and opened for appending
-    ofstream databaseFile(databaseFileLocation, ios_base::app);
 
     if(!recordsFile.is_open()) {
         cerr << "Error: Failed to create records file." << std::endl;
-    } else if (!databaseFile.is_open()) {
-        cerr << "Error: Failed to create database file." << std::endl;
     } else {
-        // Both the records file and the database file are open
-        // Parse the records file line by line and add the valid records to the database file
+        // Both the records file and the databaseService file are open
+        // Parse the records file line by line and add the valid records to the databaseService file
         string line;
 
         // Clear the first line as it has the headings
         getline(recordsFile, line);
         while (getline(recordsFile, line)) {
-            databaseFile << line << endl;
+            databaseService.insert(line);
         }
-        databaseFile.close();
+
         recordsFile.close();
 
-        // Index the records in the database file by feature name and state
+        // Index the records in the databaseService file by feature name and state
 
-        // Index the records in the database file by location
+        // Index the records in the databaseService file by location
 
-        // Log the number of records added to the database file
+        // Log the number of records added to the databaseService file
     }
 
     list<int>* nameImportStats = indexDatabaseByName();
@@ -50,7 +47,7 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     int avgNameLength = nameImportStats->front();
     nameImportStats->pop_front();
     //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
-    logger.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
+    logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
     //nameIndex.printIndex();
     //Michael's test
 /*    indexDatabaseByName();
@@ -71,62 +68,52 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     bufferPool.printBuffer();*/
 }
 
-// Index the records in the database file by feature name and state
+// Index the records in the databaseService file by feature name and state
 list<int> * SystemManager::indexDatabaseByName(){
-    ifstream databaseFile(databaseFileLocation);
-
     unsigned int numOfIndexedLines = 0;
     unsigned int longestProbeSeq = 0;
     unsigned int totalNameLength = 0;
     unsigned int avgNameLength = 0;
 
-    if(!databaseFile.is_open()){
-        cerr << "Error: Failed to open database file." << endl;
-    } else {
-        string line;
-        int lineNum = 0;
-        while(getline(databaseFile, line)){
-            ++lineNum;
-            string featureName = LineUtility::extractParamFromLine(line, FEATURE_NAME_COL, DELIM);
-            string stateAbrv = LineUtility::extractParamFromLine(line, STATE_ALPHA_COL, DELIM);
-            totalNameLength += featureName.length();
-            //string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
-            ostringstream os;
-            os << featureName << " " << stateAbrv;
-            unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
-            ++numOfIndexedLines;
-            if(probes > longestProbeSeq){
-                longestProbeSeq = probes;
-            }
+    string line;
+    int lineNum = 0;
+    while(databaseService.getNextLine(line)){
+        ++lineNum;
+        string featureName = LineUtility::extractParamFromLine(line, FEATURE_NAME_COL, DELIM);
+        string stateAbrv = LineUtility::extractParamFromLine(line, STATE_ALPHA_COL, DELIM);
+        totalNameLength += featureName.length();
+        //string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
+        ostringstream os;
+        os << featureName << " " << stateAbrv;
+        unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
+        ++numOfIndexedLines;
+        if(probes > longestProbeSeq){
+            longestProbeSeq = probes;
         }
-        avgNameLength = totalNameLength / numOfIndexedLines;
     }
+    avgNameLength = totalNameLength / numOfIndexedLines;
+
     list<int> *nameImportStats = new list<int>();
     nameImportStats->push_back(numOfIndexedLines);
     nameImportStats->push_back(longestProbeSeq);
     nameImportStats->push_back(avgNameLength);
-    databaseFile.close();
     return nameImportStats;
 }
 
-// Index the records in the database file by location
+// Index the records in the databaseService file by location
 unsigned int SystemManager::indexDatabaseByCoordinates(){
     unsigned int numOfIndexedLines = 0;
-    ifstream databaseFile(databaseFileLocation);
-    if(!databaseFile.is_open()){
-        cerr << "Error: Failed to open database file." << endl;
-    } else {
-        string line;
-        int lineNum = 0;
-        while(getline(databaseFile, line)){
-            ++lineNum;
 
-            Point location = LineUtility::extractLocationFromLine(line, LONGITUDE_COL, LATITUDE_COL, DELIM);
-            coordinateIndex.insert(location, lineNum);
-            ++numOfIndexedLines;
-        }
+    string line;
+    int lineNum = 0;
+    while(databaseService.getNextLine(line)){
+        ++lineNum;
+
+        Point location = LineUtility::extractLocationFromLine(line, LONGITUDE_COL, LATITUDE_COL, DELIM);
+        coordinateIndex.insert(location, lineNum);
+        ++numOfIndexedLines;
     }
-    databaseFile.close();
+
     return numOfIndexedLines;
 }
 
@@ -146,21 +133,19 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
 void SystemManager::whatIs(string featureName, string stateAbrv){
     ostringstream os;
     os << featureName << " " << stateAbrv;
-    const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex, databaseFileLocation);
-    ofstream logFile(logFileLocation, ios_base::app);
-
+    const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
 }
 
 void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
-    logger.logCommand(cmdNumber, function, args, delimiter);
+    logService.logCommand(cmdNumber, function, args, delimiter);
 }
 
 void SystemManager::logComment(string comment){
-    logger.logComment(comment);
+    logService.logComment(comment);
 }
 
 void SystemManager::logLine(string text){
-    logger.logLine(text);
+    logService.logLine(text);
 }
 
 void SystemManager::debugHash() {
