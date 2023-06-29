@@ -19,6 +19,8 @@ public:
     const list<GISRecord *> findGISRecordsByCoordinates(double latitude, double longitude);
     void printBuffer();
 
+    string str();
+
 private:
     // Buffering up to 15 records in the buffer pool
     static const int MAX_SIZE = 15;
@@ -29,6 +31,7 @@ private:
     // List of buffered records in the buffer pool
     list<BufferedRecord*> buffer;
     string getLineFromDB(int, string);
+
 };
 
 

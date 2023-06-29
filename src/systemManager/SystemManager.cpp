@@ -50,10 +50,11 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
     //nameIndex.printIndex();
     //Michael's test
-/*    indexDatabaseByName();
-    bufferPool.printBuffer();
+    //indexDatabaseByName();
+   // bufferPool.printBuffer();
 
 
+/*
     const list<GISRecord*> records = bufferPool.getRecordsByKey("Alkali Creek CO", nameIndex, databaseFileLocation);
     bufferPool.printBuffer();
     const list<GISRecord*> records2 = bufferPool.getRecordsByKey("Bob Creek CO", nameIndex, databaseFileLocation);
@@ -64,8 +65,10 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     bufferPool.printBuffer();
     const list<GISRecord*> records5 = bufferPool.getRecordsByKey("Nipple Peak Trail CO", nameIndex, databaseFileLocation);
     bufferPool.printBuffer();
-    const list<GISRecord*> records6 = bufferPool.getRecordsByKey("Bob Creek CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();*/
+    const list<GISRecord*> records6 = bufferPool.getRecordsByKey("Meadow Draft VA", nameIndex, databaseFileLocation);
+    bufferPool.printBuffer();
+*/
+
 }
 
 // Index the records in the databaseService file by feature name and state
@@ -136,6 +139,28 @@ void SystemManager::whatIs(string featureName, string stateAbrv){
     const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
 }
 
+string SystemManager::convertLatDECtoDMS(double dec){
+    string direction = dec < 0 ? "South" : "North";
+    double absoluteDEC = abs(dec);
+    unsigned int degrees = absoluteDEC;
+    unsigned int minutes = absoluteDEC -= degrees;
+    unsigned int seconds = absoluteDEC -= minutes;
+    ostringstream os;
+    os << degrees << "d " << minutes << "m " << seconds << "s " << direction;
+    return os.str();
+}
+
+string SystemManager::convertLongDECtoDMS(double dec){
+    string direction = dec >= 0 ? "East" : "West";
+    double absoluteDEC = abs(dec);
+    unsigned int degrees = absoluteDEC;
+    unsigned int minutes = absoluteDEC -= degrees;
+    unsigned int seconds = absoluteDEC -= minutes;
+    ostringstream os;
+    os << degrees << "d " << minutes << "m " << seconds << "s " << direction;
+    return os.str();
+}
+
 void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
     logService.logCommand(cmdNumber, function, args, delimiter);
 }
@@ -149,9 +174,14 @@ void SystemManager::logLine(string text){
 }
 
 void SystemManager::debugHash() {
-    const string stats = nameIndex.getIndexStats();
+    const string stats = nameIndex.str();
     logLine(stats);
     logLine(string(90, '-'));
+}
+
+void SystemManager::debugPool() {
+    const string pool = bufferPool.str();
+    logLine(pool);
 }
 
 

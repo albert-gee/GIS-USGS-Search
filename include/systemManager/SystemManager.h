@@ -47,6 +47,8 @@ public:
 
     void debugHash();
 
+    void debugPool();
+
 private:
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
@@ -67,6 +69,10 @@ private:
     unsigned int indexDatabaseByCoordinates();
 
     void logLine(string text);
+
+    string convertLatDECtoDMS(double dec);
+
+    string convertLongDECtoDMS(double dec);
 };
 
 
