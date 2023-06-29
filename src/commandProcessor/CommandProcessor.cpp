@@ -6,11 +6,29 @@
 
 using namespace std;
 
-enum Commands{
+enum Commands {
     import = 0
 };
 
-CommandProcessor::CommandProcessor(SystemManager systemManager) : systemManager(std::move(systemManager)) {}
+CommandProcessor::CommandProcessor(SystemManager systemManager, const std::string& commandScriptFileLocation)
+        : systemManager(std::move(systemManager)) {
+
+    // Open the command script file
+    commandScriptFile.open(commandScriptFileLocation, std::ios::in | std::ios::out | std::ios::app);
+
+    //std::cout << commandScriptFileLocation << " ";
+    if (!commandScriptFile.is_open()) {
+        std::cerr << "Error: Failed to open command script file." << std::endl;
+    }
+}
+
+void CommandProcessor::processCommandsFromScriptFile() {
+    // read each line from the file and pass it to the command processor
+    std::string line;
+    while (std::getline(commandScriptFile, line)) {
+        processCommand(line);
+    }
+}
 
 // Process a command from the command file.
 // Lines beginning with a semicolon and blank lines are ignored.
@@ -27,7 +45,7 @@ void CommandProcessor::processCommand(const string &command) {
     int i = 0;
 
     // Check if the command is not a comment
-    if(command[0] != commentIndicator) {
+    if (command[0] != commentIndicator) {
 
         // Parse the command character by character until the end of the command
         while (command[i] != end) {
@@ -57,13 +75,13 @@ void CommandProcessor::processCommand(const string &command) {
         // Execute the function
         // Import: load records into the databaseService from external files
 
-        if(function != "world"){
+        if (function != "world") {
             ++commandsProcessed;
         }
         systemManager.logCommand(commandsProcessed, function, args, delim1);
         //systemManager.logComment(string(90, '-'));
 
-        if(function == "world"){
+        if (function == "world") {
             // Specify boundaries of coordinate space
             string westLong = args.front();
             args.pop_front();
@@ -75,8 +93,9 @@ void CommandProcessor::processCommand(const string &command) {
             args.pop_front();
 
             // Set the boundaries of the coordinate space
-            systemManager.setCoordinateIndexBoundaries(std::stod(westLong), std::stod(eastLong), std::stod(southLat), std::stod(northLat));
-        } else if(function == "import"){
+            systemManager.setCoordinateIndexBoundaries(std::stod(westLong), std::stod(eastLong), std::stod(southLat),
+                                                       std::stod(northLat));
+        } else if (function == "import") {
 
             // The next argument is the name of the file containing the records
             string recordsDataSetFileName = args.front();
@@ -96,22 +115,22 @@ void CommandProcessor::processCommand(const string &command) {
 
             // Import the records into the databaseService
             systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
-        } else if(function == "what_is"){
+        } else if (function == "what_is") {
             //systemManager.logCommand(commandsProcessed, function, args, delim1);
             string featureName = args.front();
             args.pop_front();
             string stateAbrv = args.front();
 
 
-        } else if(function == "what_is_in") {
+        } else if (function == "what_is_in") {
 
-        } else if (function == "debug"){
+        } else if (function == "debug") {
             string debugTarget = args.front();
-            if(debugTarget == "hash"){
+            if (debugTarget == "hash") {
                 systemManager.debugHash();
             }
 
-        } else if (function == "quit"){
+        } else if (function == "quit") {
 
         }
 
