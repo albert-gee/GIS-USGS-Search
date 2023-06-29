@@ -12,14 +12,19 @@
 using namespace std;
 
 class CommandProcessor {
+public:
+    CommandProcessor(SystemManager systemManager, const std::string& commandFileLocation);
+    void processCommandsFromScriptFile();
+    //static void processCommand(const std::string&, const std::string&, const std::string&);
+
+    std::ifstream commandScriptFile;
+
 private:
     SystemManager systemManager;
     int commandsProcessed = 0;
     //NameIndex nameIndex;
-public:
-    CommandProcessor(SystemManager systemManager);
+
     void processCommand(const std::string& command);
-    //static void processCommand(const std::string&, const std::string&, const std::string&);
 };
 
 
