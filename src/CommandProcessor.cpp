@@ -109,6 +109,8 @@ void CommandProcessor::processCommand(const string &command) {
             string debugTarget = args.front();
             if(debugTarget == "hash"){
                 systemManager.debugHash();
+            } else if(debugTarget == "pool"){
+                systemManager.debugPool();
             }
 
         } else if (function == "quit"){

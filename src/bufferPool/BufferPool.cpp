@@ -90,3 +90,17 @@ void BufferPool::printBuffer() {
     }
 }
 
+string BufferPool::str() {
+    int index = 0;
+    ostringstream os;
+    os << "MRU" << endl;
+    if (!buffer.empty()) {
+        for (BufferedRecord *b: buffer) {
+            os.width(4);
+            os << b->lineNum << ": " << b->gisRecordPtr->getFeatureName() << endl;
+        }
+    }
+    os << "LRU";
+    return os.str();
+}
+

@@ -127,7 +127,7 @@ void NameIndex::printIndex() {
     }
 }
 
-const string NameIndex::getIndexStats(){
+const string NameIndex::str(){
     ostringstream os;
     os << "Format of display is\n";
     os << "Slot number: data record\n";
