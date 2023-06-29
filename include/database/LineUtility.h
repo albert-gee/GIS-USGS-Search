@@ -8,7 +8,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include "coordinateIndex/Point.h"
+#include "../coordinateIndex/Point.h"
 #include "GISRecord.h"
 #include <sstream>
 

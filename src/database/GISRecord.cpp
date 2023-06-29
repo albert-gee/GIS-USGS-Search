@@ -1,4 +1,4 @@
-#include "../include/GISRecord.h"
+#include "../../include/database/GISRecord.h"
 
 GISRecord::GISRecord(int feature_id, std::string feature_name, std::string feature_class, std::string state_alpha,
                      std::string state_numeric, std::string county_name, std::string county_numeric,

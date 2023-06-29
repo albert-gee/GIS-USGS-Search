@@ -5,7 +5,7 @@ The system indexes and provides search features for GIS records from the website
 (http://geonames.usgs.gov/).
 
 The system builds and maintains several in-memory indexDatabaseByName data structures to support the following operations:
-* Importing new GIS records into the database file
+* Importing new GIS records into the databaseService file
 * Retrieving data for all GIS records matching a given feature name and state
 * Retrieving data for all GIS records that fall within a given (rectangular) geographic region
 * Display the in-memory indices in a human-readable manner
@@ -19,7 +19,7 @@ The type specifications used here have been modified from the source.
 
 ## Usage
 ```
-./GIS <database file name> <command script file name> <log file name>
+./GIS <databaseService file name> <command script file name> <log file name>
 ```
 
 Example:

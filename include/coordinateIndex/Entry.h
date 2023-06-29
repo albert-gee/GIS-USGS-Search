@@ -8,7 +8,7 @@
 #include "Point.h"
 
 // This struct describes an indexDatabaseByName entry held in QuadTree.
-// It stores a geographic coordinate of the type Point and a collection of the database file offsets of the matching GIS
+// It stores a geographic coordinate of the type Point and a collection of the databaseService file offsets of the matching GIS
 // records. One entry within one location can contain infinite GIS records offsets.
 struct Entry {
     Point location;

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include "../include/NameIndex.h"
+#include "../../include/nameIndex/NameIndex.h"
 
 using namespace std;
 

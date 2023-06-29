@@ -6,9 +6,9 @@
 
 using namespace std;
 
-class Logger {
+class LogService {
 public:
-    Logger(const string& logFileLocation);
+    explicit LogService(const string& logFileLocation);
 
     void logCommand(const int& cmdNumber, const string& function, list<string>& args, const char& delimiter);
     void logImportStats(const int& numOfImportsByName, const int& longestProbe, const int& importedLocations, const int& avgNameLength);
@@ -17,7 +17,7 @@ public:
     void logLine(const string& line);
 
 private:
-    string logFileLocation;
+    std::ofstream logFile;
 
 };
 
