@@ -6,8 +6,8 @@
 #include <fstream>
 //#include <wsman.h>
 #include "Command.h"
-#include "SystemManager.h"
-#include "NameIndex.h"
+#include "../systemManager/SystemManager.h"
+#include "../nameIndex/NameIndex.h"
 
 using namespace std;
 

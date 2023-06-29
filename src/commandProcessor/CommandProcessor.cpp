@@ -1,4 +1,4 @@
-#include "../include/CommandProcessor.h"
+#include "../../include/commandProcessor/CommandProcessor.h"
 
 #include <iostream>
 #include <list>
@@ -55,7 +55,7 @@ void CommandProcessor::processCommand(const string &command) {
         args.pop_front();
 
         // Execute the function
-        // Import: load records into the database from external files
+        // Import: load records into the databaseService from external files
 
         if(function != "world"){
             ++commandsProcessed;
@@ -82,7 +82,7 @@ void CommandProcessor::processCommand(const string &command) {
             string recordsDataSetFileName = args.front();
 
 
-            // Import the records into the database
+            // Import the records into the databaseService
             systemManager.import(recordsDataSetFileName);
         } else if (function == "what_is_at") {
             // The next argument is the latitude of the location
@@ -94,7 +94,7 @@ void CommandProcessor::processCommand(const string &command) {
             string longitude = args.front();
             cout << "lon: " << longitude << endl;
 
-            // Import the records into the database
+            // Import the records into the databaseService
             systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
         } else if(function == "what_is"){
             //systemManager.logCommand(commandsProcessed, function, args, delim1);
