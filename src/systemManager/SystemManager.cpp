@@ -13,45 +13,35 @@ void SystemManager::setCoordinateIndexBoundaries(double westLong, double eastLon
 
 // Add all the valid records from the file recordsDataSetFileLocation to the databaseService file databaseFileLocation.
 void SystemManager::import(const string& recordsDataSetFileLocation){
-    // The recordsDataSetFileLocation file is created and opened for reading
-    ifstream recordsFile (recordsDataSetFileLocation);
 
-    if(!recordsFile.is_open()) {
-        cerr << "Error: Failed to create records file." << std::endl;
-    } else {
-        // Both the records file and the databaseService file are open
-        // Parse the records file line by line and add the valid records to the databaseService file
-        string line;
-
-        // Clear the first line as it has the headings
-        getline(recordsFile, line);
-        while (getline(recordsFile, line)) {
-            databaseService.insert(line);
-        }
-
-        recordsFile.close();
+    // Import the records from the recordsDataSetFileLocation file to the databaseService file
+    try {
+        databaseService.import(recordsDataSetFileLocation);
 
         // Index the records in the databaseService file by feature name and state
+        list<int>* nameImportStats = indexDatabaseByName();
+        int numofIndexedLinesByName = nameImportStats->front();
+        nameImportStats->pop_front();
+        int longestProbeSeq = nameImportStats->front();
+        cout << longestProbeSeq;
+        nameImportStats->pop_front();
+        int avgNameLength = nameImportStats->front();
+        nameImportStats->pop_front();
+        //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
+        logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
+        //nameIndex.printIndex();
+        //Michael's test
+        //indexDatabaseByName();
+        // bufferPool.printBuffer();
 
         // Index the records in the databaseService file by location
 
         // Log the number of records added to the databaseService file
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
     }
+}
 
-    list<int>* nameImportStats = indexDatabaseByName();
-    int numofIndexedLinesByName = nameImportStats->front();
-    nameImportStats->pop_front();
-    int longestProbeSeq = nameImportStats->front();
-    cout << longestProbeSeq;
-    nameImportStats->pop_front();
-    int avgNameLength = nameImportStats->front();
-    nameImportStats->pop_front();
-    //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
-    logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
-    //nameIndex.printIndex();
-    //Michael's test
-    //indexDatabaseByName();
-   // bufferPool.printBuffer();
 
 
 /*
@@ -69,7 +59,6 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
     bufferPool.printBuffer();
 */
 
-}
 
 // Index the records in the databaseService file by feature name and state
 list<int> * SystemManager::indexDatabaseByName(){
@@ -80,6 +69,7 @@ list<int> * SystemManager::indexDatabaseByName(){
 
     string line;
     int lineNum = 0;
+    databaseService.open();
     while(databaseService.getNextLine(line)){
         ++lineNum;
         string featureName = LineUtility::extractParamFromLine(line, FEATURE_NAME_COL, DELIM);
@@ -94,7 +84,7 @@ list<int> * SystemManager::indexDatabaseByName(){
             longestProbeSeq = probes;
         }
     }
-    avgNameLength = totalNameLength / numOfIndexedLines;
+    avgNameLength = (numOfIndexedLines != 0) ? totalNameLength / numOfIndexedLines : 0;
 
     list<int> *nameImportStats = new list<int>();
     nameImportStats->push_back(numOfIndexedLines);
