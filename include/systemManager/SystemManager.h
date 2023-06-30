@@ -2,7 +2,7 @@
 #define FINAL_SYSTEMMANAGER_H
 
 #include <string>
-#include "../DMS.h"
+#include "../coordinateIndex/DMS.h"
 #include "../nameIndex/NameIndex.h"
 #include "../bufferPool/BufferPool.h"
 #include "../coordinateIndex/QuadTree.h"
