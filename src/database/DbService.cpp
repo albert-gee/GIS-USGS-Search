@@ -48,9 +48,6 @@ void DbService::import(const std::string& recordsDataSetFileLocation) {
         // Clear the first line as it has the headings
         getline(recordsFile, line);
         while (getline(recordsFile, line)) {
-            if(line == ""){
-                std::cout << "LSDKFJLKSDFJLKSFJ";
-            }
             databaseFile << line << std::endl;
         }
 
