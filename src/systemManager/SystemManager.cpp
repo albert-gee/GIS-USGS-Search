@@ -27,7 +27,9 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         nameImportStats->pop_front();
         int avgNameLength = nameImportStats->front();
         nameImportStats->pop_front();
+
         indexDatabaseByCoordinates();
+
         stringstream  os;
         os.width(27);
         os.setf(ios::left);
@@ -41,38 +43,12 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         os << "Imported Locations:" << numofIndexedLines << endl;
         os.width(27);
         os << "Average name length:" << avgNameLength;
-
         logLine(os.str());
-        //nameIndex.printIndex();
-        //Michael's test
-        //indexDatabaseByName();
-        // bufferPool.printBuffer();
 
-        // Index the records in the databaseService file by location
-
-        // Log the number of records added to the databaseService file
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
 }
-
-
-
-/*
-    const list<GISRecord*> records = bufferPool.getRecordsByKey("Alkali Creek CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-    const list<GISRecord*> records2 = bufferPool.getRecordsByKey("Bob Creek CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-    const list<GISRecord*> records4 = bufferPool.getRecordsByKey("Nipple Peak Trail CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-    const list<GISRecord*> records3 = bufferPool.getRecordsByKey("Bob Lake CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-    const list<GISRecord*> records5 = bufferPool.getRecordsByKey("Nipple Peak Trail CO", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-    const list<GISRecord*> records6 = bufferPool.getRecordsByKey("Meadow Draft VA", nameIndex, databaseFileLocation);
-    bufferPool.printBuffer();
-*/
-
 
 // Index the records in the databaseService file by feature name and state
 list<int> * SystemManager::indexDatabaseByName(){
