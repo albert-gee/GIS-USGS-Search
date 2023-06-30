@@ -50,19 +50,18 @@ void LogService::logString(const string& s){
     }
 }
 
-void LogService::logImportStats(const int &numOfImportsByName, const int &longestProbe, const int &importedLocations,
-                                const int &avgNameLength) {
+void LogService::logImportStats(const int &numOfImports, const int &longestProbe, const int &avgNameLength) {
     stringstream  os;
     os.width(27);
     os.setf(ios::left);
     os << "Imported Features by name:";
-    os << numOfImportsByName << endl;
+    os << numOfImports << endl;
     os.width(27);
     os << "Longest probe sequence:\t";
 
     os << longestProbe << endl;
     os.width(27);
-    os << "Imported Locations:" << importedLocations << endl;
+    os << "Imported Locations:" << numOfImports << endl;
     os.width(27);
     os << "Average name length:" << avgNameLength;
     logString(os.str());

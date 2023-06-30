@@ -136,7 +136,9 @@ const string NameIndex::str(){
     unsigned int indexesRead = 0;
     unsigned int index = 0;
     while(index < currentIndexSize && indexesRead <= indexesFilled){
+
         if(indexPtrs[index] != nullptr){
+
             string featureName = indexPtrs[index]->key.substr(0, indexPtrs[index]->key.length() - 3);
             string stateAbrv = indexPtrs[index]->key.substr(indexPtrs[index]->key.length() - 2, 2);
             os.width(4);
@@ -146,6 +148,7 @@ const string NameIndex::str(){
             }
         }
         ++index;
+
     }
 /*
     for(int i = 0; i < currentIndexSize; i++) {

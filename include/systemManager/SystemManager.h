@@ -73,6 +73,8 @@ private:
     string convertLatDECtoDMS(double dec);
 
     string convertLongDECtoDMS(double dec);
+
+    list<int> *indexDatabaseByNameAndCoordinates();
 };
 
 

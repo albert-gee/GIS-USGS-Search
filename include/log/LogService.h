@@ -12,7 +12,7 @@ public:
     explicit LogService(const string& logFileLocation);
 
     void logCommand(const int& cmdNumber, const string& function, list<string>& args, const char& delimiter);
-    void logImportStats(const int& numOfImportsByName, const int& longestProbe, const int& importedLocations, const int& avgNameLength);
+    void logImportStats(const int &numOfImports, const int &longestProbe, const int &avgNameLength);
     void logComment(const string& comment);
 
     void logString(const string& s);

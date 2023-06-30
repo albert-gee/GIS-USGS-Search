@@ -48,6 +48,9 @@ void DbService::import(const std::string& recordsDataSetFileLocation) {
         // Clear the first line as it has the headings
         getline(recordsFile, line);
         while (getline(recordsFile, line)) {
+            if(line == ""){
+                std::cout << "LSDKFJLKSDFJLKSFJ";
+            }
             databaseFile << line << std::endl;
         }
 
@@ -62,16 +65,19 @@ void DbService::import(const std::string& recordsDataSetFileLocation) {
 // Get the next line from databaseService
 // Returns true if the end of the file has been reached
 bool DbService::getNextLine(std::string & line) {
-    bool endOfFile = false;
+/*    bool endOfFile = false;
 
     if (!databaseFile.eof()) {
         std::getline(databaseFile, line);
-        std::cout << line << std::endl;
-
     } else {
         endOfFile = true;
     }
-    return endOfFile;
+    return endOfFile;*/
+    if(std::getline(databaseFile, line)){
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // Get the line from databaseService

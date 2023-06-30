@@ -40,11 +40,13 @@ public:
 
     // Extract the location from a line
     static Point extractLocationFromLine(string line, int longitudeColumn, int latitudeColumn, char delimiter) {
-        int index = 0;
-        string latitude;
-        string longitude;
-        int column = 0;
-        while(line[index] != '\0' && column <= longitudeColumn){
+
+        //int index = 0;
+        string latitude = extractParamFromLine(line, latitudeColumn, delimiter);
+        string longitude = extractParamFromLine(line, longitudeColumn, delimiter);
+        //int column = 0;
+
+/*        while(line[index] != '\0' && column <= longitudeColumn){
             if(line[index] != delimiter){
                 if(column == latitudeColumn) {
                     latitude += line[index];
@@ -55,7 +57,8 @@ public:
                 ++column;
             }
             ++index;
-        }
+        }*/
+        cout << latitude << " " << longitude << endl;
         return {std::stod(latitude), std::stod(longitude)};
     }
 

@@ -20,16 +20,29 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
 
         // Index the records in the databaseService file by feature name and state
         list<int>* nameImportStats = indexDatabaseByName();
-        int numofIndexedLinesByName = nameImportStats->front();
+        int numofIndexedLines = nameImportStats->front();
         nameImportStats->pop_front();
         int longestProbeSeq = nameImportStats->front();
-        cout << longestProbeSeq;
+
         nameImportStats->pop_front();
         int avgNameLength = nameImportStats->front();
         nameImportStats->pop_front();
-        int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
+        indexDatabaseByCoordinates();
+        stringstream  os;
+        os.width(27);
+        os.setf(ios::left);
+        os << "Imported Features by name:";
+        os << numofIndexedLines << endl;
+        os.width(27);
+        os << "Longest probe sequence:\t";
 
-        logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, numOfIndexedLinesByLocation, avgNameLength);
+        os << longestProbeSeq << endl;
+        os.width(27);
+        os << "Imported Locations:" << numofIndexedLines << endl;
+        os.width(27);
+        os << "Average name length:" << avgNameLength;
+
+        logLine(os.str());
         //nameIndex.printIndex();
         //Michael's test
         //indexDatabaseByName();
@@ -71,8 +84,7 @@ list<int> * SystemManager::indexDatabaseByName(){
     string* line = new string();
     int lineNum = 0;
     databaseService.open();
-    while(!databaseService.getNextLine(*line)){
-        cout << *line << endl;
+    while(databaseService.getNextLine(*line)){
         ++lineNum;
         string featureName = LineUtility::extractParamFromLine(*line, FEATURE_NAME_COL, DELIM);
         string stateAbrv = LineUtility::extractParamFromLine(*line, STATE_ALPHA_COL, DELIM);
@@ -95,20 +107,62 @@ list<int> * SystemManager::indexDatabaseByName(){
     return nameImportStats;
 }
 
+/*list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
+    unsigned int numOfIndexedLines = 0;
+    unsigned int longestProbeSeq = 0;
+    unsigned int totalNameLength = 0;
+    unsigned int avgNameLength = 0;
+
+    string* line = new string();
+    int lineNum = 0;
+    databaseService.open();
+    while(databaseService.getNextLine(*line)){
+
+        ++lineNum;
+        string featureName = LineUtility::extractParamFromLine(*line, FEATURE_NAME_COL, DELIM);
+        string stateAbrv = LineUtility::extractParamFromLine(*line, STATE_ALPHA_COL, DELIM);
+        totalNameLength += featureName.length();
+        ostringstream os;
+        os << featureName << " " << stateAbrv;
+        unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
+        if(probes > longestProbeSeq){
+            longestProbeSeq = probes;
+        }
+
+
+        Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
+        cout << *line << endl;
+        coordinateIndex.insert(location, lineNum);
+        ++numOfIndexedLines;
+
+    }
+    databaseService.close();
+    avgNameLength = (numOfIndexedLines != 0) ? totalNameLength / numOfIndexedLines : 0;
+
+    list<int> *nameImportStats = new list<int>();
+    nameImportStats->push_back(numOfIndexedLines);
+    nameImportStats->push_back(longestProbeSeq);
+    nameImportStats->push_back(avgNameLength);
+    return nameImportStats;
+}*/
+
+
 // Index the records in the databaseService file by location
 unsigned int SystemManager::indexDatabaseByCoordinates(){
     unsigned int numOfIndexedLines = 0;
 
-    string line;
+    string* line = new string();
     int lineNum = 0;
-    while(databaseService.getNextLine(line)){
+    databaseService.open();
+    while(databaseService.getNextLine(*line)){
+
         ++lineNum;
 
-        Point location = LineUtility::extractLocationFromLine(line, LONGITUDE_COL, LATITUDE_COL, DELIM);
+        Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
         coordinateIndex.insert(location, lineNum);
         ++numOfIndexedLines;
     }
-
+    databaseService.close();
     return numOfIndexedLines;
 }
 
@@ -169,6 +223,7 @@ void SystemManager::debugHash() {
     const string stats = nameIndex.str();
     logLine(stats);
     logLine(string(90, '-'));
+    //nameIndex.printIndex();
 }
 
 void SystemManager::debugPool() {
