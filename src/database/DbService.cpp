@@ -12,11 +12,7 @@ DbService::DbService(const std::string &databaseFileLocation) {
         // error if it occurs.
     }
 
-    // Create the databaseService file as an empty file
-    databaseFile.open(databaseFileLocation, std::ios::in | std::ios::out | std::ios::app);
-    if (!databaseFile.is_open()) {
-        std::cerr << "Error: Failed to create databaseService file." << std::endl;
-    }
+    this->databaseFileLocation = databaseFileLocation;
 }
 
 // Destructor
@@ -24,12 +20,47 @@ DbService::~DbService() {
     databaseFile.close();
 }
 
-// Insert a line into the databaseService file
-void DbService::insert(const std::string &line) {
-    databaseFile << line << std::endl;
+void DbService::open() {
+    databaseFile.open(databaseFileLocation, std::ios::in | std::ios::out | std::ios::app);
+    if (!databaseFile.is_open()) {
+        std::cerr << "Error: Failed to create databaseService file." << std::endl;
+    }
 }
 
-bool DbService::getNextLine(std::string line) {
+void DbService::close() {
+    databaseFile.close();
+}
+
+void DbService::import(const std::string& recordsDataSetFileLocation) {
+
+    // The recordsDataSetFileLocation file is created and opened for reading
+    std::ifstream recordsFile (recordsDataSetFileLocation);
+
+    if(!recordsFile.is_open()) {
+        std::cerr << "Error: Failed to create records file." << std::endl;
+    } else {
+        // The records file is open. Open the database file
+        open();
+
+        // Parse the records file line by line and add the valid records to the database file
+        std::string line;
+        // Clear the first line as it has the headings
+        getline(recordsFile, line);
+        while (getline(recordsFile, line)) {
+            databaseFile << line << std::endl;
+        }
+
+        // Close the database file
+        close();
+
+        // Close the records file
+        recordsFile.close();
+    }
+}
+
+// Get the next line from databaseService
+// Returns true if the end of the file has been reached
+bool DbService::getNextLine(std::string & line) {
     bool endOfFile = true;
 
     if (!databaseFile.eof()) {

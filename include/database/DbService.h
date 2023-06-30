@@ -9,15 +9,17 @@ public:
     explicit DbService(const std::string& databaseFileLocation);
     ~DbService();
 
-    void insert(const std::string& line);
+    void open();
+    void close();
 
-    bool getNextLine(std::string line);
+    void import(const std::string& recordsDataSetFileLocation);
+
+    bool getNextLine(std::string& line);
 
     std::string getLineByNumber(int lineNum);
 
-    void close();
-
 private:
+    std::basic_string<char> databaseFileLocation;
     std::fstream databaseFile;
 };
 
