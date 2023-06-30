@@ -30,10 +30,10 @@ void CommandProcessor::processCommandsFromScriptFile() {
     }
 }
 
-// Process a command from the command file.
+// Process a line from the line file.
 // Lines beginning with a semicolon and blank lines are ignored.
 // Other lines consist of tokens separated by single Tab characters. A line terminator follow the last token on a line.
-void CommandProcessor::processCommand(const string &command) {
+void CommandProcessor::processCommand(const string &line) {
     // Special Characters
     char commentIndicator = ';';
     char delim1 = '\t';
@@ -43,17 +43,16 @@ void CommandProcessor::processCommand(const string &command) {
     list<string> args;
     string temp;
     int i = 0;
+    // Check if the line is not a comment
+    if (line[0] != commentIndicator) {
 
-    // Check if the command is not a comment
-    if (command[0] != commentIndicator) {
-
-        // Parse the command character by character until the end of the command
-        while (command[i] != end) {
+        // Parse the line character by character until the end of the line
+        while (line[i] != end) {
 
             // Check if the character is not a delimiter and add it to the temp string.
             // If the character is a delimiter, add the temp string to the args list and clear the temp string.
-            if (command[i] != delim1) {
-                temp += command[i];
+            if (line[i] != delim1) {
+                temp += line[i];
             } else {
                 if (!temp.empty()) {
                     args.push_back(temp);
@@ -61,7 +60,7 @@ void CommandProcessor::processCommand(const string &command) {
                 }
             }
             i++;
-            if (command[i] == end) {
+            if (line[i] == end) {
                 if (!temp.empty()) {
                     args.push_back(temp);
                 }
@@ -136,15 +135,15 @@ void CommandProcessor::processCommand(const string &command) {
 
         }
 
-        /*cout << command << endl;
+        /*cout << line << endl;
         for(string s : args) {
             cout << s << " ";
         }
         cout << endl;*/
     } else {
-        systemManager.logComment(command);
+        systemManager.logComment(line);
     }
 
-    //std::cout << "Processing command: " << command << std::endl;
+    //std::cout << "Processing line: " << line << std::endl;
 
 }

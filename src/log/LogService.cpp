@@ -8,12 +8,18 @@ LogService::LogService(const string& logFileLocation){
     if (std::remove(logFileLocation.c_str()) != 0) {
         std::perror("Error deleting the log file");
     }
-
+    LogService::logFileLocation = logFileLocation;
     // Create the log file as an empty file
     logFile.open(logFileLocation);
     if (!logFile.is_open()) {
         std::cerr << "Error: Failed to open log file." << std::endl;
     }
+  //  logFile.close();
+}
+
+// Destructor
+LogService::~LogService() {
+    logFile.close();
 }
 
 void LogService::logCommand(const int& cmdNumber, const string& function, list<string>& args, const char& delimiter) {
@@ -28,16 +34,20 @@ void LogService::logCommand(const int& cmdNumber, const string& function, list<s
     }
     os << endl;
     string line = os.str();
-    logLine(line);
+    logString(line);
 }
 
 void LogService::logComment(const string& comment){
-    logLine(comment);
+    logString(comment);
 }
 
-void LogService::logLine(const string& line){
-    logFile << line << endl;
-    logFile.close();
+void LogService::logString(const string& s){
+
+    if (!logFile.is_open()) {
+        std::cerr << "Error: Failed to open log file." << std::endl;
+    } else {
+        logFile << s << endl;
+    }
 }
 
 void LogService::logImportStats(const int &numOfImportsByName, const int &longestProbe, const int &importedLocations,
@@ -55,6 +65,6 @@ void LogService::logImportStats(const int &numOfImportsByName, const int &longes
     os << "Imported Locations:" << importedLocations << endl;
     os.width(27);
     os << "Average name length:" << avgNameLength;
-    logLine(os.str());
-    logLine(string(90, '-'));
+    logString(os.str());
+    logString(string(90, '-'));
 }

@@ -27,8 +27,9 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         nameImportStats->pop_front();
         int avgNameLength = nameImportStats->front();
         nameImportStats->pop_front();
-        //int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
-        logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, 0, avgNameLength);
+        int numOfIndexedLinesByLocation = indexDatabaseByCoordinates();
+
+        logService.logImportStats(numofIndexedLinesByName, longestProbeSeq, numOfIndexedLinesByLocation, avgNameLength);
         //nameIndex.printIndex();
         //Michael's test
         //indexDatabaseByName();
@@ -67,15 +68,15 @@ list<int> * SystemManager::indexDatabaseByName(){
     unsigned int totalNameLength = 0;
     unsigned int avgNameLength = 0;
 
-    string line;
+    string* line = new string();
     int lineNum = 0;
     databaseService.open();
-    while(databaseService.getNextLine(line)){
+    while(!databaseService.getNextLine(*line)){
+        cout << *line << endl;
         ++lineNum;
-        string featureName = LineUtility::extractParamFromLine(line, FEATURE_NAME_COL, DELIM);
-        string stateAbrv = LineUtility::extractParamFromLine(line, STATE_ALPHA_COL, DELIM);
+        string featureName = LineUtility::extractParamFromLine(*line, FEATURE_NAME_COL, DELIM);
+        string stateAbrv = LineUtility::extractParamFromLine(*line, STATE_ALPHA_COL, DELIM);
         totalNameLength += featureName.length();
-        //string indexKey = LineUtility::extractFeatureNameAndStateFromLine(line, FEATURE_NAME_COL, STATE_ALPHA_COL, DELIM);
         ostringstream os;
         os << featureName << " " << stateAbrv;
         unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
@@ -84,6 +85,7 @@ list<int> * SystemManager::indexDatabaseByName(){
             longestProbeSeq = probes;
         }
     }
+    databaseService.close();
     avgNameLength = (numOfIndexedLines != 0) ? totalNameLength / numOfIndexedLines : 0;
 
     list<int> *nameImportStats = new list<int>();
@@ -160,7 +162,7 @@ void SystemManager::logComment(string comment){
 }
 
 void SystemManager::logLine(string text){
-    logService.logLine(text);
+    logService.logString(text);
 }
 
 void SystemManager::debugHash() {

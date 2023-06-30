@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <list>
 #include "../../include/database/DbService.h"
 
 DbService::DbService(const std::string &databaseFileLocation) {
@@ -61,13 +62,15 @@ void DbService::import(const std::string& recordsDataSetFileLocation) {
 // Get the next line from databaseService
 // Returns true if the end of the file has been reached
 bool DbService::getNextLine(std::string & line) {
-    bool endOfFile = true;
+    bool endOfFile = false;
 
     if (!databaseFile.eof()) {
         std::getline(databaseFile, line);
-        endOfFile = false;
-    }
+        std::cout << line << std::endl;
 
+    } else {
+        endOfFile = true;
+    }
     return endOfFile;
 }
 

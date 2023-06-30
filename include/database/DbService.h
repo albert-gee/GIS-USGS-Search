@@ -18,9 +18,12 @@ public:
 
     std::string getLineByNumber(int lineNum);
 
+    std::list<std::string> & getLines();
+
 private:
     std::basic_string<char> databaseFileLocation;
     std::fstream databaseFile;
+
 };
 
 

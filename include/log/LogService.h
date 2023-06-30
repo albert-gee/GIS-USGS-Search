@@ -8,17 +8,18 @@ using namespace std;
 
 class LogService {
 public:
+    ~LogService();
     explicit LogService(const string& logFileLocation);
 
     void logCommand(const int& cmdNumber, const string& function, list<string>& args, const char& delimiter);
     void logImportStats(const int& numOfImportsByName, const int& longestProbe, const int& importedLocations, const int& avgNameLength);
     void logComment(const string& comment);
 
-    void logLine(const string& line);
+    void logString(const string& s);
 
 private:
     std::ofstream logFile;
-
+    std::string logFileLocation;
 };
 
 

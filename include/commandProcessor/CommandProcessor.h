@@ -24,7 +24,7 @@ private:
     int commandsProcessed = 0;
     //NameIndex nameIndex;
 
-    void processCommand(const std::string& command);
+    void processCommand(const std::string& line);
 };
 
 
