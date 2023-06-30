@@ -58,7 +58,6 @@ public:
             }
             ++index;
         }*/
-        cout << latitude << " " << longitude << endl;
         return {std::stod(latitude), std::stod(longitude)};
     }
 
