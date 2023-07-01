@@ -68,15 +68,18 @@ void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
 
             // Then, move the entries from the bucket into the sub-quadrants
             for (const auto &entry: bucket) {
-                insertIntoSubQuadrants(location, offsetOfGISRecord);
+
+                for (const auto &bucketOffsetOfGISRecord: entry.offsetsOfGISRecords) {
+                    insertIntoSubQuadrants(entry.location, bucketOffsetOfGISRecord);
+                }
             }
 
             // Clear the points from the bucket
             clearBucket();
+        } else {
+            // Otherwise, insert the entry into the sub-quadrants since the bucket is full
+            insertIntoSubQuadrants(location, offsetOfGISRecord);
         }
-
-        // Insert the entry into the sub-quadrants since the bucket is full
-        insertIntoSubQuadrants(location, offsetOfGISRecord);
     }
 }
 
