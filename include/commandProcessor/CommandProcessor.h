@@ -25,6 +25,8 @@ private:
     //NameIndex nameIndex;
 
     void processCommand(const std::string& line);
+
+    void whatIs(list<string> args);
 };
 
 

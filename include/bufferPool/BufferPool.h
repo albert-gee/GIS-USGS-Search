@@ -15,7 +15,7 @@ public:
     explicit BufferPool(DbService& dbService);
 
     // ToDo: implement the following methods
-    list<GISRecord *> getRecordsByKey(string key, NameIndex &nameIndex);
+    list<BufferedRecord *> getRecordsByKey(string key, NameIndex &nameIndex);
     const list<GISRecord *> findGISRecordsByCoordinates(double latitude, double longitude);
     void printBuffer();
 
@@ -27,7 +27,7 @@ private:
 
     DbService& databaseService;
 
-    GISRecord * searchBuffer(int lineNum);
+    BufferedRecord * searchBuffer(int lineNum);
     // List of buffered records in the buffer pool
     list<BufferedRecord*> buffer;
     string getLineFromDB(int, string);

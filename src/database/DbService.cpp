@@ -81,6 +81,7 @@ bool DbService::getNextLine(std::string & line) {
 std::string DbService::getLineByNumber(int lineNum){
     std::string line;
     int index = 1;
+    open();
     while (index < lineNum && !databaseFile.eof()) {
         databaseFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         ++index;
@@ -89,6 +90,6 @@ std::string DbService::getLineByNumber(int lineNum){
         getline(databaseFile,line);
 
     }
-
+    close();
     return line;
 }

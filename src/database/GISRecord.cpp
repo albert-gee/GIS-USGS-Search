@@ -1,3 +1,5 @@
+#include <sstream>
+#include <iostream>
 #include "../../include/database/GISRecord.h"
 
 GISRecord::GISRecord(int feature_id, std::string feature_name, std::string feature_class, std::string state_alpha,
@@ -193,4 +195,71 @@ const std::string &GISRecord::getDateEdited() const {
 
 void GISRecord::setDateEdited(const std::string &dateEdited) {
     date_edited = dateEdited;
+}
+
+std::string GISRecord::dmsStr(std::string s) {
+    std::string dir = s.substr(s.length() - 2, 1);
+    std::string sec = s.substr(s.length() -4, 2);
+
+}
+
+std::string GISRecord::latDMSStr() {
+    double latitude = std::stof(primary_latitude_DEC);
+    std::string direction = latitude < 0 ? "South" : "North";
+    std::string dms = convertDECtoDMS(latitude);
+    return dms + direction;
+}
+
+std::string GISRecord::longDMSStr() {
+    double longitude = std::stod(primary_longitude_DEC);
+    std::string direction = longitude < 0 ? "East" : "West";
+    std::string dms = convertDECtoDMS(longitude);
+    return dms + direction;
+}
+
+std::string GISRecord::convertDECtoDMS(double dec){
+
+    double absoluteDEC = std::abs(dec);
+    std::cout << dec << " " << absoluteDEC <<std::endl;
+    unsigned int degrees = absoluteDEC;
+    absoluteDEC -= degrees;
+
+    unsigned int minutes = absoluteDEC *= 60;
+
+    absoluteDEC -= minutes;
+    unsigned int seconds = absoluteDEC *= 60;
+    std::ostringstream os;
+    os << degrees << "d " << minutes << "m " << seconds << "s ";
+    return os.str();
+}
+
+std::string GISRecord::str(){
+    char delimiter = '|';
+    std::ostringstream os;
+
+    os << feature_id << delimiter;
+    os << feature_name << delimiter;
+    os << feature_class << delimiter;
+
+    os << state_alpha << delimiter;
+    os << state_numeric << delimiter;
+    os << county_name << delimiter;
+    os << county_numeric << delimiter;
+
+    os << primary_latitude_DMS << delimiter;
+    os << primary_longitude_DMS << delimiter;
+    os << primary_latitude_DEC << delimiter;
+    os << primary_longitude_DEC << delimiter;
+
+    os << source_latitude_DMS << delimiter;
+    os << source_longitude_DMS << delimiter;
+    os << source_latitude_DES << delimiter;
+    os << source_longitude_DES << delimiter;
+
+    os << elevation_meters << delimiter;
+    os << elevation_feet << delimiter;
+    os << map_name << delimiter;
+    os << date_created << delimiter;
+    os << date_edited << delimiter;
+    return os.str();
 }

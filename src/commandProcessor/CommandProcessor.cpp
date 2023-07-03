@@ -115,11 +115,11 @@ void CommandProcessor::processCommand(const string &line) {
             // Import the records into the databaseService
             systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
         } else if (function == "what_is") {
-            //systemManager.logCommand(commandsProcessed, function, args, delim1);
-            string featureName = args.front();
+            whatIs(args);
+  /*          string featureName = args.front();
             args.pop_front();
             string stateAbrv = args.front();
-
+            systemManager.whatIs(featureName, stateAbrv);*/
 
         } else if (function == "what_is_in") {
 
@@ -143,7 +143,11 @@ void CommandProcessor::processCommand(const string &line) {
     } else {
         systemManager.logComment(line);
     }
+}
 
-    //std::cout << "Processing line: " << line << std::endl;
-
+void CommandProcessor::whatIs(list<string> args) {
+    string featureName = args.front();
+    args.pop_front();
+    string stateAbrv = args.front();
+    systemManager.whatIs(featureName, stateAbrv);
 }

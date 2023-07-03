@@ -91,11 +91,15 @@ public:
     const std::string &getDateEdited() const;
 
     void setDateEdited(const std::string &dateEdited);
+    std::string str();
+
+    std::string latDMSStr();
+
+    std::string longDMSStr();
 
 private:
     int feature_id;
     std::string feature_name;
-
     std::string feature_class;
 
     std::string state_alpha;
@@ -114,14 +118,14 @@ private:
     std::string source_longitude_DES;
 
     int elevation_meters;
-
     int elevation_feet;
-
     std::string map_name;
-
     std::string date_created;
-
     std::string date_edited;
+
+    std::string convertDECtoDMS(double dec);
+
+    std::string dmsStr(std::string s);
 
 };
 

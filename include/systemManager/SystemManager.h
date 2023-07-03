@@ -75,6 +75,8 @@ private:
     string convertLongDECtoDMS(double dec);
 
     list<int> *indexDatabaseByNameAndCoordinates();
+
+    void logLineBreak();
 };
 
 

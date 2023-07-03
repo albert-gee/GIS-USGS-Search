@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include "../../include/systemManager/SystemManager.h"
 #include "../../include/database/DbService.h"
 
@@ -19,7 +20,7 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         databaseService.import(recordsDataSetFileLocation);
 
         // Index the records in the databaseService file by feature name and state
-        list<int>* nameImportStats = indexDatabaseByName();
+        list<int>* nameImportStats = indexDatabaseByNameAndCoordinates();
         int numofIndexedLines = nameImportStats->front();
         nameImportStats->pop_front();
         int longestProbeSeq = nameImportStats->front();
@@ -27,8 +28,8 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         nameImportStats->pop_front();
         int avgNameLength = nameImportStats->front();
         nameImportStats->pop_front();
-
-        indexDatabaseByCoordinates();
+        //coordinateIndex.print();
+        //indexDatabaseByCoordinates();
 
         stringstream  os;
         os.width(27);
@@ -83,7 +84,7 @@ list<int> * SystemManager::indexDatabaseByName(){
     return nameImportStats;
 }
 
-/*list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
+list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
     unsigned int numOfIndexedLines = 0;
     unsigned int longestProbeSeq = 0;
     unsigned int totalNameLength = 0;
@@ -105,9 +106,7 @@ list<int> * SystemManager::indexDatabaseByName(){
             longestProbeSeq = probes;
         }
 
-
         Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
-        cout << *line << endl;
         coordinateIndex.insert(location, lineNum);
         ++numOfIndexedLines;
 
@@ -120,7 +119,7 @@ list<int> * SystemManager::indexDatabaseByName(){
     nameImportStats->push_back(longestProbeSeq);
     nameImportStats->push_back(avgNameLength);
     return nameImportStats;
-}*/
+}
 
 
 // Index the records in the databaseService file by location
@@ -159,28 +158,20 @@ void SystemManager::whatIs(string featureName, string stateAbrv){
     ostringstream os;
     os << featureName << " " << stateAbrv;
     const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
-}
+    os.str("");
+    os.clear();
 
-string SystemManager::convertLatDECtoDMS(double dec){
-    string direction = dec < 0 ? "South" : "North";
-    double absoluteDEC = abs(dec);
-    unsigned int degrees = absoluteDEC;
-    unsigned int minutes = absoluteDEC -= degrees;
-    unsigned int seconds = absoluteDEC -= minutes;
-    ostringstream os;
-    os << degrees << "d " << minutes << "m " << seconds << "s " << direction;
-    return os.str();
-}
-
-string SystemManager::convertLongDECtoDMS(double dec){
-    string direction = dec >= 0 ? "East" : "West";
-    double absoluteDEC = abs(dec);
-    unsigned int degrees = absoluteDEC;
-    unsigned int minutes = absoluteDEC -= degrees;
-    unsigned int seconds = absoluteDEC -= minutes;
-    ostringstream os;
-    os << degrees << "d " << minutes << "m " << seconds << "s " << direction;
-    return os.str();
+    for(auto record: records){
+        os.width(3);
+        os << "" << record->lineNum << ": " << record->gisRecordPtr->getCountyName();
+        os << "(" << record->gisRecordPtr->latDMSStr() << ", " << record->gisRecordPtr->longDMSStr() << ")";
+    }
+    if(records.empty()){
+        os.width(3);
+        os << "" << "No records match \"" << featureName << "\" and \"" << stateAbrv << "\"";
+    }
+    logLine(os.str());
+    logLineBreak();
 }
 
 void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
@@ -198,14 +189,20 @@ void SystemManager::logLine(string text){
 void SystemManager::debugHash() {
     const string stats = nameIndex.str();
     logLine(stats);
-    logLine(string(90, '-'));
-    //nameIndex.printIndex();
+    logLineBreak();
+
 }
 
 void SystemManager::debugPool() {
     const string pool = bufferPool.str();
     logLine(pool);
+    logLineBreak();
 }
 
+void SystemManager::logLineBreak(){
+    int lineBreakLength = 90;
+    char lineBreakChar = '-';
+    logLine(string(lineBreakLength, lineBreakChar));
+}
 
 
