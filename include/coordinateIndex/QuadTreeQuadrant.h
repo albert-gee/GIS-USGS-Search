@@ -30,15 +30,13 @@ public:
 
     [[nodiscard]] const Point &getSouthEastPoint() const;
 
-private:
-    // Bounding box
-    Point northWestPoint;
-public:
     void setNorthWestPoint(const Point &northWestPoint);
 
     void setSouthEastPoint(const Point &southEastPoint);
 
 private:
+    // Bounding box
+    Point northWestPoint;
     Point southEastPoint;
 
     // Bucket contains entries in quadrant up to bucket capacity
