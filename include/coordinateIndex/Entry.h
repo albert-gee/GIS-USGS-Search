@@ -19,14 +19,13 @@ struct Entry {
 
     // Print the entry
     void print() const {
-        std::cout << "Entry" << std::endl;
-        std::cout << "Location: ";
+        std::cout << "Entry - ";
         location.print();
         std::cout << "Offsets of GIS records: ";
         for (int offsetOfGISRecord : offsetsOfGISRecords) {
             std::cout << offsetOfGISRecord << " ";
         }
-        std::cout << std::endl;
+        std::cout << "\n" << std::endl;
     }
 };
 
