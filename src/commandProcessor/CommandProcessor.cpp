@@ -91,9 +91,15 @@ void CommandProcessor::processCommand(const string &line) {
             string northLat = args.front();
             args.pop_front();
 
+            // The coordinates are in DMS format, so create DMS objects
+            DMS westLongDMS(westLong);
+            DMS eastLongDMS(eastLong);
+            DMS southLatDMS(southLat);
+            DMS northLatDMS(northLat);
+
             // Set the boundaries of the coordinate space
-            systemManager.setCoordinateIndexBoundaries(std::stod(westLong), std::stod(eastLong), std::stod(southLat),
-                                                       std::stod(northLat));
+            systemManager.setCoordinateIndexBoundaries(northLatDMS.toDecimal(), southLatDMS.toDecimal(),
+                                                       eastLongDMS.toDecimal(), westLongDMS.toDecimal());
         } else if (function == "import") {
 
             // The next argument is the name of the file containing the records
