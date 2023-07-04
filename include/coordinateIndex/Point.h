@@ -5,14 +5,14 @@
 
 // This struct describes a geographic coordinate.
 struct Point {
-    double x;
-    double y;
+    double latitude;
+    double longitude;
 
-    Point(double x, double y) : x{x}, y{y} {}
+    Point(double lat, double lng) : latitude{lat}, longitude{lng} {}
 
     // Print the point
     void print() const {
-        std::cout << "(" << x << ", " << y << ")" << std::endl;
+        std::cout << "(" << latitude << ", " << longitude << ")" << std::endl;
     }
 };
 
