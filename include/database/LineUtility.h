@@ -58,7 +58,7 @@ public:
             }
             ++index;
         }*/
-        return {std::stod(latitude), std::stod(longitude)};
+        return {latitude, longitude};
     }
 
     // Extract the feature name and state alpha from a line
