@@ -32,6 +32,14 @@ struct DMS {
     DMS(double degrees, double minutes, double seconds, char direction) : degrees{degrees}, minutes{minutes},
                                                                           seconds{seconds}, direction{direction} {}
 
+    [[nodiscard]] double toDecimal() const {
+        double decimal = degrees + minutes / 60 + seconds / 3600;
+        if (direction == 'S' || direction == 'W') {
+            decimal *= -1;
+        }
+        return decimal;
+    }
+
     // Print the DMS coordinate
     void print() const {
         std::cout << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
