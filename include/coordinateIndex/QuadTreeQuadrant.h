@@ -55,6 +55,9 @@ private:
     // It is also the difference between the bucket capacity and the number of entries in the bucket.
     [[nodiscard]] unsigned long getBucketAvailableCapacity() const;
 
+    // Check if the point is within the quadrant
+    [[nodiscard]] bool isPointWithinQuadrant(Point point) const;
+
     // Insert an offset and its location into the bucket
     void insertIntoBucket(Point location, int offsetOfGISRecord);
 
