@@ -7,7 +7,7 @@
 // This class describes a QuadTree data structure. It is used to indexDatabaseByName the GIS records by their geographic coordinates.
 class QuadTree {
 public:
-    QuadTree(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity);
+    explicit QuadTree(unsigned long bucketCapacity);
 
     ~QuadTree();
 
