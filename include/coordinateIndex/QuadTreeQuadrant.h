@@ -42,7 +42,7 @@ private:
     // Bucket contains entries in quadrant up to bucket capacity
     std::vector<Entry> bucket;
     // Bucket capacity.
-    unsigned long bucketCapacity;
+    const unsigned long bucketCapacity;
 
     // Children quadrants
     QuadTreeQuadrant *northWest;
