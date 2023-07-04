@@ -10,7 +10,27 @@ struct DMS {
     double seconds;   // Seconds component
     char direction; // Direction (N, S, E, W)
 
-    DMS(double degrees, double minutes, double seconds, char direction) : degrees{degrees}, minutes{minutes}, seconds{seconds}, direction{direction} {}
+    // This constructor takes coordinate in DMS format as a string, e.g. 0794530W, 0792630W, 381000N, 383000N.
+    explicit DMS(const std::string &coordinate) {
+        std::string coordinateWithoutDirection = coordinate.substr(0, coordinate.length() - 1);
+        std::string directionString = coordinate.substr(coordinate.length() - 1);
+
+        // Determine the number of digits for each component
+        unsigned int minutesDigits = 2;
+        unsigned int secondsDigits = 2;
+        unsigned long degreesDigits = coordinateWithoutDirection.length() - minutesDigits - secondsDigits;
+
+
+        // Extract the components from the string
+        degrees = std::stod(coordinateWithoutDirection.substr(0, degreesDigits));
+        minutes = std::stod(coordinateWithoutDirection.substr(degreesDigits, minutesDigits));
+        seconds = std::stod(coordinateWithoutDirection.substr(degreesDigits + minutesDigits, secondsDigits));
+        direction = directionString[0];
+    }
+
+    // This constructor takes coordinate in DMS format as separate components.
+    DMS(double degrees, double minutes, double seconds, char direction) : degrees{degrees}, minutes{minutes},
+                                                                          seconds{seconds}, direction{direction} {}
 
     // Print the DMS coordinate
     void print() const {
