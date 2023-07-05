@@ -39,6 +39,8 @@ public:
     // Find GIS records that match the given coordinates.
     list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude);
     void whatIs(string featureName, string stateAbrv);
+    void whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
+                  double halfHeight, double halfWidth);
     SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, DbService& databaseService, LogService& logService);
 
 
@@ -77,6 +79,8 @@ private:
     list<int> *indexDatabaseByNameAndCoordinates();
 
     void logLineBreak();
+
+    list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth);
 };
 
 

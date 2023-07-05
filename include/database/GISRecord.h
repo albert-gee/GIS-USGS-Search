@@ -97,6 +97,8 @@ public:
 
     std::string longDMSStr();
 
+    std::string detailStr();
+
 private:
     int feature_id;
     std::string feature_name;

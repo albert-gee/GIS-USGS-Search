@@ -1,5 +1,7 @@
 #include <sstream>
 #include <iostream>
+#include <list>
+#include <vector>
 #include "../../include/database/GISRecord.h"
 
 GISRecord::GISRecord(int feature_id, std::string feature_name, std::string feature_class, std::string state_alpha,
@@ -200,7 +202,6 @@ void GISRecord::setDateEdited(const std::string &dateEdited) {
 std::string GISRecord::dmsStr(std::string s) {
     std::string dir = s.substr(s.length() - 2, 1);
     std::string sec = s.substr(s.length() -4, 2);
-
 }
 
 std::string GISRecord::latDMSStr() {
@@ -220,10 +221,8 @@ std::string GISRecord::longDMSStr() {
 std::string GISRecord::convertDECtoDMS(double dec){
 
     double absoluteDEC = std::abs(dec);
-    std::cout << dec << " " << absoluteDEC <<std::endl;
     unsigned int degrees = absoluteDEC;
     absoluteDEC -= degrees;
-
     unsigned int minutes = absoluteDEC *= 60;
 
     absoluteDEC -= minutes;
@@ -261,5 +260,27 @@ std::string GISRecord::str(){
     os << map_name << delimiter;
     os << date_created << delimiter;
     os << date_edited << delimiter;
+    return os.str();
+}
+
+std::string GISRecord::detailStr(){
+    char delimiter = '|';
+    std::ostringstream os;
+    int indent = 5;
+    int indent2 = 13;
+    std::string colon = ": ";
+    os.setf(std::ios::left);
+
+    std::vector<std::string> params = {std::to_string(feature_id), feature_name, feature_class, state_alpha, county_name, longDMSStr(), latDMSStr(),
+                                     std::to_string(elevation_feet), map_name, date_created };
+
+    std::vector<std::string> headers = {"Feature ID", "Feature Name", "Feature Cat", "State", "County", "Longitude", "Latitude", "Elev in ft", "USGS Quad", "Date Created"};
+
+    for(int i = 0; i < params.size(); ++i){
+        os.width(indent);
+        os << "";
+        os.width(indent2);
+        os << headers[i] << colon << params[i] << std::endl;
+    }
     return os.str();
 }

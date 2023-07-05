@@ -111,15 +111,19 @@ void CommandProcessor::processCommand(const string &line) {
         } else if (function == "what_is_at") {
             // The next argument is the latitude of the location
             string latitude = args.front();
-            cout << "lat: " << latitude << endl;
+
+            //cout << "lat: " << latitude << endl;
             args.pop_front();
 
             // The next argument is the latitude of the location
             string longitude = args.front();
-            cout << "lon: " << longitude << endl;
+            //cout << "lon: " << longitude << endl;
+
+            //cout << latitude.length() << endl;
 
             // Import the records into the databaseService
-            systemManager.findGISRecordsByCoordinates(std::stod(latitude), std::stod(longitude));
+            auto records = systemManager.findGISRecordsByCoordinates(LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude));
+
         } else if (function == "what_is") {
             whatIs(args);
   /*          string featureName = args.front();
@@ -128,6 +132,27 @@ void CommandProcessor::processCommand(const string &line) {
             systemManager.whatIs(featureName, stateAbrv);*/
 
         } else if (function == "what_is_in") {
+            bool isFiltered = false;
+            bool isDetailed = false;
+            string filter = "";
+            if(args.front() == "-filter"){
+                isFiltered = true;
+                args.pop_front();
+                filter = args.front();
+                args.pop_front();
+            } else if(args.front() == "-long"){
+                isDetailed = true;
+                args.pop_front();
+            }
+
+            double latitude = LineUtility::convertDMStoDEC(args.front());
+            args.pop_front();
+            double longitude = LineUtility::convertDMStoDEC(args.front());
+            args.pop_front();
+            double halfHeight = stod(args.front()) / 3600;
+            args.pop_front();
+            double halfWidth = stod(args.front()) / 3600;
+            systemManager.whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, halfHeight, halfWidth);
 
         } else if (function == "debug") {
             string debugTarget = args.front();
@@ -140,12 +165,6 @@ void CommandProcessor::processCommand(const string &line) {
         } else if (function == "quit") {
 
         }
-
-        /*cout << line << endl;
-        for(string s : args) {
-            cout << s << " ";
-        }
-        cout << endl;*/
     } else {
         systemManager.logComment(line);
     }

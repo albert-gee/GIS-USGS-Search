@@ -44,7 +44,7 @@ void SystemManager::import(const string& recordsDataSetFileLocation){
         os.width(27);
         os << "Average name length:" << avgNameLength;
         logLine(os.str());
-
+        logLineBreak();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
@@ -106,6 +106,7 @@ list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
         }
 
         Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
+        //cout << location.x << " " << location.y <<endl;
         coordinateIndex.insert(location, lineNum);
         ++numOfIndexedLines;
 
@@ -142,6 +143,12 @@ unsigned int SystemManager::indexDatabaseByCoordinates(){
 
 // ToDo: implement the following method
 list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude) {
+    Point x = {latitude, longitude};
+    Point y = {latitude, longitude};
+    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(x, y);
+    for(auto l: lineNums){
+        cout << l << endl;
+    }
     list<GISRecord> offsets;
 
     // Find in buffer
@@ -152,6 +159,34 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
 
     return offsets;
 }
+
+list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth) {
+    //cout << "what is in " << latitude + halfHeight << " " << longitude - halfWidth << " " << latitude - halfHeight << " " << longitude + halfWidth <<endl;
+    Point nw = {latitude + halfHeight, longitude - halfWidth };
+    Point se = {latitude - halfHeight, longitude + halfWidth };
+    coordinateIndex.print();
+    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
+    for(auto l: lineNums){
+        cout << l << endl;
+    }
+
+    list<GISRecord> offsets;
+
+    // Find in buffer
+    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
+
+    // If not found in buffer, find in coordinate index
+    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+
+    return offsets;
+}
+
+
+void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
+                             double halfHeight, double halfWidth) {
+    auto offsets = findGISRecordsByCoordinates(latitude, longitude, halfHeight, halfWidth);
+}
+
 
 void SystemManager::whatIs(string featureName, string stateAbrv){
     ostringstream os;
