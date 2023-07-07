@@ -153,11 +153,21 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
 void CommandProcessor::world(string &westLong, string &eastLong, string &southLat, string &northLat) {
 
+
     // The coordinates are in DMS format, so create DMS objects
     DMS westLongDMS(westLong);
     DMS eastLongDMS(eastLong);
     DMS southLatDMS(southLat);
     DMS northLatDMS(northLat);
+
+    ostringstream os;
+    os << "\t\t\t\t\t\tWorld boundaries are set to:" << endl;
+    os << "\t\t\t\t\t\t\t\t" << northLatDMS.dmsInSeconds() << endl;
+    os << "\t\t\t\t\t\t" << westLongDMS.dmsInSeconds();
+    os.width(14);
+    os << "" << eastLongDMS.dmsInSeconds() <<endl;
+    os << "\t\t\t\t\t\t\t\t" << southLatDMS.dmsInSeconds();
+    systemManager.logComment(os.str());
 
     // Set the boundaries of the coordinate space
     systemManager.setCoordinateIndexBoundaries(northLatDMS.toDecimal(), southLatDMS.toDecimal(),

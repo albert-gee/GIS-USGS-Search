@@ -103,6 +103,7 @@ private:
              string &halfWidth);
 
 
+    int convertDMSStringtoSeconds(string dms);
 };
 
 

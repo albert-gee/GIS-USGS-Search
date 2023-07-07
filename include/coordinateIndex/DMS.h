@@ -44,6 +44,14 @@ struct DMS {
     void print() const {
         std::cout << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
     }
+
+    int dmsInSeconds(){
+        int dmsInSec = degrees * 3600 + minutes * 60 + seconds;
+        if(direction == 'W' || direction == 'S'){
+            dmsInSec = -dmsInSec;
+        }
+        return dmsInSec;
+    }
 };
 
 #endif //DMS_H
