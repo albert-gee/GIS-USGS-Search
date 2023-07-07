@@ -64,5 +64,7 @@ const string &generateLogStart(const string databaseFileLocation, const string l
     string *logHeading = new string();
     *logHeading  = os.str();
     return *logHeading;
+
 }
+
 
