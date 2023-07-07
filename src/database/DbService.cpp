@@ -93,3 +93,7 @@ std::string DbService::getLineByNumber(int lineNum){
     close();
     return line;
 }
+
+const std::basic_string<char> &DbService::getDatabaseFileLocation() const {
+    return databaseFileLocation;
+}

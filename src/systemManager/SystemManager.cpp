@@ -4,7 +4,8 @@
 #include "../../include/systemManager/SystemManager.h"
 
 SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, DbService& databaseService, LogService& logService)
-        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseService{databaseService}, logService{logService}{}
+        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseService{databaseService}, logService{logService}{
+}
 
 // Set boundaries for the coordinate index
 void SystemManager::setCoordinateIndexBoundaries(double northLat, double southLat, double eastLong, double westLong) {

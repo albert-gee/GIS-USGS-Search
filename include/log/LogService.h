@@ -17,6 +17,8 @@ public:
 
     void logString(const string& s);
 
+    const string &getLogFileLocation() const;
+
 private:
     std::ofstream logFile;
     std::string logFileLocation;
