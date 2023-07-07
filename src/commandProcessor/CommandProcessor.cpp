@@ -6,10 +6,6 @@
 
 using namespace std;
 
-enum Commands {
-    import = 0
-};
-
 CommandProcessor::CommandProcessor(SystemManager systemManager)
         : systemManager(std::move(systemManager)) {}
 
@@ -76,14 +72,14 @@ void CommandProcessor::processLine(const string &line) {
 void CommandProcessor::processCommand(const string &function, list<string> &args) {
 
     // Log the command and arguments EXCEPT for the world command
-    if (function != "world") {
+    if (function != getCommandName(Commands::WORLD)) {
         ++commandsProcessed;
     }
     systemManager.logCommand(commandsProcessed, function, args, DELIM1);
     //systemManager.logComment(string(90, '-'));
 
     // Call the appropriate function based on the function name
-    if (function == "world") {
+    if (function == getCommandName(Commands::WORLD)) {
 
         string westLong = args.front();
         args.pop_front();
@@ -96,12 +92,12 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
         world(westLong, eastLong, southLat, northLat);
 
-    } else if (function == "import") {
+    } else if (function == getCommandName(Commands::IMPORT)) {
 
         string recordsDataSetFileName = args.front();
         import(recordsDataSetFileName);
 
-    } else if (function == "what_is_at") {
+    } else if (function == getCommandName(Commands::WHAT_IS_AT)) {
         string latitude = args.front();
         args.pop_front();
 
@@ -110,7 +106,7 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
         whatIsAt(latitude, longitude);
 
-    } else if (function == "what_is") {
+    } else if (function == getCommandName(Commands::WHAT_IS)) {
 
         string featureName = args.front();
         args.pop_front();
@@ -118,7 +114,7 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
         whatIs(featureName, stateAbrv);
 
-    } else if (function == "what_is_in") {
+    } else if (function == getCommandName(Commands::WHAT_IS_IN)) {
         bool isFiltered = false;
         bool isDetailed = false;
         string filter;
@@ -146,11 +142,11 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
         whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, halfHeight, halfWidth);
 
-    } else if (function == "debug") {
+    } else if (function == getCommandName(Commands::DEBUG)) {
         string debugTarget = args.front();
         debug(debugTarget);
 
-    } else if (function == "quit") {
+    } else if (function == getCommandName(Commands::QUIT)) {
         quit();
     }
 }
