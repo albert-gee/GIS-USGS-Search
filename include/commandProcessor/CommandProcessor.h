@@ -33,37 +33,37 @@ private:
     int commandsProcessed = 0;
 
     // Get the command name from the command enum.
-    string& getCommandName(Commands command) {
-        string function;
+    static string& getCommandName(Commands command) {
+        static std::string functionName;
 
         switch (command)
         {
             case WORLD:
-                function = "world";
+                functionName = "world";
                 break;
             case IMPORT:
-                function = "import";
+                functionName = "import";
                 break;
             case DEBUG:
-                function = "debug";
+                functionName = "debug";
                 break;
             case QUIT:
-                function = "quit";
+                functionName = "quit";
                 break;
             case WHAT_IS_AT:
-                function = "what_is_at";
+                functionName = "what_is_at";
                 break;
             case WHAT_IS_IN:
-                function = "what_is_in";
+                functionName = "what_is_in";
                 break;
             case WHAT_IS:
-                function = "what_is";
+                functionName = "what_is";
                 break;
             default:
-                function = "quit";
+                functionName = "quit";
         }
 
-        return function;
+        return functionName;
     }
 
     // Process an individual line from the script file.
