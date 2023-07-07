@@ -67,7 +67,3 @@ void LogService::logImportStats(const int &numOfImports, const int &longestProbe
     logString(os.str());
     logString(string(90, '-'));
 }
-
-const string &LogService::getLogFileLocation() const {
-    return logFileLocation;
-}

@@ -20,8 +20,6 @@ public:
 
     std::list<std::string> & getLines();
 
-    const std::basic_string<char> &getDatabaseFileLocation() const;
-
 private:
     std::basic_string<char> databaseFileLocation;
     std::fstream databaseFile;
