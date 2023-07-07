@@ -308,8 +308,6 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecordsByLocation(Point locati
         }
     }
 
-    std::cout << "OFFSET OF GIS RECORDS SIZE: " << offsetsVector.size() << std::endl;
-
     return offsetsVector;
 }
 

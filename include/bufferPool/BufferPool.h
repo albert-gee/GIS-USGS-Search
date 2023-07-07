@@ -5,6 +5,7 @@
 #include "../database/LineUtility.h"
 #include "BufferRecord.h"
 #include "../database/DbService.h"
+#include "../coordinateIndex/QuadTree.h"
 #include <list>
 using namespace std;
 
@@ -32,6 +33,7 @@ private:
     list<BufferedRecord*> buffer;
     string getLineFromDB(int, string);
 
+    list<BufferedRecord *> getRecordsByCoordinates(double latitude, double longitude, QuadTree coordinateIndex);
 };
 
 

@@ -142,14 +142,25 @@ unsigned int SystemManager::indexDatabaseByCoordinates(){
 }
 
 // ToDo: implement the following method
-list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude) {
-    Point x = {latitude, longitude};
-    Point y = {latitude, longitude};
-    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(x, y);
-    for(auto l: lineNums){
-        cout << l << endl;
-    }
+list<GISRecord> SystemManager::findGISRecordsByCoordinates(Point location) {
+    std::cout << "FINDING BY COORDINATES: (" << location.latitude << ", " << location.longitude << ")" << std::endl;
     list<GISRecord> offsets;
+
+    try {
+        auto lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(location);
+
+        if (!lineNums.empty()) {
+            cout << "Found " << lineNums.size() << " records" << endl;
+        }
+
+        for(auto l: lineNums){
+            cout << "\n" << l << endl;
+        }
+
+    } catch (const std::invalid_argument& e) {
+        std::cout << e.what() << std::endl;
+        location.print();
+    }
 
     // Find in buffer
     //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
@@ -160,15 +171,15 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
     return offsets;
 }
 
+// ToDo:: this method is implemented incorrectly. Fix it.
 list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth) {
     //cout << "what is in " << latitude + halfHeight << " " << longitude - halfWidth << " " << latitude - halfHeight << " " << longitude + halfWidth <<endl;
     Point nw = {latitude + halfHeight, longitude - halfWidth };
     Point se = {latitude - halfHeight, longitude + halfWidth };
-    coordinateIndex.print();
-    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
-    for(auto l: lineNums){
-        cout << l << endl;
-    }
+//    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
+//    for(auto l: lineNums){
+//        cout << l << endl;
+//    }
 
     list<GISRecord> offsets;
 

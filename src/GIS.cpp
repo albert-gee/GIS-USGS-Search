@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
     SystemManager systemManager = SystemManager(nameIndex, coordinateIndex, bufferPool, dbService, logService);
 
     /// CommandProcessor
-    CommandProcessor cmdProcessor = CommandProcessor(systemManager, commandScriptFileLocation);
+    CommandProcessor cmdProcessor = CommandProcessor(systemManager);
     // Process the commands from the script file
-    cmdProcessor.processCommandsFromScriptFile();
+    cmdProcessor.processCommandsFromScriptFile(commandScriptFileLocation);
 
     return 0;
 }
