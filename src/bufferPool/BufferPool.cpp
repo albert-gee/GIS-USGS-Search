@@ -3,32 +3,26 @@
 #include <iostream>
 #include <limits>
 #include "../../include/bufferPool/BufferPool.h"
+#include "../../include/coordinateIndex/QuadTree.h"
 
 BufferPool::BufferPool(DbService& dbService)
     : databaseService{dbService} {}
 
 // ToDo: Implement this function
-const list<GISRecord *> BufferPool::findGISRecordsByCoordinates(double latitude, double longitude) {
-    for(BufferedRecord* bufferRecord : buffer) {
-//        if (bufferRecord->gisRecordPtr->
-    }
-    return list<GISRecord *>();
-}
+// get line numbers from coordinateIndex and assign to lineNums
+list<BufferedRecord*> BufferPool::getRecordsByCoordinates(double latitude, double longitude,
+                                                          QuadTree coordinateIndex) {
+    list<int> lineNums;
 
-
-// Search and return GISRecords from the databaseService
-/*list<GISRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex)
-{
-    list<int> lineNums = nameIndex.getLineNumsByKey(key);
-    list<GISRecord*> foundRecords;
+    list<BufferedRecord*> foundRecords;
     for(int l : lineNums){
-        GISRecord * gisRecordPtr = searchBuffer(l);
-        if(gisRecordPtr != nullptr) {
-            foundRecords.push_front(gisRecordPtr);
+        BufferedRecord* bufRecordPtr = searchBuffer(l);
+        if(bufRecordPtr != nullptr){
+            foundRecords.push_front(bufRecordPtr);
         }
     }
     return foundRecords;
-}*/
+}
 
 list<BufferedRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIndex)
 {
@@ -42,34 +36,6 @@ list<BufferedRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIn
     }
     return foundRecords;
 }
-
-/*// Search the buffer for a line number
-GISRecord * BufferPool::searchBuffer(int lineNum){
-    auto b = buffer.begin();
-    GISRecord *gisRecordptr = nullptr;
-
-    // Loop until line is found in buffer or at the end of buffer
-    while(b != buffer.end()){
-        if(lineNum == (*b)->lineNum){
-            BufferedRecord *recent = *b;
-            buffer.erase(b);
-            buffer.push_front(recent);
-            return (*b)->gisRecordPtr;
-        }
-        ++b;
-    }
-
-    // Line not found
-    // Get line from databaseService and create GIS record
-    string line = databaseService.getLineByNumber(lineNum);
-    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
-    if(buffer.size() >= MAX_SIZE){
-        buffer.pop_back();
-    }
-    BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
-    buffer.push_front(newRecord);
-    return gisRecordptr;
-}*/
 
 BufferedRecord * BufferPool::searchBuffer(int lineNum){
     auto b = buffer.begin();

@@ -1,9 +1,13 @@
 #include "../include/commandProcessor/CommandProcessor.h"
 
+const string &generateLogStart(const string databaseFileLocation, const string logFileLocation, const string commandScriptFileLocation);
+
 namespace Constants {
     // The maximum number of records that can be stored in a bucket.
     // If a bucket is full, the corresponding quadrant must be split into four sub-quadrants with their own buckets.
     const unsigned long BUCKET_CAPACITY{4};   // Bottom-right corner of the QuadTree's region
+
+
 }
 
 // This function takes the names of three files from the command line, like this:
@@ -28,6 +32,8 @@ int main(int argc, char *argv[]) {
 
     /// LOG
     LogService logService(logFileLocation);
+    cout << generateLogStart(databaseFileLocation, logFileLocation, commandScriptFileLocation);
+    logService.logString(generateLogStart(databaseFileLocation, logFileLocation, commandScriptFileLocation));
 
     /// BufferPool, NameIndex, QuadTree
     BufferPool bufferPool{dbService};
@@ -44,3 +50,21 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+const string &generateLogStart(const string databaseFileLocation, const string logFileLocation, const string commandScriptFileLocation) {
+    time_t now = time(0);
+    ostringstream os;
+    os << "Course Project for COMP 8042\n";
+    os << "Student Name: Albert Gainutdinov, Student Id:A01078557, & Michael Gou, Student Id: A00521595\n";
+    os <<  "Begin of GIS Program log:\n";
+    os << "dbFile:\t" + databaseFileLocation + "\n";
+    os << "script:\t" + commandScriptFileLocation + "\n";
+    os << "log:\t" + logFileLocation + "\n";
+    os << "Start Time: " <<  std::put_time(std::localtime(&now), "%a %b %d %X %Z %Y");
+    string *logHeading = new string();
+    *logHeading  = os.str();
+    return *logHeading;
+
+}
+
+
