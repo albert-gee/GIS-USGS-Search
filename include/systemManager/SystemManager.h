@@ -37,7 +37,7 @@ public:
     void import (const string& recordsDataSetFileLocation);
 
     // Find GIS records that match the given coordinates.
-    list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude);
+    list<GISRecord> findGISRecordsByCoordinates(Point location);
     void whatIs(string featureName, string stateAbrv);
     void whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
                   double halfHeight, double halfWidth);

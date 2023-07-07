@@ -25,6 +25,9 @@ public:
     // Get the offsets of the GIS records in the quadrant
     [[nodiscard]] std::vector<int> getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const;
 
+    // Get the offsets of the GIS records at specific location in the quadrant
+    [[nodiscard]] std::vector<int> getOffsetsOfGISRecordsByLocation(Point location) const;
+
     // Getters and setters for Borders
     [[nodiscard]] const Point &getNorthWestPoint() const;
 

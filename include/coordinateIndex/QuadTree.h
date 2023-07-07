@@ -20,6 +20,8 @@ public:
     // Get the offsets of the GIS records in the QuadTree that are within the given bounding box
     std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint);
 
+    std::vector<int> getOffsetsOfGISRecordsByLocation(Point location);
+
     // Print the QuadTree
     void print();
 

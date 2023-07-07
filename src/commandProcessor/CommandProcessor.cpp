@@ -122,7 +122,11 @@ void CommandProcessor::processCommand(const string &line) {
             //cout << latitude.length() << endl;
 
             // Import the records into the databaseService
-            auto records = systemManager.findGISRecordsByCoordinates(LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude));
+
+            // Find GIS records by coordinates
+            auto records = systemManager.findGISRecordsByCoordinates(Point(DMS(latitude).toDecimal(), DMS(longitude).toDecimal()));
+            // LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude)
+
 
         } else if (function == "what_is") {
             whatIs(args);

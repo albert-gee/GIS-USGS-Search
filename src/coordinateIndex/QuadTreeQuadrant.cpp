@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
 #include "../../include/coordinateIndex/QuadTreeQuadrant.h"
 
 QuadTreeQuadrant::QuadTreeQuadrant(Point northWestPoint, Point southEastPoint, unsigned long bucketCapacity)
@@ -61,7 +62,6 @@ void QuadTreeQuadrant::print() const {
 // Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
 // divided into four sub-quadrants and the entry and all entries from the bucket are inserted into them.
 void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
-    std::cout << "\nINSERT" << std::endl;
 
     // Check if the point is within the quadrant
     if (!isPointWithinQuadrant(location)) {
@@ -69,9 +69,7 @@ void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
     }
 
     // Check if the bucket is not full
-    std::cout << "bucket available capacity: " << getBucketAvailableCapacity() << std::endl;
     if (getBucketAvailableCapacity() > 0 && northWest == nullptr) {
-        std::cout << "Inserting into bucket: " << offsetOfGISRecord << std::endl;
 
         // Insert the offset and its location into the bucket
         insertIntoBucket(location, offsetOfGISRecord);
@@ -80,12 +78,9 @@ void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
         // Otherwise, check if the quadrant is not divided into sub-quadrants
         if (northWest == nullptr) {
             // If so, divide the quadrant into four sub-quadrants
-            std::cout << "divideQuadrantIntoSubQuadrants " << std::endl;
             divideQuadrantIntoSubQuadrants();
 
             // Then, move the entries from the bucket into the sub-quadrants
-            std::cout << " > move entries from bucket to subquadrants " << std::endl;
-            std::cout << " bucket size: " << bucket.size() << std::endl;
             for (const auto &entry: bucket) {
                 entry.location.print();
 
@@ -100,7 +95,6 @@ void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
                     }
                 }
             }
-            std::cout << " bucket size: " << bucket.size() << std::endl;
 
             // Clear the points from the bucket
             clearBucket();
@@ -160,30 +154,26 @@ void QuadTreeQuadrant::insertIntoBucket(const Point location, const int offsetOf
 }
 
 void QuadTreeQuadrant::insertIntoSubQuadrants(Point location, int offsetOfGISRecord) {
-    std::cout << "Insert into sub quadrants: " << offsetOfGISRecord << std::endl;
-
     if (northWest->isPointWithinQuadrant(location)) {
-        std::cout << " > inserted in northwest" << std::endl;
         northWest->insert(location, offsetOfGISRecord);
     } else if (northEast->isPointWithinQuadrant(location)) {
-        std::cout << " > inserted in northeast" << std::endl;
         northEast->insert(location, offsetOfGISRecord);
     } else if (southWest->isPointWithinQuadrant(location)) {
-        std::cout << " > inserted in southwest" << std::endl;
         southWest->insert(location, offsetOfGISRecord);
     } else if (southEast->isPointWithinQuadrant(location)) {
-        std::cout << " > inserted in southeast" << std::endl;
         southEast->insert(location, offsetOfGISRecord);
     } else {
         throw std::invalid_argument("The point is not within any of the sub-quadrants.");
     }
 }
 
-std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
+std::vector<int>
+QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
 
     // Check if the given bounding box is contained in the quadrant
     // If not, throw an exception
-    if (offsetNorthWestPoint.latitude < getNorthWestPoint().latitude && offsetSouthEastPoint.latitude > getSouthEastPoint().latitude) {
+    if (offsetNorthWestPoint.latitude < getNorthWestPoint().latitude &&
+        offsetSouthEastPoint.latitude > getSouthEastPoint().latitude) {
         throw std::invalid_argument("The given bounding box is not contained in the quadrant.");
     }
 
@@ -225,7 +215,7 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestP
             offsetSouthEastPoint.longitude >= northEast->getSouthEastPoint().longitude) {
             // Get the offsetsVector of the GIS records from the north-east quadrant
             std::vector<int> offsetsFromNorthEast = northEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                           offsetSouthEastPoint);
+                                                                                      offsetSouthEastPoint);
             // Insert the offsetsVector from the north-east quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromNorthEast.begin(), offsetsFromNorthEast.end());
         }
@@ -236,7 +226,7 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestP
             offsetSouthEastPoint.longitude >= southWest->getSouthEastPoint().longitude) {
             // Get the offsetsVector of the GIS records from the south-west quadrant
             std::vector<int> offsetsFromSouthWest = southWest->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                           offsetSouthEastPoint);
+                                                                                      offsetSouthEastPoint);
             // Insert the offsetsVector from the south-west quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromSouthWest.begin(), offsetsFromSouthWest.end());
         }
@@ -247,11 +237,78 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestP
             offsetSouthEastPoint.longitude >= southEast->getSouthEastPoint().longitude) {
             // Get the offsetsVector of the GIS records from the south-east quadrant
             std::vector<int> offsetsFromSouthEast = southEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                           offsetSouthEastPoint);
+                                                                                      offsetSouthEastPoint);
             // Insert the offsetsVector from the south-east quadrant into the vector
             offsets.insert(offsets.end(), offsetsFromSouthEast.begin(), offsetsFromSouthEast.end());
         }
     }
+
+    return offsetsVector;
+}
+
+std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecordsByLocation(Point location) const {
+
+    // Check if the given location is contained in the quadrant
+    // If not, throw an exception
+    if (!(location.latitude < getNorthWestPoint().latitude && location.longitude < getSouthEastPoint().longitude)) {
+        throw std::invalid_argument("The given bounding box is not contained in the quadrant.");
+    }
+
+    // This vector will contain the offsetsVector of the GIS records and be returned by the method
+    std::vector<int> offsetsVector;
+
+    // If the quadrant is a leaf node, try to find an entry with the same location in the bucket
+    if (northWest == nullptr) {
+
+        for (const Entry &entry: bucket) {
+
+            double epsilon = 0.01;  // Define the precision (two digits after the decimal point)
+            double latDiff = std::fabs(entry.location.latitude - location.latitude);  // Calculate the absolute difference between the numbers
+            double lngDiff = std::fabs(entry.location.longitude - location.longitude);  // Calculate the absolute difference between the numbers
+
+            // Check if the absolute difference is within the desired precision
+            if (latDiff < epsilon && lngDiff < epsilon) {
+                std::cout << "2FINDING BY COORDINATES: (" << location.latitude << ", " << location.longitude << ")" << std::endl;
+
+                offsetsVector = entry.offsetsOfGISRecords;
+            }
+
+//            if (entry.location.latitude == location.latitude &&
+//                entry.location.longitude == location.longitude) {
+//
+//                offsetsVector = entry.offsetsOfGISRecords;
+//            }
+        }
+    } else {
+        // Otherwise, recursively try to find it in the sub-quadrants
+
+        // Check if the location is within the north-west quadrant
+        if (location.latitude <= northWest->getNorthWestPoint().latitude &&
+            location.longitude <= northWest->getSouthEastPoint().longitude) {
+
+            offsetsVector = northWest->getOffsetsOfGISRecordsByLocation(location);
+        }
+        // Check if the location is within the north-east quadrant
+        if (location.latitude <= northEast->getNorthWestPoint().latitude &&
+            location.longitude <= northEast->getSouthEastPoint().longitude) {
+
+            offsetsVector = northEast->getOffsetsOfGISRecordsByLocation(location);
+        }
+        // Check if the location is within the south-east quadrant
+        if (location.latitude <= southEast->getNorthWestPoint().latitude &&
+            location.longitude <= southEast->getSouthEastPoint().longitude) {
+
+            offsetsVector = southEast->getOffsetsOfGISRecordsByLocation(location);
+        }
+        // Check if the location is within the south-west quadrant
+        if (location.latitude <= southWest->getNorthWestPoint().latitude &&
+            location.longitude <= southWest->getSouthEastPoint().longitude) {
+
+            offsetsVector = southWest->getOffsetsOfGISRecordsByLocation(location);
+        }
+    }
+
+    std::cout << "OFFSET OF GIS RECORDS SIZE: " << offsetsVector.size() << std::endl;
 
     return offsetsVector;
 }
