@@ -55,15 +55,15 @@ const string &generateLogStart(const string databaseFileLocation, const string l
     time_t now = time(0);
     ostringstream os;
     os << "Course Project for COMP 8042\n";
-    os << "Student Name: Albert Gainutdinov, Student Id:A01078557, & Michael Gou, Student Id: A00521595\n";
+    os << "Student Name: Albert Gainutdinov, Student Id: A01078557, & Michael Gou, Student Id: A00521595\n";
     os <<  "Begin of GIS Program log:\n";
     os << "dbFile:\t" + databaseFileLocation + "\n";
     os << "script:\t" + commandScriptFileLocation + "\n";
     os << "log:\t" + logFileLocation + "\n";
     os << "Start Time: " <<  std::put_time(std::localtime(&now), "%a %b %d %X %Z %Y");
-    string *logHeading = new string();
-    *logHeading  = os.str();
-    return *logHeading;
+    string *logStart = new string();
+    *logStart  = os.str();
+    return *logStart;
 
 }
 
