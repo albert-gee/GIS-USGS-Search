@@ -182,12 +182,12 @@ void CommandProcessor::whatIs(string &featureName, string &stateAbrv) {
 
 void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
                                 string &halfHeight, string &halfWidth) {
-    double ltd = LineUtility::convertDMStoDEC(latitude);
-    double lng = LineUtility::convertDMStoDEC(longitude);
     double hlfh = stod(halfHeight) / 3600;
     double hlfw = stod(halfWidth) / 3600;
 
-    systemManager.whatIsIn(isFiltered, isDetailed, filter, ltd, lng, hlfh, hlfw);
+    // ToDo: complete this implementation
+    systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
+                           DMS(longitude).toDecimal(), hlfh, hlfw);
 }
 
 void CommandProcessor::debug(string &debugTarget) {

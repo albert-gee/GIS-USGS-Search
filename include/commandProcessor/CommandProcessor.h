@@ -73,10 +73,11 @@ private:
     // Other lines consist of tokens separated by single Tab characters. A line terminator follow the last token on a line.
     void processLine(const string &line);
 
-    // Process a command by function name and arguments.
+    // Call the appropriate function by function name and passes its arguments.
     void processCommand(const string &function, list<string> &args);
 
     // Specifies the boundaries of the coordinate space.
+    //
     // Takes longitude and latitude in DMS format, representing the vertical and horizontal boundaries of the coordinate
     // space. Records outside the coordinate space are ignored (not indexed).
     void world(string &westLong, string &eastLong, string &southLat, string &northLat);
