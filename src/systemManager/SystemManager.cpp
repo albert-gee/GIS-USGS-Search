@@ -192,7 +192,7 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
     return offsets;
 }
 
-
+// ToDo: implement the following method
 void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
                              double halfHeight, double halfWidth) {
     auto offsets = findGISRecordsByCoordinates(latitude, longitude, halfHeight, halfWidth);

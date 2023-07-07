@@ -117,24 +117,6 @@ public:
         return os.str();
     }
 
-    static double convertDMStoDEC(string dms){
-        int dmsPos = 0;
-        int degreeLength = dms.length() <8? 2 : 3;
-
-        double degrees = stod(dms.substr(dmsPos, degreeLength));
-        double minutes = stod(dms.substr(dmsPos+=degreeLength, 2));
-        double seconds = stod(dms.substr(dmsPos+=2, 2));
-        string direction = dms.substr(dmsPos+=2, 1);
-        minutes /= 60;
-        seconds /= (60*60);
-        double dec = degrees + minutes + seconds;
-        if(direction == "S" || direction == "W"){
-            dec = -dec;
-        }
-        return dec;
-    }
-
-
     static GISRecord * createGISRecordFromLine(const string& line, char delimiter) {
 
         vector<string> *params = LineUtility::extractParametersFromLine(line, delimiter);
