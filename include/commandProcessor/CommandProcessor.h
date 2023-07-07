@@ -10,6 +10,10 @@
 
 using namespace std;
 
+enum Commands {
+    WORLD, IMPORT, DEBUG, QUIT, WHAT_IS_AT, WHAT_IS, WHAT_IS_IN
+};
+
 class CommandProcessor {
 public:
     explicit CommandProcessor(SystemManager systemManager);
@@ -27,6 +31,40 @@ private:
     SystemManager systemManager;
 
     int commandsProcessed = 0;
+
+    // Get the command name from the command enum.
+    string& getCommandName(Commands command) {
+        string function;
+
+        switch (command)
+        {
+            case WORLD:
+                function = "world";
+                break;
+            case IMPORT:
+                function = "import";
+                break;
+            case DEBUG:
+                function = "debug";
+                break;
+            case QUIT:
+                function = "quit";
+                break;
+            case WHAT_IS_AT:
+                function = "what_is_at";
+                break;
+            case WHAT_IS_IN:
+                function = "what_is_in";
+                break;
+            case WHAT_IS:
+                function = "what_is";
+                break;
+            default:
+                function = "quit";
+        }
+
+        return function;
+    }
 
     // Process an individual line from the script file.
     // The line is parsed into a function and a list of arguments. The function and arguments are then passed to
