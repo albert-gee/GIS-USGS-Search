@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <cmath>
 
 // This struct describes a geographic coordinate.
 struct Point {
@@ -41,16 +42,17 @@ struct Point {
         return os.str();
     }
 private:
-    std::vector<int> & getDMSParams(double coordinate) const {
+    std::vector<double> & getDMSParams(double coordinate) const {
         coordinate = abs(coordinate);
-        int degrees = coordinate;
+        double degrees = floor(coordinate);
         coordinate -= degrees;
         coordinate *= 60;
-        int minutes = coordinate;
+        double minutes = floor(coordinate);
         coordinate -= minutes;
         coordinate *=60;
-        int seconds = coordinate;
-        std::vector<int>* dmsParams = new std::vector<int>();
+        double seconds = coordinate;
+
+        std::vector<double>* dmsParams = new std::vector<double>();
         dmsParams->push_back(degrees);
         dmsParams->push_back(minutes);
         dmsParams->push_back(seconds);

@@ -6,7 +6,10 @@
 #include "BufferRecord.h"
 #include "../database/DbService.h"
 #include "../coordinateIndex/QuadTree.h"
+#include "Filter.h"
 #include <list>
+#include <set>
+
 using namespace std;
 
 // This class describes the buffer pool.
@@ -23,9 +26,15 @@ public:
 
     list<BufferedRecord *> getRecordsByCoordinate(Point point, QuadTree coordinateIndex);
 
+    list<BufferedRecord *>
+    getRecordsByCoordinateRange(bool isFiltered, bool isDetailed, string filter, Point nwPoint, Point sePoint,
+                                QuadTree coordinateIndex);
+
 private:
     // Buffering up to 15 records in the buffer pool
-    static const int MAX_SIZE = 15;
+    const int MAX_SIZE = 15;
+
+    Filter filter;
 
     DbService& databaseService;
 
@@ -36,7 +45,7 @@ private:
 
     list<BufferedRecord *> getRecordsByCoordinates(double latitude, double longitude, QuadTree coordinateIndex);
 
-    list<BufferedRecord *> getRecordsByCoordinateRange(Point nwPoint, Point sePoint, QuadTree coordinateIndex);
+    BufferedRecord *searchBufferWithFilter(int lineNum, string filter);
 };
 
 

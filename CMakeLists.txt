@@ -23,4 +23,4 @@ add_executable(GIS
         include/coordinateIndex/QuadTree.h
         include/coordinateIndex/Point.h
         include/coordinateIndex/Entry.h
-        include/bufferPool/BufferRecord.h src/database/DbService.cpp include/database/DbService.h)
+        include/bufferPool/BufferRecord.h src/database/DbService.cpp include/database/DbService.h include/bufferPool/Filter.h include/bufferPool/Filter.h)

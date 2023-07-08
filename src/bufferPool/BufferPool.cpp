@@ -25,8 +25,7 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinates(double latitude, doubl
 }*/
 
 list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree coordinateIndex) {
-    cout << endl << point.getLatToDMSStr() << " " << point.getLongToDMSStr() << endl;
-    system("pause");
+
     vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(point);
 
     list<BufferedRecord*> foundRecords;
@@ -39,7 +38,9 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree c
     return foundRecords;
 }
 
-list<BufferedRecord*> BufferPool::getRecordsByCoordinateRange(Point nwPoint, Point sePoint, QuadTree coordinateIndex) {
+list<BufferedRecord *>
+BufferPool::getRecordsByCoordinateRange(bool isFiltered, bool isDetailed, string filter, Point nwPoint, Point sePoint,
+                                        QuadTree coordinateIndex) {
     vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
 
     list<BufferedRecord*> foundRecords;
@@ -63,6 +64,41 @@ list<BufferedRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIn
         }
     }
     return foundRecords;
+}
+BufferedRecord * BufferPool::searchBufferWithFilter(int lineNum, string filter){
+    string feature = "";
+    if(filter == "pop"){
+        feature = "Populated Place";
+    } else if(filter == "water"){
+
+    } else if(filter == "structure"){
+
+    } else {
+        return nullptr;
+    }
+
+    auto b = buffer.begin();
+    // Loop until line is found in buffer or at the end of buffer
+    while(b != buffer.end()){
+        if(lineNum == (*b)->lineNum ){
+            BufferedRecord *recent = *b;
+            buffer.erase(b);
+            buffer.push_front(recent);
+            return recent;
+        }
+        ++b;
+    }
+
+    // Line not found
+    // Get line from databaseService and create GIS record
+    string line = databaseService.getLineByNumber(lineNum);
+    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+    if(buffer.size() >= MAX_SIZE){
+        buffer.pop_back();
+    }
+    BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
+    buffer.push_front(newRecord);
+    return newRecord;
 }
 
 BufferedRecord * BufferPool::searchBuffer(int lineNum){

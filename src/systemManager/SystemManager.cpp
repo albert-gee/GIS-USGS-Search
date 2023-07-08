@@ -206,8 +206,8 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
 }
 
 // ToDo: implement the following method
-void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
-                             double halfHeight, double halfWidth) {
+void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, Point nwPoint, Point sePoint) {
+    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, isDetailed, filter, nwPoint, sePoint, coordinateIndex);
 
     //auto offsets = findGISRecordsByCoordinates(latitude, longitude, halfHeight, halfWidth);
 }
