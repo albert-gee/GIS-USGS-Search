@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <cmath>
 
 // This struct describes a geographic coordinate.
 struct Point {
@@ -25,31 +26,33 @@ struct Point {
     }
 
     [[nodiscard]] std::string getLongToDMSStr() const{
-        auto dmsParams = getDMSParams(latitude);
-        std::string direction = latitude >= 0? "East" : "West";
+        auto dmsParams = getDMSParams(longitude);
+        std::string direction = longitude >= 0? "East" : "West";
         std::ostringstream os;
         os << dmsParams[0] <<"d " << dmsParams[1] << "m " << dmsParams[2] << "s " << direction;
         return os.str();
     }
 
 
-    [[nodiscard]] std::string getLatToDMSStr() const{
+    std::string getLatToDMSStr() const{
         auto dmsParams = getDMSParams(latitude);
         std::string direction = latitude >= 0? "North" : "South";
         std::ostringstream os;
         os << dmsParams[0] <<"d " << dmsParams[1] << "m " << dmsParams[2] << "s " << direction;
         return os.str();
     }
-
-    [[nodiscard]] std::vector<int> & getDMSParams(double coordinate) const {
-        int degrees = coordinate;
+private:
+    [[nodiscard]] std::vector<double> & getDMSParams(double coordinate) const {
+        coordinate = abs(coordinate);
+        double degrees = floor(coordinate);
         coordinate -= degrees;
         coordinate *= 60;
-        int minutes = coordinate;
+        double minutes = floor(coordinate);
         coordinate -= minutes;
         coordinate *=60;
-        int seconds = coordinate;
-        std::vector<int>* dmsParams = new std::vector<int>();
+        double seconds = coordinate;
+
+        std::vector<double>* dmsParams = new std::vector<double>();
         dmsParams->push_back(degrees);
         dmsParams->push_back(minutes);
         dmsParams->push_back(seconds);

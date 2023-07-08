@@ -266,7 +266,7 @@ std::string GISRecord::str(){
 std::string GISRecord::detailStr(){
     char delimiter = '|';
     std::ostringstream os;
-    int indent = 5;
+    int indent = 2;
     int indent2 = 13;
     std::string colon = ": ";
     os.setf(std::ios::left);

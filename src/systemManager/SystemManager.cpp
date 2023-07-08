@@ -207,10 +207,43 @@ list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, doub
     return offsets;
 }
 
-// ToDo: implement the following method
 void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
                              double halfHeight, double halfWidth) {
-    auto offsets = findGISRecordsByCoordinates(latitude, longitude, halfHeight, halfWidth);
+    Point point = {latitude, longitude};
+    Point nwPoint = {latitude + halfHeight / 3600, longitude - halfWidth / 3600};
+    Point sePoint = {latitude - halfHeight / 3600, longitude + halfWidth / 3600};
+
+    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, filter, nwPoint, sePoint, coordinateIndex);
+    ostringstream os;
+    os.width(2);
+    os << "";
+    if(!records.empty()){
+        if(isFiltered){
+            os << "The following features matching your criteria were ";
+        } else {
+            os << "The following " << records.size() << " feature(s) were ";
+        }
+
+    } else {
+        os << "Nothing was ";
+    }
+
+    os << "found in (" << point.getLatToDMSStr() << " +/- " << halfHeight << ", " << point.getLongToDMSStr() << " +/- " << halfWidth << ")\n\n";
+
+    for(auto r : records){
+        if(isDetailed){
+            os << r->gisRecordPtr->detailStr();
+        } else {
+            os.width(4);
+            os << "" << r->lineNum << ':'
+               << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
+               << " \"" << r->gisRecordPtr->getCountyName() << "\" "
+               << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
+               << "(" << r->gisRecordPtr->latDMSStr() << ", " << r->gisRecordPtr->longDMSStr() << ")";
+        }
+    }
+    logLine(os.str());
+    logLineBreak();
 }
 
 void SystemManager::whatIsAt(Point point){

@@ -25,11 +25,32 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinates(double latitude, doubl
 }*/
 
 list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree coordinateIndex) {
+
     vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(point);
 
     list<BufferedRecord*> foundRecords;
     for(int l : lineNums){
         BufferedRecord* bufRecordPtr = searchBuffer(l);
+        if(bufRecordPtr != nullptr){
+            foundRecords.push_front(bufRecordPtr);
+        }
+    }
+    return foundRecords;
+}
+
+list<BufferedRecord *> BufferPool::getRecordsByCoordinateRange(bool isFiltered, string filter, Point nwPoint, Point sePoint,
+                                        QuadTree coordinateIndex) {
+    vector<int> lineNums = {};// = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
+
+    list<BufferedRecord*> foundRecords;
+    for(int l : lineNums){
+        BufferedRecord* bufRecordPtr = nullptr;
+        if(isFiltered){
+            bufRecordPtr = searchBufferWithFilter(l, filter);
+        } else {
+            bufRecordPtr = searchBuffer(l);
+        }
+
         if(bufRecordPtr != nullptr){
             foundRecords.push_front(bufRecordPtr);
         }
@@ -49,10 +70,59 @@ list<BufferedRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIn
     }
     return foundRecords;
 }
+BufferedRecord * BufferPool::searchBufferWithFilter(int lineNum, string filter){
+
+    auto b = buffer.begin();
+    // Loop until line is found in buffer or at the end of buffer
+    while(b != buffer.end()){
+        if(lineNum == (*b)->lineNum){
+            if(matchFilter(filter, (*b)->gisRecordPtr->getFeatureClass())){
+                BufferedRecord *recent = *b;
+                buffer.erase(b);
+                buffer.push_front(recent);
+                return recent;
+            }
+            return nullptr;
+        }
+        ++b;
+    }
+
+    // Line not found
+    // Get line from databaseService and create GIS record
+    string line = databaseService.getLineByNumber(lineNum);
+    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+    if(matchFilter(filter, gisRecord->getFeatureClass())){
+        if(buffer.size() >= MAX_SIZE){
+            buffer.pop_back();
+        }
+        BufferedRecord * newRecord =  new BufferedRecord(lineNum, gisRecord);
+        buffer.push_front(newRecord);
+        return newRecord;
+    }
+    return nullptr;
+}
+
+bool BufferPool::matchFilter(string filter, string feature){
+    bool matchFilter = false;
+    if(filter == "water"){
+        if(features.getWater().find(feature) != features.getWater().end()){
+            matchFilter = true;
+        }
+    } else if(filter == "structure"){
+        if(features.getStructure().find(feature) != features.getStructure().end()){
+            matchFilter = true;
+        }
+    } else if(filter == "pop"){
+        if(features.getPop().find(feature) != features.getPop().end()){
+            matchFilter = true;
+        }
+    }
+    return matchFilter;
+}
+
 
 BufferedRecord * BufferPool::searchBuffer(int lineNum){
     auto b = buffer.begin();
-    BufferedRecord *bufRecordptr = nullptr;
 
     // Loop until line is found in buffer or at the end of buffer
     while(b != buffer.end()){

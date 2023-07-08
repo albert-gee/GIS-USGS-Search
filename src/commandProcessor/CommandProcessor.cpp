@@ -191,12 +191,18 @@ void CommandProcessor::whatIs(string &featureName, string &stateAbrv) {
 
 void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
                                 string &halfHeight, string &halfWidth) {
-    double hlfh = stod(halfHeight) / 3600;
-    double hlfw = stod(halfWidth) / 3600;
+    double hlfh = stod(halfHeight);
+    double hlfw = stod(halfWidth);
+    double latDouble = DMS(latitude).toDecimal();
+    double longDouble = DMS(longitude).toDecimal();
+    /*Point nwPoint = {DMS(latitude).toDecimal() + hlfh, DMS(longitude).toDecimal() - hlfw};
+    Point sePoint = {DMS(latitude).toDecimal() - hlfh, DMS(longitude).toDecimal() + hlfw};
+*/
 
+    systemManager.whatIsIn(isFiltered, isDetailed, filter, latDouble, longDouble, hlfh, hlfw);
     // ToDo: complete this implementation
-    systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
-                           DMS(longitude).toDecimal(), hlfh, hlfw);
+    /*systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
+                           DMS(longitude).toDecimal(), hlfh, hlfw);*/
 }
 
 void CommandProcessor::debug(string &debugTarget) {
