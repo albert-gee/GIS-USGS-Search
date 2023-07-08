@@ -12,83 +12,83 @@ public:
               std::string source_latitude_DES, std::string source_longitude_DES, int elevation_meters,
               int elevation_feet, std::string map_name, std::string date_created, std::string date_edited);
 
-    int getFeatureId() const;
+    [[nodiscard]] int getFeatureId() const;
 
     void setFeatureId(int featureId);
 
-    const std::string &getFeatureName() const;
+    [[nodiscard]] const std::string &getFeatureName() const;
 
     void setFeatureName(const std::string &featureName);
 
-    const std::string &getFeatureClass() const;
+    [[nodiscard]] const std::string &getFeatureClass() const;
 
     void setFeatureClass(const std::string &featureClass);
 
-    const std::string &getStateAlpha() const;
+    [[nodiscard]] const std::string &getStateAlpha() const;
 
     void setStateAlpha(const std::string &stateAlpha);
 
-    const std::string &getStateNumeric() const;
+    [[nodiscard]] const std::string &getStateNumeric() const;
 
     void setStateNumeric(const std::string &stateNumeric);
 
-    const std::string &getCountyName() const;
+    [[nodiscard]] const std::string &getCountyName() const;
 
     void setCountyName(const std::string &countyName);
 
-    const std::string &getCountyNumeric() const;
+    [[nodiscard]] const std::string &getCountyNumeric() const;
 
     void setCountyNumeric(const std::string &countyNumeric);
 
-    const std::string &getPrimaryLatitudeDms() const;
+    [[nodiscard]] const std::string &getPrimaryLatitudeDms() const;
 
     void setPrimaryLatitudeDms(const std::string &primaryLatitudeDms);
 
-    const std::string &getPrimaryLongitudeDms() const;
+    [[nodiscard]] const std::string &getPrimaryLongitudeDms() const;
 
     void setPrimaryLongitudeDms(const std::string &primaryLongitudeDms);
 
-    const std::string &getPrimaryLatitudeDec() const;
+    [[nodiscard]] const std::string &getPrimaryLatitudeDec() const;
 
     void setPrimaryLatitudeDec(const std::string &primaryLatitudeDec);
 
-    const std::string &getPrimaryLongitudeDec() const;
+    [[nodiscard]] const std::string &getPrimaryLongitudeDec() const;
 
     void setPrimaryLongitudeDec(const std::string &primaryLongitudeDec);
 
-    const std::string &getSourceLatitudeDms() const;
+    [[nodiscard]] const std::string &getSourceLatitudeDms() const;
 
     void setSourceLatitudeDms(const std::string &sourceLatitudeDms);
 
-    const std::string &getSourceLongitudeDms() const;
+    [[nodiscard]] const std::string &getSourceLongitudeDms() const;
 
     void setSourceLongitudeDms(const std::string &sourceLongitudeDms);
 
-    const std::string &getSourceLatitudeDes() const;
+    [[nodiscard]] const std::string &getSourceLatitudeDes() const;
 
     void setSourceLatitudeDes(const std::string &sourceLatitudeDes);
 
-    const std::string &getSourceLongitudeDes() const;
+    [[nodiscard]] const std::string &getSourceLongitudeDes() const;
 
     void setSourceLongitudeDes(const std::string &sourceLongitudeDes);
 
-    int getElevationMeters() const;
+    [[nodiscard]] int getElevationMeters() const;
 
     void setElevationMeters(int elevationMeters);
 
-    int getElevationFeet() const;
+    [[nodiscard]] int getElevationFeet() const;
 
     void setElevationFeet(int elevationFeet);
 
-    const std::string &getMapName() const;
+    [[nodiscard]] const std::string &getMapName() const;
 
     void setMapName(const std::string &mapName);
 
-    const std::string &getDateCreated() const;
+    [[nodiscard]] const std::string &getDateCreated() const;
 
     void setDateCreated(const std::string &dateCreated);
 
-    const std::string &getDateEdited() const;
+    [[nodiscard]] const std::string &getDateEdited() const;
 
     void setDateEdited(const std::string &dateEdited);
     std::string str();
@@ -126,9 +126,6 @@ private:
     std::string date_edited;
 
     std::string convertDECtoDMS(double dec);
-
-    std::string dmsStr(std::string s);
-
 };
 
 
