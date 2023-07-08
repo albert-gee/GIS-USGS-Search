@@ -1,14 +1,14 @@
-#ifndef GIS_FILTER_H
-#define GIS_FILTER_H
+#ifndef GIS_FEATURES_H
+#define GIS_FEATURES_H
 
 #include <string>
 #include <set>
 
 using namespace std;
 
-struct Filter{
+struct Features{
 public:
-    Filter(){
+    Features(){
         fillWater();
         fillPop();
         fillStructure();
@@ -68,4 +68,4 @@ private:
     }
 };
 
-#endif //GIS_FILTER_H
+#endif //GIS_FEATURES_H
