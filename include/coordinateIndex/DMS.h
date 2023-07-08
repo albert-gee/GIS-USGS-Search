@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+// Latitude and Longitude can be expressed in DMS format (degrees/minutes/seconds, e.g. 0820830W).
 // This struct describes a geographic coordinate in the DMS format.
 struct DMS {
     double degrees;   // Degrees component
@@ -21,12 +22,17 @@ struct DMS {
         unsigned int secondsDigits = 2;
         unsigned long degreesDigits = coordinateWithoutDirection.length() - minutesDigits - secondsDigits;
 
-
         // Extract the components from the string
         degrees = std::stod(coordinateWithoutDirection.substr(0, degreesDigits));
         minutes = std::stod(coordinateWithoutDirection.substr(degreesDigits, minutesDigits));
         seconds = std::stod(coordinateWithoutDirection.substr(degreesDigits + minutesDigits, secondsDigits));
         direction = directionString[0];
+
+        // Validate the components
+        if (degrees < 0 || degrees > 180 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59 ||
+            (direction != 'N' && direction != 'S' && direction != 'E' && direction != 'W')) {
+            throw std::invalid_argument("Invalid coordinate: " + coordinate);
+        }
     }
 
     // This constructor takes coordinate in DMS format as separate components.
@@ -43,7 +49,7 @@ struct DMS {
     [[nodiscard]] std::string toDecimalString() const {
         std::ostringstream os;
         double value = degrees + minutes / 60 + seconds / 3600;
-        os << ((direction == 'N' || direction == 'E') ? value : -value) << "°" ;
+        os << ((direction == 'N' || direction == 'E') ? value : -value) << "°";
         return os.str();
     }
 
