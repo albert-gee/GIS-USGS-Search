@@ -29,15 +29,15 @@ struct DMS {
         direction = directionString[0];
 
         // Validate the components
-        if (degrees < 0 || degrees > 180 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59 ||
-            (direction != 'N' && direction != 'S' && direction != 'E' && direction != 'W')) {
-            throw std::invalid_argument("Invalid coordinate: " + coordinate);
-        }
+        validate();
     }
 
     // This constructor takes coordinate in DMS format as separate components.
-    DMS(double degrees, double minutes, double seconds, char direction) : degrees{degrees}, minutes{minutes},
-                                                                          seconds{seconds}, direction{direction} {}
+    DMS(double degrees, double minutes, double seconds, char direction)
+            : degrees{degrees}, minutes{minutes}, seconds{seconds}, direction{direction} {
+        // Validate the components
+        validate();
+    }
 
     // To decimal format, e.g. 38.5
     [[nodiscard]] double toDecimal() const {
@@ -45,7 +45,7 @@ struct DMS {
         return (direction == 'N' || direction == 'E') ? value : -value;
     }
 
-    // To decimal format, e.g. 38.5
+    // To human-readable decimal string, e.g. 38.5°
     [[nodiscard]] std::string toDecimalString() const {
         std::ostringstream os;
         double value = degrees + minutes / 60 + seconds / 3600;
@@ -53,16 +53,83 @@ struct DMS {
         return os.str();
     }
 
-    // To human-readable DMS String, e.g. 38°30'0"N
+    // To human-readable DMS string, e.g. 38°30'0"N
     [[nodiscard]] std::string toDmsString() const {
         std::ostringstream os;
         os << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
         return os.str();
     }
 
-    [[nodiscard]] int toSeconds() const {
-        int dmsToSeconds = degrees * 3600 + minutes * 60 + seconds;
-        return dmsToSeconds;
+    // Validate the components: degrees, minutes, seconds, and direction.
+    // Throw an exception if any of the components is invalid.
+    void validate() const {
+        // Validate degrees
+        if (degrees < 0 || degrees > 180) {
+            throw std::invalid_argument("Degrees value out of range.");
+        }
+
+        // Validate minutes
+        if (minutes < 0 || minutes >= 60) {
+            throw std::invalid_argument("Minutes value out of range.");
+        }
+
+        // Validate seconds
+        if (seconds < 0 || seconds >= 60) {
+            throw std::invalid_argument("Seconds value out of range.");
+        }
+
+        // Validate direction
+        if (direction != 'N' && direction != 'S' && direction != 'E' && direction != 'W') {
+            throw std::invalid_argument("Invalid direction.");
+        }
+    }
+
+    // Find the center between this DMS and another DMS, e.g. between to latitudes.
+    [[nodiscard]] DMS findCenterBetweenThisAndAnotherDMS(DMS anotherDMS) const {
+        double avgDegrees = (degrees + anotherDMS.degrees) / 2.0;
+        double avgMinutes = (minutes + anotherDMS.minutes) / 2.0;
+        double avgSeconds = (seconds + anotherDMS.seconds) / 2.0;
+
+        // Normalize the components
+        while (avgSeconds >= 60.0) {
+            avgMinutes += 1.0;
+            avgSeconds -= 60.0;
+        }
+        while (avgMinutes >= 60.0) {
+            avgDegrees += 1.0;
+            avgMinutes -= 60.0;
+        }
+        while (avgDegrees >= 360.0) {
+            avgDegrees -= 360.0;
+        }
+
+        // Determine the direction
+        char newDirection;
+        if (direction == anotherDMS.direction) {
+            newDirection = direction;
+        } else {
+            double diffDegrees = std::abs(degrees - anotherDMS.degrees);
+            double diffMinutes = std::abs(minutes - anotherDMS.minutes);
+            double diffSeconds = std::abs(seconds - anotherDMS.seconds);
+
+            if (diffDegrees < 180.0 ||
+                (diffDegrees == 180.0 && diffMinutes < 180.0) ||
+                (diffDegrees == 180.0 && diffMinutes == 180.0 && diffSeconds < 180.0)) {
+                newDirection = (direction == 'N' || direction == 'E') ? direction : anotherDMS.direction;
+            } else {
+                newDirection = (direction == 'S' || direction == 'W') ? direction : anotherDMS.direction;
+            }
+        }
+
+        return DMS{avgDegrees, avgMinutes, avgSeconds, newDirection};
+    }
+
+    // Compare this DMS with another DMS.
+    [[nodiscard]] bool equals(const DMS& other) const {
+        return (degrees == other.degrees) &&
+               (minutes == other.minutes) &&
+               (seconds == other.seconds) &&
+               (direction == other.direction);
     }
 };
 
