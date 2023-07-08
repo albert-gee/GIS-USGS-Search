@@ -61,7 +61,8 @@ const string &generateLogStart(const string databaseFileLocation, const string l
     os << "script:\t" + commandScriptFileLocation + "\n";
     os << "log:\t" + logFileLocation + "\n";
     os << "Start Time: " <<  std::put_time(std::localtime(&now), "%a %b %d %X %Z %Y");
-    string *logStart = new string();
+    os << "\n";
+    auto *logStart = new string();
     *logStart  = os.str();
     return *logStart;
 
