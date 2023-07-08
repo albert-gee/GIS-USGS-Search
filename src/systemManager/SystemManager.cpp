@@ -217,21 +217,20 @@ void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, do
     os << "";
     if(!records.empty()){
         if(isFiltered){
-            os << "The following features matching your criteria ";
+            os << "The following features matching your criteria were ";
         } else {
-            os << "The following " << records.size() << " feature(s) ";
+            os << "The following " << records.size() << " feature(s) were ";
         }
 
     } else {
-        os << "No features ";
+        os << "Nothing was ";
     }
 
-    os << "were found in (" << point.getLatToDMSStr() << " +/- " << halfHeight << ", " << point.getLongToDMSStr() << " +/- " << halfWidth << ")\n";
+    os << "found in (" << point.getLatToDMSStr() << " +/- " << halfHeight << ", " << point.getLongToDMSStr() << " +/- " << halfWidth << ")\n\n";
 
     for(auto r : records){
         if(isDetailed){
-            os.width(2);
-            os << "" << r->gisRecordPtr->detailStr();
+            os << r->gisRecordPtr->detailStr();
         } else {
             os.width(4);
             os << "" << r->lineNum << ':'

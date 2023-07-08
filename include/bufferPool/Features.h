@@ -57,6 +57,7 @@ private:
     }
 
     void fillStructure(){
+        structure.insert("Church");
         structure.insert("Dam");
         structure.insert("Hospital");
         structure.insert("Levee");

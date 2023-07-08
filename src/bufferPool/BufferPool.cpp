@@ -40,7 +40,7 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree c
 
 list<BufferedRecord *> BufferPool::getRecordsByCoordinateRange(bool isFiltered, string filter, Point nwPoint, Point sePoint,
                                         QuadTree coordinateIndex) {
-    vector<int> lineNums;// = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
+    vector<int> lineNums = {};// = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
 
     list<BufferedRecord*> foundRecords;
     for(int l : lineNums){
@@ -76,7 +76,7 @@ BufferedRecord * BufferPool::searchBufferWithFilter(int lineNum, string filter){
     // Loop until line is found in buffer or at the end of buffer
     while(b != buffer.end()){
         if(lineNum == (*b)->lineNum){
-            if(matchFilter(filter, (*b)->gisRecordPtr->getFeatureName())){
+            if(matchFilter(filter, (*b)->gisRecordPtr->getFeatureClass())){
                 BufferedRecord *recent = *b;
                 buffer.erase(b);
                 buffer.push_front(recent);
@@ -91,7 +91,7 @@ BufferedRecord * BufferPool::searchBufferWithFilter(int lineNum, string filter){
     // Get line from databaseService and create GIS record
     string line = databaseService.getLineByNumber(lineNum);
     GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
-    if(matchFilter(filter, gisRecord->getFeatureName())){
+    if(matchFilter(filter, gisRecord->getFeatureClass())){
         if(buffer.size() >= MAX_SIZE){
             buffer.pop_back();
         }
