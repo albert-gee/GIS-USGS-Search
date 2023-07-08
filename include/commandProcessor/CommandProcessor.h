@@ -76,8 +76,10 @@ private:
 
     // Specifies the boundaries of the coordinate space.
     //
-    // Takes longitude and latitude in DMS format, representing the vertical and horizontal boundaries of the coordinate
-    // space. Records outside the coordinate space are ignored (not indexed).
+    // Takes longitude and latitude in DMS format as strings, representing the vertical and horizontal boundaries of
+    // the coordinate space. Example: 0794530W, 0792630W.
+    //
+    // Records outside the coordinate space are ignored (not indexed).
     void world(string &westLong, string &eastLong, string &southLat, string &northLat);
 
     // Add all valid records from the specified file to the existing database file, index them, add the number of

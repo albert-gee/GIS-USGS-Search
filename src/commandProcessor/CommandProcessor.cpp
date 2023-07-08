@@ -179,7 +179,7 @@ void CommandProcessor::import(string &recordsDataSetFileName) {
 // ToDo: complete this implementation
 void CommandProcessor::whatIsAt(string &latitude, string &longitude) {
     //list<GISRecord> gisRecords = systemManager.findGISRecordsByCoordinates(
-    Point point = {DMS(latitude).toDecimalString(), DMS(longitude).toDecimalString()};
+    Point point = {DMS(latitude), DMS(longitude)};
     // LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude)
     systemManager.whatIsAt(point);
 }
@@ -193,13 +193,13 @@ void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter
                                 string &halfHeight, string &halfWidth) {
     double hlfh = stod(halfHeight);
     double hlfw = stod(halfWidth);
-    double latDouble = DMS(latitude).toDecimal();
-    double longDouble = DMS(longitude).toDecimal();
+//    DMS latDms = DMS(latitude);
+//    DMS longDms = DMS(longitude);
     /*Point nwPoint = {DMS(latitude).toDecimal() + hlfh, DMS(longitude).toDecimal() - hlfw};
     Point sePoint = {DMS(latitude).toDecimal() - hlfh, DMS(longitude).toDecimal() + hlfw};
 */
 
-    systemManager.whatIsIn(isFiltered, isDetailed, filter, latDouble, longDouble, hlfh, hlfw);
+//    systemManager.whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, hlfh, hlfw);
     // ToDo: complete this implementation
     /*systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
                            DMS(longitude).toDecimal(), hlfh, hlfw);*/
