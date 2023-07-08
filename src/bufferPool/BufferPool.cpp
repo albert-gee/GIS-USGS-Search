@@ -25,7 +25,22 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinates(double latitude, doubl
 }*/
 
 list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree coordinateIndex) {
+    cout << endl << point.getLatToDMSStr() << " " << point.getLongToDMSStr() << endl;
+    system("pause");
     vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(point);
+
+    list<BufferedRecord*> foundRecords;
+    for(int l : lineNums){
+        BufferedRecord* bufRecordPtr = searchBuffer(l);
+        if(bufRecordPtr != nullptr){
+            foundRecords.push_front(bufRecordPtr);
+        }
+    }
+    return foundRecords;
+}
+
+list<BufferedRecord*> BufferPool::getRecordsByCoordinateRange(Point nwPoint, Point sePoint, QuadTree coordinateIndex) {
+    vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
 
     list<BufferedRecord*> foundRecords;
     for(int l : lineNums){
@@ -52,7 +67,6 @@ list<BufferedRecord *> BufferPool::getRecordsByKey(string key, NameIndex &nameIn
 
 BufferedRecord * BufferPool::searchBuffer(int lineNum){
     auto b = buffer.begin();
-    BufferedRecord *bufRecordptr = nullptr;
 
     // Loop until line is found in buffer or at the end of buffer
     while(b != buffer.end()){

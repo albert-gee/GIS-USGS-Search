@@ -17,7 +17,6 @@ public:
 
     // ToDo: implement the following methods
     list<BufferedRecord *> getRecordsByKey(string key, NameIndex &nameIndex);
-    const list<GISRecord *> findGISRecordsByCoordinates(double latitude, double longitude);
     void printBuffer();
 
     string str();
@@ -37,6 +36,7 @@ private:
 
     list<BufferedRecord *> getRecordsByCoordinates(double latitude, double longitude, QuadTree coordinateIndex);
 
+    list<BufferedRecord *> getRecordsByCoordinateRange(Point nwPoint, Point sePoint, QuadTree coordinateIndex);
 };
 
 
