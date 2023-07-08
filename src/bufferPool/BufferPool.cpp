@@ -90,7 +90,7 @@ BufferedRecord * BufferPool::searchBufferWithFilter(int lineNum, string filter){
     // Line not found
     // Get line from databaseService and create GIS record
     string line = databaseService.getLineByNumber(lineNum);
-    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+    GISRecord* gisRecord = LineUtility::extractGISRecordFromLine(line, '|');
     if(matchFilter(filter, gisRecord->getFeatureClass())){
         if(buffer.size() >= MAX_SIZE){
             buffer.pop_back();
@@ -138,7 +138,7 @@ BufferedRecord * BufferPool::searchBuffer(int lineNum){
     // Line not found
     // Get line from databaseService and create GIS record
     string line = databaseService.getLineByNumber(lineNum);
-    GISRecord* gisRecord = LineUtility::createGISRecordFromLine(line, '|');
+    GISRecord* gisRecord = LineUtility::extractGISRecordFromLine(line, '|');
     if(buffer.size() >= MAX_SIZE){
         buffer.pop_back();
     }
