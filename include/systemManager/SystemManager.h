@@ -8,6 +8,7 @@
 #include "../coordinateIndex/QuadTree.h"
 #include "../log/LogService.h"
 #include "../database/DbService.h"
+#include "../log/IndexStats.h"
 
 using namespace std;
 
@@ -16,17 +17,19 @@ using namespace std;
 class SystemManager {
 public:
     // Constants related to the format of the records in the databaseService file
+    // The delimiter used to separate the fields in the records
+    static const char DELIM = '|';
+
+    // 1 and 3 are the feature name and state abbreviation columns
     static const int FEATURE_NAME_COL = 1;
     static const int STATE_ALPHA_COL = 3;
-    static const char DELIM = '|';
+
+    // 9 and 10 are the latitude and longitude columns in decimal degrees
     static const int LATITUDE_COL = 9;
     static const int LONGITUDE_COL = 10;
 
-
-    // ToDo: implement the following methods
-/*    void whatIsAt(DMS coordinates);
-    void whatIs(string featureName, string state);
-    void whatIsIn(DMS coordinates,int halfHeight, int halfWidth);*/
+    SystemManager(NameIndex &nameIndex, const QuadTree &coordinateIndex, BufferPool &bufferPool,
+                  DbService &databaseService, LogService &logService);
 
     // The "world" command.
     // Set boundaries for the coordinate index
@@ -34,25 +37,31 @@ public:
 
     // The "import" command.
     // Add all the valid records from the file recordsDataSetFileLocation to the databaseService file.
-    void import (const string& recordsDataSetFileLocation);
+    void import(const string &recordsDataSetFileLocation);
 
-    // Find GIS records that match the given coordinates.
-    list<GISRecord> findGISRecordsByCoordinates(Point location);
+    // The "what_is" command.
     void whatIs(string featureName, string stateAbrv);
-    void whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
-                  double halfHeight, double halfWidth);
-    SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, DbService& databaseService, LogService& logService);
 
+    // The "what_is_in" command.
+//    void whatIsIn(bool isFiltered, bool isDetailed, string filter, string latitude, string longitude,
+//                  double halfHeight, double halfWidth);
 
+    // The "what_is_at" command.
+    void whatIsAt(Point point);
+
+    // The "log" command.
     void logCommand(int cmdNumber, string function, list <string> args, char delimiter);
+
     void logComment(string comment);
 
+    // The four variations of "debug" command.
     void debugQuad();
-    void debugHash();
-    void debugPool();
-    void debugWorld();
 
-    void whatIsAt(Point point);
+    void debugHash();
+
+    void debugPool();
+
+    void debugWorld();
 
 private:
     // System components: the name index, the coordinate index, and the buffer pool
@@ -60,27 +69,28 @@ private:
     QuadTree coordinateIndex;
     BufferPool bufferPool;
 
-
     // Database service
-    DbService& databaseService;
+    DbService &databaseService;
 
     // Log serviced
-    LogService& logService;
-
-    // Index the records in the databaseService file by feature name and state
-    list<int> * indexDatabaseByName();
-
-    // Index the records in the databaseService file by location
-    unsigned int indexDatabaseByCoordinates();
+    LogService &logService;
 
     void logLine(string text);
 
-    list<int> *indexDatabaseByNameAndCoordinates();
+    // Index the records in the databaseService file by location and concatenated feature name and state.
+    // Collect statistics about the index.
+    // Uses the indexDatabaseByName() and indexDatabaseByCoordinates() methods.
+    // Returns the statistics about the index.
+    IndexStats indexDatabaseByNameAndCoordinates();
+
+    // Index an individual GIS record from the database by name and state abbreviation and collect statistics about the
+    // index
+    void indexDatabaseRecordByName(GISRecord* gisRecord, int lineNum, IndexStats &nameIndexStats);
+
+    // Index an individual GIS record from the database by location
+    void indexDatabaseRecordByLocation(GISRecord* gisRecord, int lineNum);
 
     void logLineBreak();
-
-    list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth);
-
 };
 
 
