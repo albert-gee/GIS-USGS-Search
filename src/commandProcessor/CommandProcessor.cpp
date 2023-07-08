@@ -72,14 +72,14 @@ void CommandProcessor::processLine(const string &line) {
 void CommandProcessor::processCommand(const string &function, list<string> &args) {
 
     // Log the command and arguments EXCEPT for the world command
-    if (function != getCommandName(Commands::WORLD)) {
+    if (function != getCommandName(Command::WORLD)) {
         ++commandsProcessed;
     }
     systemManager.logCommand(commandsProcessed, function, args, DELIM1);
     //systemManager.logComment(string(90, '-'));
 
     // Call the appropriate function based on the function name
-    if (function == getCommandName(Commands::WORLD)) {
+    if (function == getCommandName(Command::WORLD)) {
 
         string westLong = args.front();
         args.pop_front();
@@ -90,31 +90,35 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         string northLat = args.front();
         args.pop_front();
 
+        std::cout << "\n\n > > > world " << westLong << " " << eastLong << " " << southLat << " " << northLat << std::endl;
         world(westLong, eastLong, southLat, northLat);
 
-    } else if (function == getCommandName(Commands::IMPORT)) {
+    } else if (function == getCommandName(Command::IMPORT)) {
 
         string recordsDataSetFileName = args.front();
+        std::cout << " > > > import: " << recordsDataSetFileName << std::endl;
         import(recordsDataSetFileName);
 
-    } else if (function == getCommandName(Commands::WHAT_IS_AT)) {
+    } else if (function == getCommandName(Command::WHAT_IS_AT)) {
         string latitude = args.front();
         args.pop_front();
 
         string longitude = args.front();
         args.pop_front();
 
+        std::cout << " > > > what is at: " << latitude << longitude << std::endl;
         whatIsAt(latitude, longitude);
 
-    } else if (function == getCommandName(Commands::WHAT_IS)) {
+    } else if (function == getCommandName(Command::WHAT_IS)) {
 
         string featureName = args.front();
         args.pop_front();
         string stateAbrv = args.front();
 
+        std::cout << " > > > what is: " << featureName << stateAbrv << std::endl;
         whatIs(featureName, stateAbrv);
 
-    } else if (function == getCommandName(Commands::WHAT_IS_IN)) {
+    } else if (function == getCommandName(Command::WHAT_IS_IN)) {
         bool isFiltered = false;
         bool isDetailed = false;
         string filter;
@@ -140,13 +144,17 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         string halfWidth = args.front();
         args.pop_front();
 
+        std::cout << " > > > what is in: " << isFiltered << " " << isDetailed << " " << filter << " " << latitude << " "
+                  << longitude << " " << halfHeight << " " << halfWidth << std::endl;
         whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, halfHeight, halfWidth);
 
-    } else if (function == getCommandName(Commands::DEBUG)) {
+    } else if (function == getCommandName(Command::DEBUG)) {
         string debugTarget = args.front();
+        std::cout << " > > > debug " << debugTarget << std::endl;
         debug(debugTarget);
 
-    } else if (function == getCommandName(Commands::QUIT)) {
+    } else if (function == getCommandName(Command::QUIT)) {
+        std::cout << " > > > quit" << std::endl;
         quit();
     }
 }
