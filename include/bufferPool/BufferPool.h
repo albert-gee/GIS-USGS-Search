@@ -22,6 +22,8 @@ public:
 
     string str();
 
+    list<BufferedRecord *> getRecordsByCoordinate(Point point, QuadTree coordinateIndex);
+
 private:
     // Buffering up to 15 records in the buffer pool
     static const int MAX_SIZE = 15;
@@ -34,6 +36,7 @@ private:
     string getLineFromDB(int, string);
 
     list<BufferedRecord *> getRecordsByCoordinates(double latitude, double longitude, QuadTree coordinateIndex);
+
 };
 
 

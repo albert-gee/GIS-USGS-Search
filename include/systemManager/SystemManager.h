@@ -51,6 +51,8 @@ public:
 
     void debugPool();
 
+    void whatIsAt(Point point);
+
 private:
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
@@ -81,6 +83,7 @@ private:
     void logLineBreak();
 
     list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth);
+
 };
 
 

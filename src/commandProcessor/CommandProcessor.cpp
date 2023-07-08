@@ -171,9 +171,10 @@ void CommandProcessor::import(string &recordsDataSetFileName) {
 
 // ToDo: complete this implementation
 void CommandProcessor::whatIsAt(string &latitude, string &longitude) {
-    list<GISRecord> gisRecords = systemManager.findGISRecordsByCoordinates(
-            Point(DMS(latitude).toDecimal(), DMS(longitude).toDecimal()));
+    //list<GISRecord> gisRecords = systemManager.findGISRecordsByCoordinates(
+    Point point = {DMS(latitude).toDecimal(), DMS(longitude).toDecimal()};
     // LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude)
+    systemManager.whatIsAt(point);
 }
 
 // ToDo: complete this implementation

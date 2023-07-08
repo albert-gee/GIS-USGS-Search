@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     /// LOG
     LogService logService(logFileLocation);
-    cout << generateLogStart(databaseFileLocation, logFileLocation, commandScriptFileLocation);
+
     logService.logString(generateLogStart(databaseFileLocation, logFileLocation, commandScriptFileLocation));
 
     /// BufferPool, NameIndex, QuadTree

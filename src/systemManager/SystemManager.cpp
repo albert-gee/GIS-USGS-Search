@@ -211,6 +211,29 @@ void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, do
     auto offsets = findGISRecordsByCoordinates(latitude, longitude, halfHeight, halfWidth);
 }
 
+void SystemManager::whatIsAt(Point point){
+    auto records = bufferPool.getRecordsByCoordinate(point, coordinateIndex);
+    ostringstream os;
+    os.width(2);
+    os << "";
+    if(!records.empty()){
+        os << "The following feature(s) were ";
+    } else {
+        os << "Nothing was ";
+    }
+
+    os << "found at (\"" << point.getLatToDMSStr() << ", " << point.getLongToDMSStr() << "\")\n";
+
+    for(auto r : records){
+        os.width(4);
+        os << "" << r->lineNum << ':'
+        << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
+        << " \"" << r->gisRecordPtr->getCountyName() << "\" "
+        << " \"" << r->gisRecordPtr->getStateAlpha() << "\" ";
+    }
+    logLine(os.str());
+    logLineBreak();
+}
 
 void SystemManager::whatIs(string featureName, string stateAbrv){
     ostringstream os;

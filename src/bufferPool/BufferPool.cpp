@@ -7,12 +7,25 @@
 
 BufferPool::BufferPool(DbService& dbService)
     : databaseService{dbService} {}
-
+/*
 // ToDo: Implement this function
 // get line numbers from coordinateIndex and assign to lineNums
 list<BufferedRecord*> BufferPool::getRecordsByCoordinates(double latitude, double longitude,
                                                           QuadTree coordinateIndex) {
     list<int> lineNums;
+
+    list<BufferedRecord*> foundRecords;
+    for(int l : lineNums){
+        BufferedRecord* bufRecordPtr = searchBuffer(l);
+        if(bufRecordPtr != nullptr){
+            foundRecords.push_front(bufRecordPtr);
+        }
+    }
+    return foundRecords;
+}*/
+
+list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree coordinateIndex) {
+    vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(point);
 
     list<BufferedRecord*> foundRecords;
     for(int l : lineNums){
