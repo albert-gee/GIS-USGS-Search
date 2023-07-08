@@ -24,6 +24,8 @@ private:
     const char DELIM1 = '\t';
     const char END_CHAR = '\0';
 
+    bool is_quit = false;
+
     SystemManager systemManager;
 
     int commandsProcessed = 0;
@@ -85,6 +87,12 @@ private:
 
     // Log the contents of the specified index structure in a fashion that makes the internal structure and contents of
     // the index clear. Includes information like key values and file offsets.
+    //
+    // The debugTarget argument specifies the index structure to be logged. It can be one of the following:
+    // 1. "quad" - the coordinate index
+    // 2. "hash" - the name index
+    // 3. "pool" - the buffer pool
+    // 4. "world" - the world boundaries
     void debug(string& debugTarget);
 
     // Terminates the execution of the program.

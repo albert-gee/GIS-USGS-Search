@@ -244,6 +244,11 @@ void SystemManager::logLine(string text){
     logService.logString(text);
 }
 
+
+// ToDo: implement the following method
+void SystemManager::debugQuad() {
+}
+
 void SystemManager::debugHash() {
     const string stats = nameIndex.str();
     logLine(stats);
@@ -255,6 +260,10 @@ void SystemManager::debugPool() {
     const string pool = bufferPool.str();
     logLine(pool);
     logLineBreak();
+}
+
+// ToDo: implement the following method
+void debugWorld() {
 }
 
 void SystemManager::logLineBreak(){

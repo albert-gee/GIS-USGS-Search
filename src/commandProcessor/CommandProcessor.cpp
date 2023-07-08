@@ -22,7 +22,7 @@ void CommandProcessor::processCommandsFromScriptFile(const std::string &commandS
 
     // read each line from the file and pass it to the command processor
     std::string line;
-    while (std::getline(commandScriptFile, line)) {
+    while (std::getline(commandScriptFile, line) && !is_quit) {
         processLine(line);
     }
 
@@ -200,13 +200,20 @@ void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter
 }
 
 void CommandProcessor::debug(string &debugTarget) {
-    if (debugTarget == "hash") {
+    if(debugTarget == "quad") {
+        systemManager.debugQuad();
+    } else if (debugTarget == "hash") {
         systemManager.debugHash();
     } else if (debugTarget == "pool") {
         systemManager.debugPool();
+    } else if (debugTarget == "world") {
+        systemManager.debugWorld();
+    } else {
+        // Invalid debugTarget argument
+        std::cout << "Invalid debug target!" << std::endl;
     }
 }
 
-// ToDo: complete this implementation
 void CommandProcessor::quit() {
+    is_quit = true;
 }

@@ -47,9 +47,10 @@ public:
     void logCommand(int cmdNumber, string function, list <string> args, char delimiter);
     void logComment(string comment);
 
+    void debugQuad();
     void debugHash();
-
     void debugPool();
+    void debugWorld();
 
 private:
     // System components: the name index, the coordinate index, and the buffer pool
@@ -71,10 +72,6 @@ private:
     unsigned int indexDatabaseByCoordinates();
 
     void logLine(string text);
-
-    string convertLatDECtoDMS(double dec);
-
-    string convertLongDECtoDMS(double dec);
 
     list<int> *indexDatabaseByNameAndCoordinates();
 
