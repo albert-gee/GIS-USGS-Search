@@ -10,10 +10,6 @@
 
 using namespace std;
 
-enum Commands {
-    WORLD, IMPORT, DEBUG, QUIT, WHAT_IS_AT, WHAT_IS, WHAT_IS_IN
-};
-
 class CommandProcessor {
 public:
     explicit CommandProcessor(SystemManager systemManager);
@@ -33,7 +29,7 @@ private:
     int commandsProcessed = 0;
 
     // Get the command name from the command enum.
-    static string& getCommandName(Commands command) {
+    static string& getCommandName(Command command) {
         static std::string functionName;
 
         switch (command)
