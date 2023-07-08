@@ -199,11 +199,6 @@ void GISRecord::setDateEdited(const std::string &dateEdited) {
     date_edited = dateEdited;
 }
 
-std::string GISRecord::dmsStr(std::string s) {
-    std::string dir = s.substr(s.length() - 2, 1);
-    std::string sec = s.substr(s.length() -4, 2);
-}
-
 std::string GISRecord::latDMSStr() {
     double latitude = std::stof(primary_latitude_DEC);
     std::string direction = latitude < 0 ? "South" : "North";
