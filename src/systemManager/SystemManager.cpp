@@ -263,7 +263,7 @@ void SystemManager::debugPool() {
 }
 
 // ToDo: implement the following method
-void debugWorld() {
+void SystemManager::debugWorld() {
 }
 
 void SystemManager::logLineBreak(){
