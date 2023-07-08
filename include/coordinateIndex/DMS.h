@@ -33,28 +33,30 @@ struct DMS {
     DMS(double degrees, double minutes, double seconds, char direction) : degrees{degrees}, minutes{minutes},
                                                                           seconds{seconds}, direction{direction} {}
 
+    // To decimal format, e.g. 38.5
     [[nodiscard]] double toDecimal() const {
-        double decimal = degrees + minutes / 60 + seconds / 3600;
-        if (direction == 'S' || direction == 'W') {
-            decimal *= -1;
-        }
-        return decimal;
+        double value = degrees + minutes / 60 + seconds / 3600;
+        return (direction == 'N' || direction == 'E') ? value : -value;
     }
 
-    // Print the DMS coordinate
-    void print() const {
-        std::cout << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
+    // To decimal format, e.g. 38.5
+    [[nodiscard]] std::string toDecimalString() const {
+        std::ostringstream os;
+        double value = degrees + minutes / 60 + seconds / 3600;
+        os << ((direction == 'N' || direction == 'E') ? value : -value) << "°" ;
+        return os.str();
     }
 
-    int toSeconds() const {
+    // To human-readable DMS String, e.g. 38°30'0"N
+    [[nodiscard]] std::string toDmsString() const {
+        std::ostringstream os;
+        os << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
+        return os.str();
+    }
+
+    [[nodiscard]] int toSeconds() const {
         int dmsToSeconds = degrees * 3600 + minutes * 60 + seconds;
         return dmsToSeconds;
-    }
-
-    std::string str() const {
-        std::ostringstream os;
-        os << degrees << minutes << seconds << direction;
-        return os.str();
     }
 };
 
