@@ -2,6 +2,7 @@
 #define DMS_H
 
 #include <iostream>
+#include <sstream>
 
 // This struct describes a geographic coordinate in the DMS format.
 struct DMS {
@@ -43,6 +44,17 @@ struct DMS {
     // Print the DMS coordinate
     void print() const {
         std::cout << degrees << "°" << minutes << "'" << seconds << "\"" << direction;
+    }
+
+    int toSeconds() const {
+        int dmsToSeconds = degrees * 3600 + minutes * 60 + seconds;
+        return dmsToSeconds;
+    }
+
+    std::string str() const {
+        std::ostringstream os;
+        os << degrees << minutes << seconds << direction;
+        return os.str();
     }
 };
 
