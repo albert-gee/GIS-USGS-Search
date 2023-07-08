@@ -97,8 +97,6 @@ private:
     void
     whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude, string &halfHeight,
              string &halfWidth);
-
-
 };
 
 

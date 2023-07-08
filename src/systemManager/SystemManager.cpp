@@ -9,6 +9,18 @@ SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateInd
 
 // Set boundaries for the coordinate index
 void SystemManager::setCoordinateIndexBoundaries(double northLat, double southLat, double eastLong, double westLong) {
+    ostringstream os;
+    os << "\t\t\t\t\t\tWorld boundaries are set to:" << endl;
+    os << "\t\t\t\t\t\t\t\t\t" << northLat * 3600 << endl;
+    os << "\t\t\t\t\t\t" << westLong * 3600;
+    os.width(14);
+    os << "" << eastLong * 3600 <<endl;
+    os << "\t\t\t\t\t\t\t\t\t" << southLat * 3600;
+    logLineBreak();
+    logLine("Latitude/longitude values in index entries are shown as signed integers, in total seconds.");
+    logLineBreak();
+    logLine(os.str());
+    logLineBreak();
     coordinateIndex.setBoundingBox(Point(northLat, westLong), Point(southLat, eastLong));
 }
 

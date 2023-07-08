@@ -153,6 +153,7 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
 void CommandProcessor::world(string &westLong, string &eastLong, string &southLat, string &northLat) {
 
+
     // The coordinates are in DMS format, so create DMS objects
     DMS westLongDMS(westLong);
     DMS eastLongDMS(eastLong);
