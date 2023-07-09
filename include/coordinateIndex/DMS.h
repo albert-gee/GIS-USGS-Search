@@ -7,9 +7,9 @@
 // Latitude and Longitude can be expressed in DMS format (degrees/minutes/seconds, e.g. 0820830W).
 // This struct describes a geographic coordinate in the DMS format.
 struct DMS {
-    double degrees;   // Degrees component
-    double minutes;   // Minutes component
-    double seconds;   // Seconds component
+    unsigned int degrees;   // Degrees component
+    unsigned int minutes;   // Minutes component
+    unsigned int seconds;   // Seconds component
     char direction; // Direction (N, S, E, W)
 
     // This constructor takes coordinate in DMS format as a string, e.g. 0794530W, 0792630W, 381000N, 383000N.
@@ -23,9 +23,9 @@ struct DMS {
         unsigned long degreesDigits = coordinateWithoutDirection.length() - minutesDigits - secondsDigits;
 
         // Extract the components from the string
-        degrees = std::stod(coordinateWithoutDirection.substr(0, degreesDigits));
-        minutes = std::stod(coordinateWithoutDirection.substr(degreesDigits, minutesDigits));
-        seconds = std::stod(coordinateWithoutDirection.substr(degreesDigits + minutesDigits, secondsDigits));
+        degrees = std::stoi(coordinateWithoutDirection.substr(0, degreesDigits));
+        minutes = std::stoi(coordinateWithoutDirection.substr(degreesDigits, minutesDigits));
+        seconds = std::stoi(coordinateWithoutDirection.substr(degreesDigits + minutesDigits, secondsDigits));
         direction = directionString[0];
 
         // Validate the components
@@ -33,7 +33,7 @@ struct DMS {
     }
 
     // This constructor takes coordinate in DMS format as separate components.
-    DMS(double degrees, double minutes, double seconds, char direction)
+    DMS(unsigned int degrees, unsigned int minutes, unsigned int seconds, char direction)
             : degrees{degrees}, minutes{minutes}, seconds{seconds}, direction{direction} {
         // Validate the components
         validate();
@@ -41,14 +41,14 @@ struct DMS {
 
     // To decimal format, e.g. 38.5
     [[nodiscard]] double toDecimal() const {
-        double value = degrees + minutes / 60 + seconds / 3600;
+        double value = degrees + (double) minutes / 60 + (double) seconds / 3600;
         return (direction == 'N' || direction == 'E') ? value : -value;
     }
 
     // To human-readable decimal string, e.g. 38.5°
     [[nodiscard]] std::string toDecimalString() const {
         std::ostringstream os;
-        double value = degrees + minutes / 60 + seconds / 3600;
+        double value = degrees + (double) minutes / 60 + (double) seconds / 3600;
         os << ((direction == 'N' || direction == 'E') ? value : -value) << "°";
         return os.str();
     }
@@ -86,42 +86,27 @@ struct DMS {
 
     // Find the center between this DMS and another DMS, e.g. between to latitudes.
     [[nodiscard]] DMS findCenterBetweenThisAndAnotherDMS(DMS anotherDMS) const {
-        double avgDegrees = (degrees + anotherDMS.degrees) / 2.0;
-        double avgMinutes = (minutes + anotherDMS.minutes) / 2.0;
-        double avgSeconds = (seconds + anotherDMS.seconds) / 2.0;
+        int totalSeconds1 = (direction == 'S' || direction == 'W') ? -1 : 1;
+        totalSeconds1 *= (int) (degrees * 3600 + minutes * 60 + seconds);
 
-        // Normalize the components
-        while (avgSeconds >= 60.0) {
-            avgMinutes += 1.0;
-            avgSeconds -= 60.0;
-        }
-        while (avgMinutes >= 60.0) {
-            avgDegrees += 1.0;
-            avgMinutes -= 60.0;
-        }
-        while (avgDegrees >= 360.0) {
-            avgDegrees -= 360.0;
-        }
+        int totalSeconds2 = (anotherDMS.direction == 'S' || anotherDMS.direction == 'W') ? -1 : 1;
+        totalSeconds2 *= (int) (anotherDMS.degrees * 3600 + anotherDMS.minutes * 60 + anotherDMS.seconds);
 
-        // Determine the direction
+        int centerSeconds = (totalSeconds1 + totalSeconds2) / 2;
+        unsigned int centerDegrees = std::abs(centerSeconds) / 3600;
+        unsigned int centerMinutes = (std::abs(centerSeconds) % 3600) / 60;
+        unsigned int centerSecondsRemainder = std::abs(centerSeconds) % 60;
+
         char newDirection;
-        if (direction == anotherDMS.direction) {
-            newDirection = direction;
-        } else {
-            double diffDegrees = std::abs(degrees - anotherDMS.degrees);
-            double diffMinutes = std::abs(minutes - anotherDMS.minutes);
-            double diffSeconds = std::abs(seconds - anotherDMS.seconds);
 
-            if (diffDegrees < 180.0 ||
-                (diffDegrees == 180.0 && diffMinutes < 180.0) ||
-                (diffDegrees == 180.0 && diffMinutes == 180.0 && diffSeconds < 180.0)) {
-                newDirection = (direction == 'N' || direction == 'E') ? direction : anotherDMS.direction;
-            } else {
-                newDirection = (direction == 'S' || direction == 'W') ? direction : anotherDMS.direction;
-            }
+        if (centerSeconds < 0) {
+            newDirection = (direction == 'S' || anotherDMS.direction == 'S') ? 'S' : 'W';
+        } else {
+            newDirection = (direction == 'N' || anotherDMS.direction == 'N') ? 'N' : 'E';
         }
 
-        return DMS{avgDegrees, avgMinutes, avgSeconds, newDirection};
+        return {centerDegrees, centerMinutes, centerSecondsRemainder, newDirection};
+
     }
 
     // Compare this DMS with another DMS.

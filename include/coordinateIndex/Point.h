@@ -20,7 +20,7 @@ struct Point {
     // Print the point
     void print() const {
         std::cout << std::fixed << std::setprecision(7);
-        std::cout << "(" << latitude.toDecimalString() << ", " << longitude.toDecimalString() << ")";
+        std::cout << "(" << latitude.toDmsString() << ", " << longitude.toDmsString() << ")";
     }
 };
 
