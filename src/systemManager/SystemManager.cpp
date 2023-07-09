@@ -32,8 +32,10 @@ void SystemManager::import(const string &recordsDataSetFileLocation) {
 
     // Import the records from the recordsDataSetFileLocation file to the databaseService file
     try {
-        databaseService.import(recordsDataSetFileLocation);
-
+        //databaseService.import(recordsDataSetFileLocation);
+        Point nwpoint = coordinateIndex.getNWPoint();
+        Point sepoint = coordinateIndex.getSEPoint();
+        databaseService.import(recordsDataSetFileLocation, nwpoint.latitude.toDecimal(), sepoint.latitude.toDecimal(), nwpoint.longitude.toDecimal(), sepoint.longitude.toDecimal());
         // Index the records in the databaseService file by
         // 1 - feature name and state
         // 2 - location

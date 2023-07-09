@@ -31,13 +31,14 @@ public:
     // Returns a string representation of the content of QuadTree
     [[nodiscard]] std::string getContent() const;
 
+    Point getNWPoint();
+
+    Point getSEPoint();
+
 private:
     unsigned long bucketCapacity;
     QuadTreeQuadrant *root;
 
-    Point getNWPoint();
-
-    Point getSEPoint();
 };
 
 

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <limits>
 #include "../../include/database/DbService.h"
+#include "../../include/coordinateIndex/Point.h"
+#include "../../include/database/LineUtility.h"
 
 DbService::DbService(const std::string &databaseFileLocation) {
 
@@ -48,6 +50,42 @@ void DbService::import(const std::string& recordsDataSetFileLocation) {
         getline(recordsFile, line);
         while (getline(recordsFile, line)) {
             databaseFile << line << std::endl;
+        }
+
+        // Close the database file
+        close();
+
+        // Close the records file
+        recordsFile.close();
+    }
+}
+
+void
+DbService::import(const std::string &recordsDataSetFileLocation, double north, double south, double west, double east) {
+
+    // The recordsDataSetFileLocation file is created and opened for reading
+    std::ifstream recordsFile (recordsDataSetFileLocation);
+
+    if(!recordsFile.is_open()) {
+        std::cerr << "Error: Failed to create records file." << std::endl;
+    } else {
+        // The records file is open. Open the database file
+        open();
+
+        // Parse the records file line by line and add the valid records to the database file
+        std::string line;
+        // Clear the first line as it has the headings
+        getline(recordsFile, line);
+        while (getline(recordsFile, line)) {
+            GISRecord* gis = LineUtility::extractGISRecordFromLine(line, '|');
+            double lat = stod(gis->getPrimaryLatitudeDec());
+            double lon = stod(gis->getPrimaryLongitudeDec());
+            delete gis;
+            if(lat <= north && lat >= south){
+                if(lon <= east && lon >= west){
+                    databaseFile << line << std::endl;
+                }
+            }
         }
 
         // Close the database file
