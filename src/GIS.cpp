@@ -7,7 +7,9 @@ namespace Constants {
     // If a bucket is full, the corresponding quadrant must be split into four sub-quadrants with their own buckets.
     const unsigned long BUCKET_CAPACITY{4};   // Bottom-right corner of the QuadTree's region
 
-
+    // The following constants are used by the LogService class
+    const int LOG_LINE_WIDTH{90};
+    const char LOG_BREAK_LINE_CHAR{'-'};
 }
 
 // This function takes the names of three files from the command line, like this:
@@ -31,7 +33,7 @@ int main(int argc, char *argv[]) {
     DbService dbService(databaseFileLocation);
 
     /// LOG
-    LogService logService(logFileLocation);
+    LogService logService(logFileLocation, Constants::LOG_LINE_WIDTH, Constants::LOG_BREAK_LINE_CHAR);
 
     logService.logString(generateLogStart(databaseFileLocation, logFileLocation, commandScriptFileLocation));
 

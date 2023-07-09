@@ -3,7 +3,8 @@
 #include <iostream>
 #include "../../include/log/LogService.h"
 
-LogService::LogService(const string& logFileLocation){
+LogService::LogService(const string& logFileLocation, int logLineWidth, char lineBreakChar)
+    : logLineWidth(logLineWidth), lineBreakChar(lineBreakChar) {
     // Delete the log file if it already exists
     if (std::remove(logFileLocation.c_str()) != 0) {
         std::perror("Error deleting the log file");
@@ -14,7 +15,7 @@ LogService::LogService(const string& logFileLocation){
     if (!logFile.is_open()) {
         std::cerr << "Error: Failed to open log file." << std::endl;
     }
-  //  logFile.close();
+    logFile.close();
 }
 
 // Destructor
@@ -50,20 +51,28 @@ void LogService::logString(const string& s){
     }
 }
 
-void LogService::logImportStats(const int &numOfImports, const int &longestProbe, const int &avgNameLength) {
-    stringstream  os;
+void LogService::logImportStats(const IndexStats& indexStats) {
+    stringstream os;
     os.width(27);
     os.setf(ios::left);
     os << "Imported Features by name:";
-    os << numOfImports << endl;
+    os << indexStats.numOfIndexedLines << endl;
     os.width(27);
     os << "Longest probe sequence:\t";
 
-    os << longestProbe << endl;
+    os << indexStats.longestProbeSeq << endl;
     os.width(27);
-    os << "Imported Locations:" << numOfImports << endl;
+    os << "Imported Locations:" << indexStats.numOfIndexedLines << endl;
     os.width(27);
-    os << "Average name length:" << avgNameLength;
+    os << "Average name length:" << indexStats.getAvgNameLength();
     logString(os.str());
-    logString(string(90, '-'));
+    logLineBreak();
+}
+
+void LogService::logLineBreak() {
+    logString(string(logLineWidth, lineBreakChar));
+}
+
+int LogService::getLogLineWidth() const {
+    return logLineWidth;
 }
