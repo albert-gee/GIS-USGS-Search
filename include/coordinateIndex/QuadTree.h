@@ -34,6 +34,10 @@ public:
 private:
     unsigned long bucketCapacity;
     QuadTreeQuadrant *root;
+
+    Point getNWPoint();
+
+    Point getSEPoint();
 };
 
 
