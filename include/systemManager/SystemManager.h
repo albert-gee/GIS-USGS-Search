@@ -65,6 +65,9 @@ private:
     QuadTree coordinateIndex;
     BufferPool bufferPool;
 
+    static const int mapHeight = 40;
+    static const int mapWidth = 150;
+
     // Database service
     DbService &databaseService;
 
