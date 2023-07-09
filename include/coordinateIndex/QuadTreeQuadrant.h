@@ -19,8 +19,8 @@ public:
     // Insert an offset of a GIS record with its location into the quadrant
     void insert(Point location, int offsetOfGISRecord);
 
-    // Print the quadrant
-    void print() const;
+    // Returns a string representation of the structure of this quadrant and its sub-quadrants
+    std::string str(unsigned int indent);
 
     // Get the offsets of the GIS records in the quadrant
     [[nodiscard]] std::vector<int> getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const;
@@ -32,10 +32,6 @@ public:
     [[nodiscard]] const Point &getNorthWestPoint() const;
 
     [[nodiscard]] const Point &getSouthEastPoint() const;
-
-    void setNorthWestPoint(const Point &northWestPoint);
-
-    void setSouthEastPoint(const Point &southEastPoint);
 
 private:
     // Bounding box
@@ -69,6 +65,9 @@ private:
 
     // If the bucket is full, divide the quadrant into sub-quadrants
     void divideQuadrantIntoSubQuadrants();
+
+    // Move entries from the bucket into the sub-quadrants
+    void moveEntriesFromBucketIntoSubQuadrants();
 
     // Clear the bucket
     void clearBucket();
