@@ -76,7 +76,6 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         ++commandsProcessed;
     }
     systemManager.logCommand(commandsProcessed, function, args, DELIM1);
-    //systemManager.logComment(string(90, '-'));
 
     // Call the appropriate function based on the function name
     if (function == getCommandName(Command::WORLD)) {
@@ -90,13 +89,11 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         string northLat = args.front();
         args.pop_front();
 
-        std::cout << "\n\n > > > world " << westLong << " " << eastLong << " " << southLat << " " << northLat << std::endl;
         world(westLong, eastLong, southLat, northLat);
 
     } else if (function == getCommandName(Command::IMPORT)) {
 
         string recordsDataSetFileName = args.front();
-        std::cout << " > > > import: " << recordsDataSetFileName << std::endl;
         import(recordsDataSetFileName);
 
     } else if (function == getCommandName(Command::WHAT_IS_AT)) {
@@ -106,7 +103,6 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         string longitude = args.front();
         args.pop_front();
 
-        std::cout << " > > > what is at: " << latitude << longitude << std::endl;
         whatIsAt(latitude, longitude);
 
     } else if (function == getCommandName(Command::WHAT_IS)) {
@@ -115,7 +111,6 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         args.pop_front();
         string stateAbrv = args.front();
 
-        std::cout << " > > > what is: " << featureName << stateAbrv << std::endl;
         whatIs(featureName, stateAbrv);
 
     } else if (function == getCommandName(Command::WHAT_IS_IN)) {
@@ -144,17 +139,13 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
         string halfWidth = args.front();
         args.pop_front();
 
-        std::cout << " > > > what is in: " << isFiltered << " " << isDetailed << " " << filter << " " << latitude << " "
-                  << longitude << " " << halfHeight << " " << halfWidth << std::endl;
         whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, halfHeight, halfWidth);
 
     } else if (function == getCommandName(Command::DEBUG)) {
         string debugTarget = args.front();
-        std::cout << " > > > debug " << debugTarget << std::endl;
         debug(debugTarget);
 
     } else if (function == getCommandName(Command::QUIT)) {
-        std::cout << " > > > quit" << std::endl;
         systemManager.quit();
         quit();
     }
@@ -195,13 +186,11 @@ void CommandProcessor::quit() {
     is_quit = true;
 }
 
-// ToDo: complete this implementation
 void CommandProcessor::whatIsAt(string &latitude, string &longitude) {
     Point point = {DMS(latitude), DMS(longitude)};
     systemManager.whatIsAt(point);
 }
 
-// ToDo: complete this implementation
 void CommandProcessor::whatIs(string &featureName, string &stateAbrv) {
     systemManager.whatIs(featureName, stateAbrv);
 }
