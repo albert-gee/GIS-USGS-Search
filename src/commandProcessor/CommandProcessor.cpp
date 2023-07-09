@@ -161,7 +161,6 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
 void CommandProcessor::world(string &westLong, string &eastLong, string &southLat, string &northLat) {
 
-
     // The coordinates are in DMS format, so create DMS objects
     DMS westLongDMS(westLong);
     DMS eastLongDMS(eastLong);
@@ -174,6 +173,25 @@ void CommandProcessor::world(string &westLong, string &eastLong, string &southLa
 
 void CommandProcessor::import(string &recordsDataSetFileName) {
     systemManager.import(recordsDataSetFileName);
+}
+
+void CommandProcessor::debug(string &debugTarget) {
+    if(debugTarget == "quad") {
+        systemManager.debugQuad();
+    } else if (debugTarget == "hash") {
+        systemManager.debugHash();
+    } else if (debugTarget == "pool") {
+        systemManager.debugPool();
+    } else if (debugTarget == "world") {
+        systemManager.debugWorld();
+    } else {
+        // Invalid debugTarget argument
+        std::cout << "Invalid debug target!" << std::endl;
+    }
+}
+
+void CommandProcessor::quit() {
+    is_quit = true;
 }
 
 // ToDo: complete this implementation
@@ -203,23 +221,4 @@ void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter
     // ToDo: complete this implementation
     /*systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
                            DMS(longitude).toDecimal(), hlfh, hlfw);*/
-}
-
-void CommandProcessor::debug(string &debugTarget) {
-    if(debugTarget == "quad") {
-        systemManager.debugQuad();
-    } else if (debugTarget == "hash") {
-        systemManager.debugHash();
-    } else if (debugTarget == "pool") {
-        systemManager.debugPool();
-    } else if (debugTarget == "world") {
-        systemManager.debugWorld();
-    } else {
-        // Invalid debugTarget argument
-        std::cout << "Invalid debug target!" << std::endl;
-    }
-}
-
-void CommandProcessor::quit() {
-    is_quit = true;
 }
