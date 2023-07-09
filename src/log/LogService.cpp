@@ -15,7 +15,7 @@ LogService::LogService(const string& logFileLocation, int logLineWidth, char lin
     if (!logFile.is_open()) {
         std::cerr << "Error: Failed to open log file." << std::endl;
     }
-    logFile.close();
+//    logFile.close();
 }
 
 // Destructor
