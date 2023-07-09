@@ -245,7 +245,7 @@ void SystemManager::whatIsAt(Point point) {
     logService.logLineBreak();
 }
 
-void SystemManager::whatIs(string featureName, string stateAbrv) {
+void SystemManager::whatIs(const string& featureName, const string& stateAbrv) {
     ostringstream os;
     os << featureName << " " << stateAbrv;
     const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
@@ -255,7 +255,10 @@ void SystemManager::whatIs(string featureName, string stateAbrv) {
     for (auto record: records) {
         os.width(3);
         os << "" << record->lineNum << ": " << record->gisRecordPtr->getCountyName();
-        os << "(" << record->gisRecordPtr->latDMSStr() << ", " << record->gisRecordPtr->longDMSStr() << ")";
+
+        DMS latDms{record->gisRecordPtr->getPrimaryLatitudeDms()};
+        DMS lngDms{record->gisRecordPtr->getPrimaryLongitudeDms()};
+        os << "(" << latDms.toDmsString() << ", " << lngDms.toDmsString() << ")";
     }
     if (records.empty()) {
         os.width(3);

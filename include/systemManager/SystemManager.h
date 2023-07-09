@@ -46,7 +46,7 @@ public:
     void debugWorld();
 
     // The "what_is" command.
-    void whatIs(string featureName, string stateAbrv);
+    void whatIs(const string& featureName, const string& stateAbrv);
 
     // The "what_is_in" command.
 //    void whatIsIn(bool isFiltered, bool isDetailed, string filter, string latitude, string longitude,
