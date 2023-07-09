@@ -93,10 +93,6 @@ public:
     void setDateEdited(const std::string &dateEdited);
     std::string str();
 
-    std::string latDMSStr();
-
-    std::string longDMSStr();
-
     std::string detailStr();
 
 private:

@@ -117,38 +117,37 @@ const std::string &GISRecord::getDateEdited() const {
 }
 
 std::string GISRecord::str() {
+    char delimiter = '|';
     std::ostringstream os;
 
-    os << "\nFeature ID: " << feature_id;
-    os << "\nFeature name: " << feature_name;
-    os << "\nFeature class: " << feature_class;
+    os << feature_id << delimiter;
+    os << feature_name << delimiter;
+    os << feature_class << delimiter;
 
-    os << "\nState alpha: " << state_alpha;
-    os << "\nState numeric: " << state_numeric;
-    os << "\nCountry name: " << county_name;
-    os << "\nCountry numeric: " << county_numeric;
+    os << state_alpha << delimiter;
+    os << state_numeric << delimiter;
+    os << county_name << delimiter;
+    os << county_numeric << delimiter;
 
-    os << "\nPrimary lat DMS: " << primary_latitude_DMS;
-    os << "\nPrimary long DMS: " << primary_longitude_DMS;
-    os << "\nPrimary lat Dec: " << primary_latitude_DEC;
-    os << "\nPrimary long Dec: " << primary_longitude_DEC;
+    os << primary_latitude_DMS << delimiter;
+    os << primary_longitude_DMS << delimiter;
+    os << primary_latitude_DEC << delimiter;
+    os << primary_longitude_DEC << delimiter;
 
-    os << "\nSource lat DMS: " << source_latitude_DMS;
-    os << "\nSource long DMS: " << source_longitude_DMS;
-    os << "\nSource lat DES: " << source_latitude_DES;
-    os << "\nSource long DES: " << source_longitude_DES;
+    os << source_latitude_DMS << delimiter;
+    os << source_longitude_DMS << delimiter;
+    os << source_latitude_DES << delimiter;
+    os << source_longitude_DES << delimiter;
 
-    os << "\nElevation meters: " << elevation_meters;
-    os << "\nElevation feet: " << elevation_feet;
-    os << "\nMap name: " << map_name;
-    os << "\nDate created: " << date_created;
-    os << "\nDate edited: " << date_edited;
-    os << "\n";
+    os << elevation_meters << delimiter;
+    os << elevation_feet << delimiter;
+    os << map_name << delimiter;
+    os << date_created << delimiter;
+    os << date_edited << delimiter;
     return os.str();
 }
 
 std::string GISRecord::detailStr() {
-
     std::ostringstream os;
     int indent = 5;
     int indent2 = 13;

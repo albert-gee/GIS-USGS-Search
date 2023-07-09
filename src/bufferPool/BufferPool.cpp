@@ -132,7 +132,7 @@ BufferedRecord * BufferPool::searchBuffer(int lineNum){
 }
 
 string BufferPool::str() {
-    int index = 0;
+
     ostringstream os;
     os << "MRU" << endl;
     if (!buffer.empty()) {
