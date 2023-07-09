@@ -59,6 +59,8 @@ public:
 
     void logComment(string comment);
 
+    void quit();
+
 private:
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
@@ -86,6 +88,7 @@ private:
 
     // Index an individual GIS record from the database by location
     void indexDatabaseRecordByLocation(GISRecord* gisRecord, int lineNum);
+
 };
 
 

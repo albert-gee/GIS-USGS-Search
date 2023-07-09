@@ -155,6 +155,7 @@ void CommandProcessor::processCommand(const string &function, list<string> &args
 
     } else if (function == getCommandName(Command::QUIT)) {
         std::cout << " > > > quit" << std::endl;
+        systemManager.quit();
         quit();
     }
 }
