@@ -249,14 +249,14 @@ void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string &filter, s
 
     for (auto r: records) {
         if (isDetailed) {
-            os << r->gisRecordPtr->str();
+            os << r->gisRecordPtr->detailStr();
         } else {
             os.width(4);
             os << "" << r->lineNum << ':'
                << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
                << " \"" << r->gisRecordPtr->getCountyName() << "\" "
                << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
-               << "(" << r->gisRecordPtr->getPrimaryLatitudeDms() << ", " << r->gisRecordPtr->getPrimaryLongitudeDms() << ")";
+               << "(" << r->gisRecordPtr->getPrimaryLatitudeDms() << ", " << r->gisRecordPtr->getPrimaryLongitudeDms() << ")" << endl;
         }
     }
     logService.logString(os.str());

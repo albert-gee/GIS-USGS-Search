@@ -1,7 +1,9 @@
 #include <sstream>
 #include <iostream>
 #include <list>
+#include <vector>
 #include "../../include/database/GISRecord.h"
+#include "../../include/coordinateIndex/DMS.h"
 
 GISRecord::GISRecord(int feature_id, std::string feature_name, std::string feature_class, std::string state_alpha,
                      std::string state_numeric, std::string county_name, std::string county_numeric,
@@ -142,5 +144,34 @@ std::string GISRecord::str() {
     os << map_name << delimiter;
     os << date_created << delimiter;
     os << date_edited << delimiter;
+    return os.str();
+}
+
+std::string GISRecord::detailStr() {
+
+    std::ostringstream os;
+    int indent = 5;
+    int indent2 = 13;
+    std::string colon = ": ";
+    DMS lat (primary_longitude_DMS);
+    DMS lon (primary_latitude_DMS);
+
+
+    os.setf(std::ios::left);
+
+    std::vector<std::string> params = {std::to_string(feature_id), feature_name, feature_class, state_alpha,
+                                       county_name, lon.toDmsString(), lat.toDmsString(),
+                                       std::to_string(elevation_feet), map_name, date_created};
+
+    std::vector<std::string> headers = {"Feature ID", "Feature Name", "Feature Cat", "State", "County", "Longitude",
+                                        "Latitude", "Elev in ft", "USGS Quad", "Date Created"};
+
+    for (int i = 0; i < params.size(); ++i) {
+        os.width(indent);
+        os << "";
+        os.width(indent2);
+        os << headers[i] << colon << params[i] << std::endl;
+    }
+    os << std::endl;
     return os.str();
 }
