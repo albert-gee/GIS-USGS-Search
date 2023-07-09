@@ -24,7 +24,7 @@ LogService::~LogService() {
 
 void LogService::logCommand(const int& cmdNumber, const string& function, list<string>& args, const char& delimiter) {
     ostringstream os;
-    string commandHeader = "Command ";
+    string commandHeader = "\n\nCommand ";
     if(function != "world"){
         os << commandHeader << cmdNumber << ": ";
     }
