@@ -15,18 +15,7 @@ using namespace std;
 // The SystemManager uses system components to import, index, store, and retrieve data.
 class SystemManager {
 public:
-    // Constants related to the format of the records in the databaseService file
-    static const int FEATURE_NAME_COL = 1;
-    static const int STATE_ALPHA_COL = 3;
-    static const char DELIM = '|';
-    static const int LATITUDE_COL = 9;
-    static const int LONGITUDE_COL = 10;
 
-
-    // ToDo: implement the following methods
-/*    void whatIsAt(DMS coordinates);
-    void whatIs(string featureName, string state);
-    void whatIsIn(DMS coordinates,int halfHeight, int halfWidth);*/
 
     // The "world" command.
     // Set boundaries for the coordinate index
@@ -55,6 +44,13 @@ public:
     void whatIsAt(Point point);
 
 private:
+    // Constants related to the format of the records in the databaseService file
+    static const int FEATURE_NAME_COL = 1;
+    static const int STATE_ALPHA_COL = 3;
+    static const char DELIM = '|';
+    static const int LATITUDE_COL = 9;
+    static const int LONGITUDE_COL = 10;
+
     // System components: the name index, the coordinate index, and the buffer pool
     NameIndex nameIndex;
     QuadTree coordinateIndex;
@@ -78,8 +74,6 @@ private:
     list<int> *indexDatabaseByNameAndCoordinates();
 
     void logLineBreak();
-
-    list<GISRecord> findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth);
 
 };
 

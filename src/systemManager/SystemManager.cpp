@@ -119,7 +119,7 @@ list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
         }
 
         Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
-        //cout << location.x << " " << location.y <<endl;
+
         coordinateIndex.insert(location, lineNum);
         ++numOfIndexedLines;
 
