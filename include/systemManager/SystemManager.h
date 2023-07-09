@@ -19,7 +19,7 @@ public:
 
     // The "world" command.
     // Set boundaries for the coordinate index
-    void setCoordinateIndexBoundaries(double north, double south, double east, double west);
+    void setCoordinateIndexBoundaries(DMS north, DMS south, DMS east, DMS west);
 
     // The "import" command.
     // Add all the valid records from the file recordsDataSetFileLocation to the databaseService file.

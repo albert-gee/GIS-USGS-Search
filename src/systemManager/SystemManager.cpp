@@ -8,20 +8,22 @@ SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateInd
 }
 
 // Set boundaries for the coordinate index
-void SystemManager::setCoordinateIndexBoundaries(double northLat, double southLat, double eastLong, double westLong) {
+void SystemManager::setCoordinateIndexBoundaries(DMS northLat, DMS southLat, DMS eastLong, DMS westLong) {
+
+    coordinateIndex.setBoundingBox(
+            Point(northLat.toDecimalString(), westLong.toDecimalString()),
+            Point(southLat.toDecimalString(), eastLong.toDecimalString()));
+
     ostringstream os;
     os << "\t\t\t\t\t\tWorld boundaries are set to:" << endl;
-    os << "\t\t\t\t\t\t\t\t\t" << northLat * 3600 << endl;
-    os << "\t\t\t\t\t\t" << westLong * 3600;
-    os.width(14);
-    os << "" << eastLong * 3600 <<endl;
-    os << "\t\t\t\t\t\t\t\t\t" << southLat * 3600;
+    os << "\t\t\t\t\t\t\t\t\t\t" << northLat.toDmsString() << " (" << northLat.toDecimalString() << ")" << endl;
+    os << "\t\t\t\t\t\t" << westLong.toDmsString() << " (" << westLong.toDecimalString() << ")\t\t" << eastLong.toDmsString() << " (" << eastLong.toDecimalString() << ")" << endl;
+    os << "\t\t\t\t\t\t\t\t\t\t" << southLat.toDmsString() << " (" << southLat.toDecimalString() << ")";
     logLineBreak();
     logLine("Latitude/longitude values in index entries are shown as signed integers, in total seconds.");
     logLineBreak();
     logLine(os.str());
     logLineBreak();
-    coordinateIndex.setBoundingBox(Point(northLat, westLong), Point(southLat, eastLong));
 }
 
 // Add all the valid records from the file recordsDataSetFileLocation to the databaseService file databaseFileLocation.

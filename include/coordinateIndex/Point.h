@@ -25,7 +25,7 @@ struct Point {
         std::cout << "(" << latitude << ", " << longitude << ")";
     }
 
-    std::string getLongToDMSStr() const{
+    [[nodiscard]] std::string getLongToDMSStr() const{
         auto dmsParams = getDMSParams(longitude);
         std::string direction = longitude >= 0? "East" : "West";
         std::ostringstream os;
@@ -42,7 +42,7 @@ struct Point {
         return os.str();
     }
 private:
-    std::vector<double> & getDMSParams(double coordinate) const {
+    [[nodiscard]] std::vector<double> & getDMSParams(double coordinate) const {
         coordinate = abs(coordinate);
         double degrees = floor(coordinate);
         coordinate -= degrees;

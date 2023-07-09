@@ -169,8 +169,7 @@ void CommandProcessor::world(string &westLong, string &eastLong, string &southLa
     DMS northLatDMS(northLat);
 
     // Set the boundaries of the coordinate space
-    systemManager.setCoordinateIndexBoundaries(northLatDMS.toDecimal(), southLatDMS.toDecimal(),
-                                               eastLongDMS.toDecimal(), westLongDMS.toDecimal());
+    systemManager.setCoordinateIndexBoundaries(northLatDMS, southLatDMS, eastLongDMS, westLongDMS);
 }
 
 void CommandProcessor::import(string &recordsDataSetFileName) {
@@ -180,7 +179,7 @@ void CommandProcessor::import(string &recordsDataSetFileName) {
 // ToDo: complete this implementation
 void CommandProcessor::whatIsAt(string &latitude, string &longitude) {
     //list<GISRecord> gisRecords = systemManager.findGISRecordsByCoordinates(
-    Point point = {DMS(latitude).toDecimal(), DMS(longitude).toDecimal()};
+    Point point = {DMS(latitude).toDecimalString(), DMS(longitude).toDecimalString()};
     // LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude)
     systemManager.whatIsAt(point);
 }
