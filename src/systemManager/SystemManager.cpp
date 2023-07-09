@@ -101,9 +101,11 @@ void SystemManager::indexDatabaseRecordByLocation(GISRecord *gisRecord, int line
 }
 
 void SystemManager::debugWorld() {
-    const string& structure = coordinateIndex.str();
+    /*const string& structure = coordinateIndex.str();
     logService.logString(structure);
-    logService.logLineBreak();
+    logService.logLineBreak();*/
+
+
 }
 
 void SystemManager::debugQuad() {
@@ -118,6 +120,7 @@ void SystemManager::debugHash() {
     logService.logLineBreak();
 
 }
+
 
 void SystemManager::debugPool() {
     const string pool = bufferPool.str();

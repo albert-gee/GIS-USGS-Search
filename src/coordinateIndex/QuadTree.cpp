@@ -63,3 +63,10 @@ std::vector<int> QuadTree::getOffsetsOfGISRecordsByLocation(Point location) {
     return this->root->getOffsetsOfGISRecordsByLocation(location);
 }
 
+Point QuadTree::getNWPoint(){
+    return this->root->getNorthWestPoint();
+}
+
+Point QuadTree::getSEPoint(){
+    return this->root->getSouthEastPoint();
+}
