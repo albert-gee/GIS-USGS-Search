@@ -319,49 +319,28 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecordsByLocation(Point locati
 
         for (const Entry &entry: bucket) {
 
-            double epsilon = 0.01;  // Define the precision (two digits after the decimal point)
-            double latDiff = std::fabs(entry.location.latitude.toDecimal() - location.latitude.toDecimal());  // Calculate the absolute difference between the numbers
-            double lngDiff = std::fabs(entry.location.longitude.toDecimal() - location.longitude.toDecimal());  // Calculate the absolute difference between the numbers
-
-            // Check if the absolute difference is within the desired precision
-            if (latDiff < epsilon && lngDiff < epsilon) {
-                std::cout << "2FINDING BY COORDINATES: (" << location.latitude.toDecimalString() << ", " << location.longitude.toDecimalString() << ")" << std::endl;
-
-                offsetsVector = entry.offsetsOfGISRecords;
+            if(entry.location.latitude.equals(location.latitude) && entry.location.longitude.equals(location.longitude)){
+                if (!entry.offsetsOfGISRecords.empty()) {
+                    for (auto offset: entry.offsetsOfGISRecords) {
+                        offsetsVector.push_back(offset);
+                    }
+                }
+                return offsetsVector;
             }
-
-//            if (entry.location.latitude == location.latitude &&
-//                entry.location.longitude == location.longitude) {
-//
-//                offsetsVector = entry.offsetsOfGISRecords;
-//            }
         }
+
     } else {
         // Otherwise, recursively try to find it in the sub-quadrants
-
-        // Check if the location is within the north-west quadrant
-        if (location.latitude.toDecimal() <= northWest->getNorthWestPoint().latitude.toDecimal() &&
-            location.longitude.toDecimal() <= northWest->getSouthEastPoint().longitude.toDecimal()) {
-
+        if (northWest->isPointWithinQuadrant(location)) {
             offsetsVector = northWest->getOffsetsOfGISRecordsByLocation(location);
-        }
-        // Check if the location is within the north-east quadrant
-        if (location.latitude.toDecimal() <= northEast->getNorthWestPoint().latitude.toDecimal() &&
-            location.longitude.toDecimal() <= northEast->getSouthEastPoint().longitude.toDecimal()) {
-
+        } else if (northEast->isPointWithinQuadrant(location)) {
             offsetsVector = northEast->getOffsetsOfGISRecordsByLocation(location);
-        }
-        // Check if the location is within the south-east quadrant
-        if (location.latitude.toDecimal() <= southEast->getNorthWestPoint().latitude.toDecimal() &&
-            location.longitude.toDecimal() <= southEast->getSouthEastPoint().longitude.toDecimal()) {
-
-            offsetsVector = southEast->getOffsetsOfGISRecordsByLocation(location);
-        }
-        // Check if the location is within the south-west quadrant
-        if (location.latitude.toDecimal() <= southWest->getNorthWestPoint().latitude.toDecimal() &&
-            location.longitude.toDecimal() <= southWest->getSouthEastPoint().longitude.toDecimal()) {
-
+        } else if (southWest->isPointWithinQuadrant(location)) {
             offsetsVector = southWest->getOffsetsOfGISRecordsByLocation(location);
+        } else if (southEast->isPointWithinQuadrant(location)) {
+            offsetsVector = southEast->getOffsetsOfGISRecordsByLocation(location);
+        } else {
+            throw std::invalid_argument("The point is not within any of the sub-quadrants.");
         }
     }
 
