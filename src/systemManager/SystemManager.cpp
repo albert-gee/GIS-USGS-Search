@@ -294,6 +294,14 @@ void SystemManager::logComment(string comment) {
     logService.logComment(comment);
 }
 
+void SystemManager::quit(){
+    logService.logString("Terminating exeuction of commands.");
+    logService.logLineBreak();
+    time_t now = time(0);
+    ostringstream os;
+    os << "End Time: " << std::put_time(std::localtime(&now), "%a %b %d %X %Z %Y");
+    logService.logString(os.str());
+}
 
 
 
