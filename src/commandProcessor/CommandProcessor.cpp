@@ -197,9 +197,7 @@ void CommandProcessor::quit() {
 
 // ToDo: complete this implementation
 void CommandProcessor::whatIsAt(string &latitude, string &longitude) {
-    //list<GISRecord> gisRecords = systemManager.findGISRecordsByCoordinates(
     Point point = {DMS(latitude), DMS(longitude)};
-    // LineUtility::convertDMStoDEC(latitude), LineUtility::convertDMStoDEC(longitude)
     systemManager.whatIsAt(point);
 }
 
@@ -210,16 +208,5 @@ void CommandProcessor::whatIs(string &featureName, string &stateAbrv) {
 
 void CommandProcessor::whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
                                 string &halfHeight, string &halfWidth) {
-    double hlfh = stod(halfHeight);
-    double hlfw = stod(halfWidth);
-//    DMS latDms = DMS(latitude);
-//    DMS longDms = DMS(longitude);
-    /*Point nwPoint = {DMS(latitude).toDecimal() + hlfh, DMS(longitude).toDecimal() - hlfw};
-    Point sePoint = {DMS(latitude).toDecimal() - hlfh, DMS(longitude).toDecimal() + hlfw};
-*/
-
-//    systemManager.whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, hlfh, hlfw);
-    // ToDo: complete this implementation
-    /*systemManager.whatIsIn(isFiltered, isDetailed, filter, DMS(latitude).toDecimal(),
-                           DMS(longitude).toDecimal(), hlfh, hlfw);*/
+    systemManager.whatIsIn(isFiltered, isDetailed, filter, latitude, longitude, halfHeight, halfWidth);
 }

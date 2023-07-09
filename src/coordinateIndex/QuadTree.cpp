@@ -13,7 +13,7 @@ void QuadTree::setBoundingBox(Point northWestPoint, Point southEastPoint) {
 
 std::string QuadTree::str() const {
     std::ostringstream os;
-    os << "Content of the Coordinate Index:" << std::endl;
+    os << "Structure of the Coordinate Index:" << std::endl;
 
     if(this->root != nullptr) {
         os << this->root->str(1);

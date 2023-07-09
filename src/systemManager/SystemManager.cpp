@@ -103,65 +103,65 @@ void SystemManager::indexDatabaseRecordByLocation(GISRecord *gisRecord, int line
 }
 
 void SystemManager::debugWorld() {
-    /*const string& structure = coordinateIndex.str();
+    const string& structure = coordinateIndex.str();
     logService.logString(structure);
-    logService.logLineBreak();*/
-    Point nwpoint = coordinateIndex.getNWPoint();
-    Point sepoint = coordinateIndex.getSEPoint();
-
-    double totalLat = abs(nwpoint.latitude.toDecimal() - sepoint.latitude.toDecimal());
-    double totalLon = abs(sepoint.longitude.toDecimal() - nwpoint.longitude.toDecimal());
-    double latDecrements = totalLat / mapHeight;
-    double lonIncrements = totalLon / mapWidth;
-    int map[mapHeight][mapWidth] = {0};
-    string* line = new string();
-    // Open the database file and index each line
-    databaseService.open();
-    while (databaseService.getNextLine(*line)) {
-        GISRecord *gisRecord = LineUtility::extractGISRecordFromLine(*line, DELIM);
-        DMS lat (gisRecord->getPrimaryLatitudeDms());
-        DMS lon (gisRecord->getPrimaryLongitudeDms());
-        int i = 0;
-        double north = nwpoint.latitude.toDecimal();
-        while(north > lat.toDecimal()){
-            north -= latDecrements;
-            if(north > lat.toDecimal()){
-                ++i;
-            }
-        }
-
-        int j = 0;
-        double west = nwpoint.longitude.toDecimal();
-        while(west < lon.toDecimal()){
-            west += lonIncrements;
-            if(west < lon.toDecimal()){
-                ++j;
-            }
-        }
-        ++(map[i][j]);
-    }
-    databaseService.close();
-    ostringstream os;
-    os << '+' << string(mapWidth, '-')  << '+' << endl;
-    for(int i = 0; i < mapHeight; ++i){
-        for(int j = 0; j <= mapWidth + 1; ++j){
-           if(j == 0 || j == mapWidth + 1){
-               os << '|';
-           } else {
-               if(map[i][j-1] > 0){
-                   os << map[i][j-1];
-               } else {
-                   os << ' ';
-               }
-           }
-           if(j == mapWidth + 1){
-                os << endl;
-           }
-        }
-    }
-    os << '+' << string(mapWidth, '-')  << '+';
-    logService.logString(os.str());
     logService.logLineBreak();
+//    Point nwpoint = coordinateIndex.getNWPoint();
+//    Point sepoint = coordinateIndex.getSEPoint();
+//
+//    double totalLat = abs(nwpoint.latitude.toDecimal() - sepoint.latitude.toDecimal());
+//    double totalLon = abs(sepoint.longitude.toDecimal() - nwpoint.longitude.toDecimal());
+//    double latDecrements = totalLat / mapHeight;
+//    double lonIncrements = totalLon / mapWidth;
+//    int map[mapHeight][mapWidth] = {0};
+//    string* line = new string();
+//    // Open the database file and index each line
+//    databaseService.open();
+//    while (databaseService.getNextLine(*line)) {
+//        GISRecord *gisRecord = LineUtility::extractGISRecordFromLine(*line, DELIM);
+//        DMS lat (gisRecord->getPrimaryLatitudeDms());
+//        DMS lon (gisRecord->getPrimaryLongitudeDms());
+//        int i = 0;
+//        double north = nwpoint.latitude.toDecimal();
+//        while(north > lat.toDecimal()){
+//            north -= latDecrements;
+//            if(north > lat.toDecimal()){
+//                ++i;
+//            }
+//        }
+//
+//        int j = 0;
+//        double west = nwpoint.longitude.toDecimal();
+//        while(west < lon.toDecimal()){
+//            west += lonIncrements;
+//            if(west < lon.toDecimal()){
+//                ++j;
+//            }
+//        }
+//        ++(map[i][j]);
+//    }
+//    databaseService.close();
+//    ostringstream os;
+//    os << '+' << string(mapWidth, '-')  << '+' << endl;
+//    for(int i = 0; i < mapHeight; ++i){
+//        for(int j = 0; j <= mapWidth + 1; ++j){
+//           if(j == 0 || j == mapWidth + 1){
+//               os << '|';
+//           } else {
+//               if(map[i][j-1] > 0){
+//                   os << map[i][j-1];
+//               } else {
+//                   os << ' ';
+//               }
+//           }
+//           if(j == mapWidth + 1){
+//                os << endl;
+//           }
+//        }
+//    }
+//    os << '+' << string(mapWidth, '-')  << '+';
+//    logService.logString(os.str());
+//    logService.logLineBreak();
 }
 
 void SystemManager::debugQuad() {
