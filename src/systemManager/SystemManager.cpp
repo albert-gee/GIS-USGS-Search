@@ -106,8 +106,10 @@ void SystemManager::debugWorld() {
     logService.logLineBreak();
 }
 
-// ToDo: implement the following method
 void SystemManager::debugQuad() {
+    const string& content = coordinateIndex.getContent();
+    logService.logString(content);
+    logService.logLineBreak();
 }
 
 void SystemManager::debugHash() {
