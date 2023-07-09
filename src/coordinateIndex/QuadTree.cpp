@@ -1,4 +1,4 @@
-#include <iostream>
+#include <sstream>
 #include "../../include/coordinateIndex/QuadTree.h"
 
 QuadTree::QuadTree(unsigned long bucketCapacity) {
@@ -11,24 +11,31 @@ void QuadTree::setBoundingBox(Point northWestPoint, Point southEastPoint) {
     this->root = new QuadTreeQuadrant{northWestPoint, southEastPoint, bucketCapacity};
 }
 
-void QuadTree::print() {
-    std::cout << "\n\n=== QuadTree ===" << std::endl;
+std::string QuadTree::str() const {
+    std::ostringstream os;
 
     if(this->root != nullptr) {
-        this->root->print();
+        os << this->root->str(1);
     } else {
-        std::cout << "The QuadTree is empty" << std::endl;
+        os << "The QuadTree is empty" << std::endl;
     }
+
+    os << std::endl;
+
+    return os.str();
 }
 
-void QuadTree::insert(Point location, int offsetOfGISRecord) {
+void QuadTree::insert(const std::string& latitude, const std::string& longitude, int offsetOfGISRecord) {
     // This method goes through the tree recursively and inserts the point into the correct quadrant
+
     try {
+        // The location point is created from the latitude and longitude provided as strings
+        // The latitude and longitude are validated. An exceptions will be thrown if they are not valid
+        Point location{DMS(latitude), DMS(longitude)};
+
         this->root->insert(location, offsetOfGISRecord);
     } catch (const std::invalid_argument& e) {
-        std::cout << "! Failed to insert " << offsetOfGISRecord << " at " << location.latitude << ", "
-                  << location.longitude << std::endl;
-        std::cout << e.what() << std::endl;
+        std::cout << "! Failed to insert the record #" << offsetOfGISRecord << " - " << e.what() << std::endl;
     }
 }
 
