@@ -39,6 +39,12 @@ public:
     // Add all the valid records from the file recordsDataSetFileLocation to the databaseService file.
     void import(const string &recordsDataSetFileLocation);
 
+    // The four variations of "debug" command.
+    void debugQuad();
+    void debugHash();
+    void debugPool();
+    void debugWorld();
+
     // The "what_is" command.
     void whatIs(string featureName, string stateAbrv);
 
@@ -49,19 +55,9 @@ public:
     // The "what_is_at" command.
     void whatIsAt(Point point);
 
-    // The "log" command.
     void logCommand(int cmdNumber, string function, list <string> args, char delimiter);
 
     void logComment(string comment);
-
-    // The four variations of "debug" command.
-    void debugQuad();
-
-    void debugHash();
-
-    void debugPool();
-
-    void debugWorld();
 
 private:
     // System components: the name index, the coordinate index, and the buffer pool
@@ -72,10 +68,8 @@ private:
     // Database service
     DbService &databaseService;
 
-    // Log serviced
+    // Log service and its constants
     LogService &logService;
-
-    void logLine(string text);
 
     // Index the records in the databaseService file by location and concatenated feature name and state.
     // Collect statistics about the index.
@@ -89,8 +83,6 @@ private:
 
     // Index an individual GIS record from the database by location
     void indexDatabaseRecordByLocation(GISRecord* gisRecord, int lineNum);
-
-    void logLineBreak();
 };
 
 

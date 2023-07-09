@@ -3,331 +3,272 @@
 #include <iomanip>
 #include "../../include/systemManager/SystemManager.h"
 
-SystemManager::SystemManager(NameIndex& nameIndex, const QuadTree& coordinateIndex, BufferPool& bufferPool, DbService& databaseService, LogService& logService)
-        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool}, databaseService{databaseService}, logService{logService}{
+SystemManager::SystemManager(NameIndex &nameIndex, const QuadTree &coordinateIndex, BufferPool &bufferPool,
+                             DbService &databaseService, LogService &logService)
+        : nameIndex{nameIndex}, coordinateIndex{coordinateIndex}, bufferPool{bufferPool},
+          databaseService{databaseService}, logService{logService} {
 }
 
-// Set boundaries for the coordinate index
 void SystemManager::setCoordinateIndexBoundaries(DMS northLat, DMS southLat, DMS eastLong, DMS westLong) {
 
     coordinateIndex.setBoundingBox(
-            Point(northLat.toDecimalString(), westLong.toDecimalString()),
-            Point(southLat.toDecimalString(), eastLong.toDecimalString()));
+            Point(northLat, westLong),
+            Point(southLat, eastLong));
 
     ostringstream os;
-    os << "\t\t\t\t\t\tWorld boundaries are set to:" << endl;
-    os << "\t\t\t\t\t\t\t\t\t\t" << northLat.toDmsString() << " (" << northLat.toDecimalString() << ")" << endl;
-    os << "\t\t\t\t\t\t" << westLong.toDmsString() << " (" << westLong.toDecimalString() << ")\t\t" << eastLong.toDmsString() << " (" << eastLong.toDecimalString() << ")" << endl;
-    os << "\t\t\t\t\t\t\t\t\t\t" << southLat.toDmsString() << " (" << southLat.toDecimalString() << ")";
-    logLineBreak();
-    logLine("Latitude/longitude values in index entries are shown as signed integers, in total seconds.");
-    logLineBreak();
-    logLine(os.str());
-    logLineBreak();
+    os << "\t\t\t\t\tWorld boundaries are set to:" << endl;
+    os << "\t\t\t\t\t\t" << northLat.toDmsString() << " (" << northLat.toDecimalString() << ")" << endl;
+    os << "\t\t" << westLong.toDmsString() << " (" << westLong.toDecimalString() << ")\t"
+       << eastLong.toDmsString() << " (" << eastLong.toDecimalString() << ")" << endl;
+    os << "\t\t\t\t\t\t" << southLat.toDmsString() << " (" << southLat.toDecimalString() << ")";
+    logService.logLineBreak();
+    logService.logString("Latitude/longitude values in index entries are shown as signed integers, in total seconds.");
+    logService.logLineBreak();
+    logService.logString(os.str());
+    logService.logLineBreak();
 }
 
-// Add all the valid records from the file recordsDataSetFileLocation to the databaseService file databaseFileLocation.
-void SystemManager::import(const string& recordsDataSetFileLocation){
+void SystemManager::import(const string &recordsDataSetFileLocation) {
 
     // Import the records from the recordsDataSetFileLocation file to the databaseService file
     try {
         databaseService.import(recordsDataSetFileLocation);
 
-        // Index the records in the databaseService file by feature name and state
-        list<int>* nameImportStats = indexDatabaseByNameAndCoordinates();
-        int numofIndexedLines = nameImportStats->front();
-        nameImportStats->pop_front();
-        int longestProbeSeq = nameImportStats->front();
+        // Index the records in the databaseService file by
+        // 1 - feature name and state
+        // 2 - location
+        IndexStats indexStats = indexDatabaseByNameAndCoordinates();
 
-        nameImportStats->pop_front();
-        int avgNameLength = nameImportStats->front();
-        nameImportStats->pop_front();
-        //coordinateIndex.print();
-        //indexDatabaseByCoordinates();
-
-        stringstream  os;
-        os.width(27);
-        os.setf(ios::left);
-        os << "Imported Features by name:";
-        os << numofIndexedLines << endl;
-        os.width(27);
-        os << "Longest probe sequence:\t";
-
-        os << longestProbeSeq << endl;
-        os.width(27);
-        os << "Imported Locations:" << numofIndexedLines << endl;
-        os.width(27);
-        os << "Average name length:" << avgNameLength;
-        logLine(os.str());
-        logLineBreak();
-    } catch (const std::exception& e) {
+        // Log the import statistics
+        logService.logImportStats(indexStats);
+    } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-// Index the records in the databaseService file by feature name and state
-list<int> * SystemManager::indexDatabaseByName(){
-    unsigned int numOfIndexedLines = 0;
-    unsigned int longestProbeSeq = 0;
-    unsigned int totalNameLength = 0;
-    unsigned int avgNameLength = 0;
+IndexStats SystemManager::indexDatabaseByNameAndCoordinates() {
 
-    string* line = new string();
+    // This struct is used to collect statistics about name index
+    IndexStats indexStats{};
+
+    // Line in the database file to be indexed
+    auto *line = new string();
     int lineNum = 0;
+
+    // Open the database file and index each line
     databaseService.open();
-    while(databaseService.getNextLine(*line)){
+    while (databaseService.getNextLine(*line)) {
         ++lineNum;
-        string featureName = LineUtility::extractParamFromLine(*line, FEATURE_NAME_COL, DELIM);
-        string stateAbrv = LineUtility::extractParamFromLine(*line, STATE_ALPHA_COL, DELIM);
-        totalNameLength += featureName.length();
-        ostringstream os;
-        os << featureName << " " << stateAbrv;
-        unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
-        ++numOfIndexedLines;
-        if(probes > longestProbeSeq){
-            longestProbeSeq = probes;
-        }
+        GISRecord *gisRecord = LineUtility::extractGISRecordFromLine(*line, DELIM);
+
+        // Index the line by name and state abbreviation and collect statistics about the index
+        indexDatabaseRecordByName(gisRecord, lineNum, indexStats);
+
+        // Index the same line by location
+        indexDatabaseRecordByLocation(gisRecord, lineNum);
+
+        // Increment the number of indexed lines for statistics
+        ++indexStats.numOfIndexedLines;
     }
     databaseService.close();
-    avgNameLength = (numOfIndexedLines != 0) ? totalNameLength / numOfIndexedLines : 0;
 
-    list<int> *nameImportStats = new list<int>();
-    nameImportStats->push_back(numOfIndexedLines);
-    nameImportStats->push_back(longestProbeSeq);
-    nameImportStats->push_back(avgNameLength);
-    return nameImportStats;
+    return indexStats;
 }
 
-list<int> * SystemManager::indexDatabaseByNameAndCoordinates(){
-    unsigned int numOfIndexedLines = 0;
-    unsigned int longestProbeSeq = 0;
-    unsigned int totalNameLength = 0;
-    unsigned int avgNameLength = 0;
+void SystemManager::indexDatabaseRecordByName(GISRecord *gisRecord, int lineNum, IndexStats &nameIndexStats) {
+    // Calculate statistics about the import
+    nameIndexStats.totalNameLength += gisRecord->getFeatureName().length();
 
-    string* line = new string();
-    int lineNum = 0;
-    databaseService.open();
-    while(databaseService.getNextLine(*line)){
+    // Index the concatenated string of feature name and state
+    ostringstream os;
+    os << gisRecord->getFeatureName() << " " << gisRecord->getStateAlpha();
+    unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
 
-        ++lineNum;
-        string featureName = LineUtility::extractParamFromLine(*line, FEATURE_NAME_COL, DELIM);
-        string stateAbrv = LineUtility::extractParamFromLine(*line, STATE_ALPHA_COL, DELIM);
-        totalNameLength += featureName.length();
-        ostringstream os;
-        os << featureName << " " << stateAbrv;
-        unsigned int probes = nameIndex.indexLine(os.str(), lineNum);
-        if(probes > longestProbeSeq){
-            longestProbeSeq = probes;
-        }
-
-        Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
-        //cout << location.x << " " << location.y <<endl;
-        coordinateIndex.insert(location, lineNum);
-        ++numOfIndexedLines;
-
+    // Find the longest probe sequence for statistics
+    if (probes > nameIndexStats.longestProbeSeq) {
+        nameIndexStats.longestProbeSeq = probes;
     }
-    databaseService.close();
-    avgNameLength = (numOfIndexedLines != 0) ? totalNameLength / numOfIndexedLines : 0;
-
-    list<int> *nameImportStats = new list<int>();
-    nameImportStats->push_back(numOfIndexedLines);
-    nameImportStats->push_back(longestProbeSeq);
-    nameImportStats->push_back(avgNameLength);
-    return nameImportStats;
 }
 
-
-// Index the records in the databaseService file by location
-unsigned int SystemManager::indexDatabaseByCoordinates(){
-    unsigned int numOfIndexedLines = 0;
-
-    string* line = new string();
-    int lineNum = 0;
-    databaseService.open();
-    while(databaseService.getNextLine(*line)){
-
-        ++lineNum;
-
-        Point location = LineUtility::extractLocationFromLine(*line, LONGITUDE_COL, LATITUDE_COL, DELIM);
-        coordinateIndex.insert(location, lineNum);
-        ++numOfIndexedLines;
-    }
-    databaseService.close();
-    return numOfIndexedLines;
-}
-
-// ToDo: implement the following method
-list<GISRecord> SystemManager::findGISRecordsByCoordinates(Point location) {
-    std::cout << "FINDING BY COORDINATES: (" << location.latitude << ", " << location.longitude << ")" << std::endl;
-    list<GISRecord> offsets;
-
+void SystemManager::indexDatabaseRecordByLocation(GISRecord *gisRecord, int lineNum) {
+    // Index the location and line number
     try {
-        auto lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(location);
-
-        if (!lineNums.empty()) {
-            cout << "Found " << lineNums.size() << " records" << endl;
-        }
-
-        for(auto l: lineNums){
-            cout << "\n" << l << endl;
-        }
-
-    } catch (const std::invalid_argument& e) {
+        coordinateIndex.insert(gisRecord->getPrimaryLatitudeDms(), gisRecord->getPrimaryLongitudeDms(), lineNum);
+    } catch (const std::invalid_argument &e) {
+        std::cout << "Invalid location in the database" << std::endl;
         std::cout << e.what() << std::endl;
-        location.print();
     }
-
-    // Find in buffer
-    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
-
-    // If not found in buffer, find in coordinate index
-    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
-
-    return offsets;
 }
 
-// ToDo:: this method is implemented incorrectly. Fix it.
-list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth) {
-    //cout << "what is in " << latitude + halfHeight << " " << longitude - halfWidth << " " << latitude - halfHeight << " " << longitude + halfWidth <<endl;
-    Point nw = {latitude + halfHeight, longitude - halfWidth };
-    Point se = {latitude - halfHeight, longitude + halfWidth };
-//    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
-//    for(auto l: lineNums){
-//        cout << l << endl;
-//    }
-
-    list<GISRecord> offsets;
-
-    // Find in buffer
-    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
-
-    // If not found in buffer, find in coordinate index
-    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
-
-    return offsets;
+void SystemManager::debugWorld() {
+    const string& structure = coordinateIndex.str();
+    logService.logString(structure);
+    logService.logLineBreak();
 }
-
-void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
-                             double halfHeight, double halfWidth) {
-    Point point = {latitude, longitude};
-    Point nwPoint = {latitude + halfHeight / 3600, longitude - halfWidth / 3600};
-    Point sePoint = {latitude - halfHeight / 3600, longitude + halfWidth / 3600};
-
-    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, filter, nwPoint, sePoint, coordinateIndex);
-    ostringstream os;
-    os.width(2);
-    os << "";
-    if(!records.empty()){
-        if(isFiltered){
-            os << "The following features matching your criteria were ";
-        } else {
-            os << "The following " << records.size() << " feature(s) were ";
-        }
-
-    } else {
-        os << "Nothing was ";
-    }
-
-    os << "found in (" << point.getLatToDMSStr() << " +/- " << halfHeight << ", " << point.getLongToDMSStr() << " +/- " << halfWidth << ")\n\n";
-
-    for(auto r : records){
-        if(isDetailed){
-            os << r->gisRecordPtr->detailStr();
-        } else {
-            os.width(4);
-            os << "" << r->lineNum << ':'
-               << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
-               << " \"" << r->gisRecordPtr->getCountyName() << "\" "
-               << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
-               << "(" << r->gisRecordPtr->latDMSStr() << ", " << r->gisRecordPtr->longDMSStr() << ")";
-        }
-    }
-    logLine(os.str());
-    logLineBreak();
-}
-
-void SystemManager::whatIsAt(Point point){
-    auto records = bufferPool.getRecordsByCoordinate(point, coordinateIndex);
-    ostringstream os;
-    os.width(2);
-    os << "";
-    if(!records.empty()){
-        os << "The following feature(s) were ";
-    } else {
-        os << "Nothing was ";
-    }
-
-    os << "found at (\"" << point.getLatToDMSStr() << ", " << point.getLongToDMSStr() << "\")\n";
-
-    for(auto r : records){
-        os.width(4);
-        os << "" << r->lineNum << ':'
-        << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
-        << " \"" << r->gisRecordPtr->getCountyName() << "\" "
-        << " \"" << r->gisRecordPtr->getStateAlpha() << "\" ";
-    }
-    logLine(os.str());
-    logLineBreak();
-}
-
-void SystemManager::whatIs(string featureName, string stateAbrv){
-    ostringstream os;
-    os << featureName << " " << stateAbrv;
-    const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
-    os.str("");
-    os.clear();
-
-    for(auto record: records){
-        os.width(3);
-        os << "" << record->lineNum << ": " << record->gisRecordPtr->getCountyName();
-        os << "(" << record->gisRecordPtr->latDMSStr() << ", " << record->gisRecordPtr->longDMSStr() << ")";
-    }
-    if(records.empty()){
-        os.width(3);
-        os << "" << "No records match \"" << featureName << "\" and \"" << stateAbrv << "\"";
-    }
-    logLine(os.str());
-    logLineBreak();
-}
-
-void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
-    logService.logCommand(cmdNumber, function, args, delimiter);
-}
-
-void SystemManager::logComment(string comment){
-    logService.logComment(comment);
-}
-
-void SystemManager::logLine(string text){
-    logService.logString(text);
-}
-
 
 // ToDo: implement the following method
 void SystemManager::debugQuad() {
 }
 
 void SystemManager::debugHash() {
-    const string stats = nameIndex.str();
-    logLine(stats);
-    logLineBreak();
+    const string& stats = nameIndex.str();
+    logService.logString(stats);
+    logService.logLineBreak();
 
 }
 
 void SystemManager::debugPool() {
     const string pool = bufferPool.str();
-    logLine(pool);
-    logLineBreak();
+    logService.logString(pool);
+    logService.logLineBreak();
 }
 
-// ToDo: implement the following method
-void SystemManager::debugWorld() {
+//// ToDo: implement the following method
+//list<GISRecord> SystemManager::findGISRecordsByCoordinates(Point location) {
+//    std::cout << "FINDING BY COORDINATES: (" << location.latitude << ", " << location.longitude << ")" << std::endl;
+//    list<GISRecord> offsets;
+//
+//    try {
+//        auto lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(location);
+//
+//        if (!lineNums.empty()) {
+//            cout << "Found " << lineNums.size() << " records" << endl;
+//        }
+//
+//        for(auto l: lineNums){
+//            cout << "\n" << l << endl;
+//        }
+//
+//    } catch (const std::invalid_argument& e) {
+//        std::cout << e.what() << std::endl;
+//        location.print();
+//    }
+//
+//    // Find in buffer
+//    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
+//
+//    // If not found in buffer, find in coordinate index
+//    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+//
+//    return offsets;
+//}
+
+//// ToDo:: this method is implemented incorrectly. Fix it.
+//list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth) {
+//    //cout << "what is in " << latitude + halfHeight << " " << longitude - halfWidth << " " << latitude - halfHeight << " " << longitude + halfWidth <<endl;
+//    Point nw = {latitude + halfHeight, longitude - halfWidth };
+//    Point se = {latitude - halfHeight, longitude + halfWidth };
+////    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
+////    for(auto l: lineNums){
+////        cout << l << endl;
+////    }
+//
+//    list<GISRecord> offsets;
+//
+//    // Find in buffer
+//    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
+//
+//    // If not found in buffer, find in coordinate index
+//    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+//
+//    return offsets;
+//}
+
+//void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
+//                             double halfHeight, double halfWidth) {
+//    Point point = {latitude, longitude};
+//    Point nwPoint = {latitude + halfHeight / 3600, longitude - halfWidth / 3600};
+//    Point sePoint = {latitude - halfHeight / 3600, longitude + halfWidth / 3600};
+//
+//    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, filter, nwPoint, sePoint, coordinateIndex);
+//    ostringstream os;
+//    os.width(2);
+//    os << "";
+//    if (!records.empty()) {
+//        if (isFiltered) {
+//            os << "The following features matching your criteria were ";
+//        } else {
+//            os << "The following " << records.size() << " feature(s) were ";
+//        }
+//
+//    } else {
+//        os << "Nothing was ";
+//    }
+//
+//    os << "found in (" << point.latitude.toDmsString() << " +/- " << halfHeight << ", " << point.longitude.toDmsString() << " +/- "
+//       << halfWidth << ")\n\n";
+//
+//    for (auto r: records) {
+//        if (isDetailed) {
+//            os << r->gisRecordPtr->detailStr();
+//        } else {
+//            os.width(4);
+//            os << "" << r->lineNum << ':'
+//               << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
+//               << " \"" << r->gisRecordPtr->getCountyName() << "\" "
+//               << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
+//               << "(" << r->gisRecordPtr->latDMSStr() << ", " << r->gisRecordPtr->longDMSStr() << ")";
+//        }
+//    }
+//    logLine(os.str());
+//    logService.logLineBreak();
+//}
+
+void SystemManager::whatIsAt(Point point) {
+    auto records = bufferPool.getRecordsByCoordinate(point, coordinateIndex);
+    ostringstream os;
+    os.width(2);
+    os << "";
+    if (!records.empty()) {
+        os << "The following feature(s) were ";
+    } else {
+        os << "Nothing was ";
+    }
+
+    os << "found at (\"" << point.latitude.toDmsString() << ", " << point.longitude.toDmsString() << "\")\n";
+
+    for (auto r: records) {
+        os.width(4);
+        os << "" << r->lineNum << ':'
+           << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
+           << " \"" << r->gisRecordPtr->getCountyName() << "\" "
+           << " \"" << r->gisRecordPtr->getStateAlpha() << "\" ";
+    }
+    logService.logString(os.str());
+    logService.logLineBreak();
 }
 
-void SystemManager::logLineBreak(){
-    int lineBreakLength = 90;
-    char lineBreakChar = '-';
-    logLine(string(lineBreakLength, lineBreakChar));
+void SystemManager::whatIs(string featureName, string stateAbrv) {
+    ostringstream os;
+    os << featureName << " " << stateAbrv;
+    const auto records = bufferPool.getRecordsByKey(os.str(), nameIndex);
+    os.str("");
+    os.clear();
+
+    for (auto record: records) {
+        os.width(3);
+        os << "" << record->lineNum << ": " << record->gisRecordPtr->getCountyName();
+        os << "(" << record->gisRecordPtr->latDMSStr() << ", " << record->gisRecordPtr->longDMSStr() << ")";
+    }
+    if (records.empty()) {
+        os.width(3);
+        os << "" << "No records match \"" << featureName << "\" and \"" << stateAbrv << "\"";
+    }
+    logService.logString(os.str());
+    logService.logLineBreak();
 }
+
+void SystemManager::logCommand(int cmdNumber, std::string function, list<std::string> args, char delimiter) {
+    logService.logCommand(cmdNumber, function, args, delimiter);
+}
+
+void SystemManager::logComment(string comment) {
+    logService.logComment(comment);
+}
+
+
+
+
+
 
 
