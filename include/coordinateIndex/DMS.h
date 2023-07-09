@@ -137,6 +137,26 @@ struct DMS {
                (seconds == other.seconds) &&
                (direction == other.direction);
     }
+
+    void addSeconds(int additionalSeconds) {
+        // Convert to total seconds
+        int totalSeconds = (int) (degrees * 3600 + minutes * 60 + this->seconds);
+
+        // Add the additional seconds
+        totalSeconds += additionalSeconds;
+
+        degrees = std::abs(totalSeconds) / 3600;
+        minutes = (std::abs(totalSeconds) % 3600) / 60;
+        seconds = std::abs(totalSeconds) % 60;
+
+        if (totalSeconds < 0) {
+
+            if (direction == 'S' || direction == 'W') {
+                direction = (direction == 'N') ? 'N' : 'E';
+            }
+
+        }
+    }
 };
 
 #endif //DMS_H

@@ -24,7 +24,7 @@ list<BufferedRecord*> BufferPool::getRecordsByCoordinate(Point point, QuadTree c
 
 list<BufferedRecord *> BufferPool::getRecordsByCoordinateRange(bool isFiltered, string filter, Point nwPoint, Point sePoint,
                                         QuadTree coordinateIndex) {
-    vector<int> lineNums = {};// = coordinateIndex.getOffsetsOfGISRecords(nwPoint, sePoint);
+    vector<int> lineNums = coordinateIndex.getOffsetsOfGISRecordsWithin(nwPoint, sePoint);
 
     list<BufferedRecord*> foundRecords;
     for(int l : lineNums){

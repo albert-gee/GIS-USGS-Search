@@ -177,103 +177,11 @@ void SystemManager::debugHash() {
 
 }
 
-
 void SystemManager::debugPool() {
     const string pool = bufferPool.str();
     logService.logString(pool);
     logService.logLineBreak();
 }
-
-//// ToDo: implement the following method
-//list<GISRecord> SystemManager::findGISRecordsByCoordinates(Point location) {
-//    std::cout << "FINDING BY COORDINATES: (" << location.latitude << ", " << location.longitude << ")" << std::endl;
-//    list<GISRecord> offsets;
-//
-//    try {
-//        auto lineNums = coordinateIndex.getOffsetsOfGISRecordsByLocation(location);
-//
-//        if (!lineNums.empty()) {
-//            cout << "Found " << lineNums.size() << " records" << endl;
-//        }
-//
-//        for(auto l: lineNums){
-//            cout << "\n" << l << endl;
-//        }
-//
-//    } catch (const std::invalid_argument& e) {
-//        std::cout << e.what() << std::endl;
-//        location.print();
-//    }
-//
-//    // Find in buffer
-//    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
-//
-//    // If not found in buffer, find in coordinate index
-//    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
-//
-//    return offsets;
-//}
-
-//// ToDo:: this method is implemented incorrectly. Fix it.
-//list<GISRecord> SystemManager::findGISRecordsByCoordinates(double latitude, double longitude, double halfHeight, double halfWidth) {
-//    //cout << "what is in " << latitude + halfHeight << " " << longitude - halfWidth << " " << latitude - halfHeight << " " << longitude + halfWidth <<endl;
-//    Point nw = {latitude + halfHeight, longitude - halfWidth };
-//    Point se = {latitude - halfHeight, longitude + halfWidth };
-////    auto lineNums = coordinateIndex.getOffsetsOfGISRecords(nw, se);
-////    for(auto l: lineNums){
-////        cout << l << endl;
-////    }
-//
-//    list<GISRecord> offsets;
-//
-//    // Find in buffer
-//    //offsets = bufferPool.findGISRecordsByCoordinates(northWestPoint, southEastPoint);
-//
-//    // If not found in buffer, find in coordinate index
-//    //offsets = coordinateIndex.getOffsetsOfGISRecords(northWestPoint, southEastPoint);
-//
-//    return offsets;
-//}
-
-//void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string filter, double latitude, double longitude,
-//                             double halfHeight, double halfWidth) {
-//    Point point = {latitude, longitude};
-//    Point nwPoint = {latitude + halfHeight / 3600, longitude - halfWidth / 3600};
-//    Point sePoint = {latitude - halfHeight / 3600, longitude + halfWidth / 3600};
-//
-//    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, filter, nwPoint, sePoint, coordinateIndex);
-//    ostringstream os;
-//    os.width(2);
-//    os << "";
-//    if (!records.empty()) {
-//        if (isFiltered) {
-//            os << "The following features matching your criteria were ";
-//        } else {
-//            os << "The following " << records.size() << " feature(s) were ";
-//        }
-//
-//    } else {
-//        os << "Nothing was ";
-//    }
-//
-//    os << "found in (" << point.latitude.toDmsString() << " +/- " << halfHeight << ", " << point.longitude.toDmsString() << " +/- "
-//       << halfWidth << ")\n\n";
-//
-//    for (auto r: records) {
-//        if (isDetailed) {
-//            os << r->gisRecordPtr->detailStr();
-//        } else {
-//            os.width(4);
-//            os << "" << r->lineNum << ':'
-//               << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
-//               << " \"" << r->gisRecordPtr->getCountyName() << "\" "
-//               << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
-//               << "(" << r->gisRecordPtr->latDMSStr() << ", " << r->gisRecordPtr->longDMSStr() << ")";
-//        }
-//    }
-//    logLine(os.str());
-//    logService.logLineBreak();
-//}
 
 void SystemManager::whatIsAt(Point point) {
     auto records = bufferPool.getRecordsByCoordinate(point, coordinateIndex);
@@ -294,6 +202,62 @@ void SystemManager::whatIsAt(Point point) {
            << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
            << " \"" << r->gisRecordPtr->getCountyName() << "\" "
            << " \"" << r->gisRecordPtr->getStateAlpha() << "\" ";
+    }
+    logService.logString(os.str());
+    logService.logLineBreak();
+}
+
+void SystemManager::whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
+                             string &halfHeight, string &halfWidth) {
+    int hlfh = stoi(halfHeight);
+    int hlfw = stoi(halfWidth);
+
+    DMS centerLat = DMS(latitude);
+    DMS centerLng = DMS(longitude);
+
+    // Set the boundaries of the search - NW and SE corners
+    DMS nwLat{centerLat.degrees, centerLat.minutes, centerLat.seconds, centerLat.direction};
+    nwLat.addSeconds(hlfh);
+    DMS nwLng{centerLng.degrees, centerLng.minutes, centerLng.seconds, centerLng.direction};
+    nwLng.addSeconds(hlfw);
+
+    DMS seLat{centerLat.degrees, centerLat.minutes, centerLat.seconds, centerLat.direction};
+    seLat.addSeconds(-hlfh);
+    DMS seLng{centerLng.degrees, centerLng.minutes, centerLng.seconds, centerLng.direction};
+    seLng.addSeconds(-hlfw);
+
+    // Get the records from the buffer pool and coordinate index
+    auto records = bufferPool.getRecordsByCoordinateRange(isFiltered, filter, {nwLat, nwLng}, {seLat, seLng}, coordinateIndex);
+
+    ostringstream os;
+    os.width(2);
+    os << "";
+    if (!records.empty()) {
+        if (isFiltered) {
+            os << "The following features matching your criteria were ";
+        } else {
+            os << "The following " << records.size() << " feature(s) were ";
+        }
+
+    } else {
+        os << "Nothing was ";
+    }
+
+    Point centerPoint = {centerLat, centerLng};
+    os << "found in (" << centerPoint.latitude.toDmsString() << " +/- " << halfHeight << ", " << centerPoint.longitude.toDmsString() << " +/- "
+       << halfWidth << ")\n\n";
+
+    for (auto r: records) {
+        if (isDetailed) {
+            os << r->gisRecordPtr->str();
+        } else {
+            os.width(4);
+            os << "" << r->lineNum << ':'
+               << " \"" << r->gisRecordPtr->getFeatureName() << "\" "
+               << " \"" << r->gisRecordPtr->getCountyName() << "\" "
+               << " \"" << r->gisRecordPtr->getStateAlpha() << "\" "
+               << "(" << r->gisRecordPtr->getPrimaryLatitudeDms() << ", " << r->gisRecordPtr->getPrimaryLongitudeDms() << ")";
+        }
     }
     logService.logString(os.str());
     logService.logLineBreak();

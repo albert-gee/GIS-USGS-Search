@@ -16,17 +16,7 @@ using namespace std;
 // The SystemManager uses system components to import, index, store, and retrieve data.
 class SystemManager {
 public:
-    // Constants related to the format of the records in the databaseService file
-    // The delimiter used to separate the fields in the records
     static const char DELIM = '|';
-
-    // 1 and 3 are the feature name and state abbreviation columns
-    static const int FEATURE_NAME_COL = 1;
-    static const int STATE_ALPHA_COL = 3;
-
-    // 9 and 10 are the latitude and longitude columns in decimal degrees
-    static const int LATITUDE_COL = 9;
-    static const int LONGITUDE_COL = 10;
 
     SystemManager(NameIndex &nameIndex, const QuadTree &coordinateIndex, BufferPool &bufferPool,
                   DbService &databaseService, LogService &logService);
@@ -46,11 +36,12 @@ public:
     void debugWorld();
 
     // The "what_is" command.
-    void whatIs(const string& featureName, const string& stateAbrv);
+    void whatIs(const string &featureName, const string &stateAbrv);
 
     // The "what_is_in" command.
-//    void whatIsIn(bool isFiltered, bool isDetailed, string filter, string latitude, string longitude,
-//                  double halfHeight, double halfWidth);
+    void
+    whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
+             string &halfHeight, string &halfWidth);
 
     // The "what_is_at" command.
     void whatIsAt(Point point);
@@ -82,10 +73,10 @@ private:
 
     // Index an individual GIS record from the database by name and state abbreviation and collect statistics about the
     // index
-    void indexDatabaseRecordByName(GISRecord* gisRecord, int lineNum, IndexStats &nameIndexStats);
+    void indexDatabaseRecordByName(GISRecord *gisRecord, int lineNum, IndexStats &nameIndexStats);
 
     // Index an individual GIS record from the database by location
-    void indexDatabaseRecordByLocation(GISRecord* gisRecord, int lineNum);
+    void indexDatabaseRecordByLocation(GISRecord *gisRecord, int lineNum);
 };
 
 

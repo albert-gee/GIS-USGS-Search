@@ -21,7 +21,7 @@ public:
     void insert(const std::string& latitude, const std::string& longitude, int offsetOfGISRecord);
 
     // Get the offsets of the GIS records in the QuadTree that are within the given bounding box
-    std::vector<int> getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint);
+    std::vector<int> getOffsetsOfGISRecordsWithin(Point northWestPoint, Point southEastPoint);
 
     std::vector<int> getOffsetsOfGISRecordsByLocation(Point location);
 

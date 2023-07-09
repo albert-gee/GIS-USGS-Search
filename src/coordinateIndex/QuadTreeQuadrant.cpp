@@ -35,8 +35,10 @@ std::string QuadTreeQuadrant::str(unsigned int indent) {
 
     std::ostringstream os;
     os << "\n";
-    os << std::string(indent * 2, indentCharacter) << "NW: (" << northWestPoint.latitude.toDmsString() << ", " << northWestPoint.longitude.toDmsString() << ")" << std::endl;
-    os << std::string(indent * 2, indentCharacter) << "SE: (" << southEastPoint.latitude.toDmsString() << ", " << southEastPoint.longitude.toDmsString() << ")" << std::endl;
+    os << std::string(indent * 2, indentCharacter) << "NW: (" << northWestPoint.latitude.toDmsString() << ", "
+       << northWestPoint.longitude.toDmsString() << ")" << std::endl;
+    os << std::string(indent * 2, indentCharacter) << "SE: (" << southEastPoint.latitude.toDmsString() << ", "
+       << southEastPoint.longitude.toDmsString() << ")" << std::endl;
 
     // Check if the bucket is not empty
     // If it is not empty, add the offsets of the GIS records from the bucket to output
@@ -44,14 +46,14 @@ std::string QuadTreeQuadrant::str(unsigned int indent) {
         os << std::string(indent * 2, indentCharacter) << "Bucket (" << bucket.size() << "): ";
 
         os << "[";
-        for (auto & i : bucket) {
+        for (auto &i: bucket) {
 
             if (!i.offsetsOfGISRecords.empty()) {
 
                 os << "(" << i.location.latitude.toDmsString() << ", " << i.location.longitude.toDmsString() << ")";
 
                 os << ": ";
-                for (int offsetOfGISRecord : i.offsetsOfGISRecords) {
+                for (int offsetOfGISRecord: i.offsetsOfGISRecords) {
                     os << std::to_string(offsetOfGISRecord);
                     os << " ";
                 }
@@ -83,14 +85,14 @@ std::string QuadTreeQuadrant::getContent() {
     // If it is not empty, add the offsets of the GIS records from the bucket to output
     if (!bucket.empty()) {
 
-        for (auto & i : bucket) {
+        for (auto &i: bucket) {
 
             if (!i.offsetsOfGISRecords.empty()) {
 
                 os << "(" << i.location.latitude.toDmsString() << ", " << i.location.longitude.toDmsString() << ")";
 
                 os << ":  ";
-                for (int offsetOfGISRecord : i.offsetsOfGISRecords) {
+                for (int offsetOfGISRecord: i.offsetsOfGISRecords) {
                     os << std::to_string(offsetOfGISRecord);
                     os << " ";
                 }
@@ -225,89 +227,176 @@ void QuadTreeQuadrant::insertIntoSubQuadrants(Point location, int offsetOfGISRec
 }
 
 std::vector<int>
-QuadTreeQuadrant::getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
-
-    // Check if the given bounding box is contained in the quadrant
-    // If not, throw an exception
-    if (offsetNorthWestPoint.latitude.toDecimal() < getNorthWestPoint().latitude.toDecimal() &&
-        offsetSouthEastPoint.latitude.toDecimal() > getSouthEastPoint().latitude.toDecimal()) {
-        throw std::invalid_argument("The given bounding box is not contained in the quadrant.");
-    }
+QuadTreeQuadrant::getOffsetsOfGISRecordsWithin(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const {
 
     // This vector will contain the offsetsVector of the GIS records and be returned by the method
     std::vector<int> offsetsVector;
+    // Check if the boundaries cover the quadrant
+    if (offsetNorthWestPoint.latitude.toDecimal() >= southEastPoint.latitude.toDecimal() &&
+        offsetNorthWestPoint.longitude.toDecimal() <= southEastPoint.longitude.toDecimal() &&
+        offsetSouthEastPoint.latitude.toDecimal() <= northWestPoint.latitude.toDecimal() &&
+        offsetSouthEastPoint.longitude.toDecimal() >= northWestPoint.longitude.toDecimal()) {
 
-    // If the quadrant is a leaf node, return the offsets Vector of the GIS records
-    if (northWest == nullptr) {
-        for (const Entry &entry: bucket) {
+        // If the quadrant is a leaf node, return the offsets that satisfy the bounding box
+        if (northWest == nullptr) {
+            for (const Entry &entry: bucket) {
 
-            if (entry.location.latitude.toDecimal() >= offsetNorthWestPoint.latitude.toDecimal() &&
-                entry.location.longitude.toDecimal() >= offsetNorthWestPoint.longitude.toDecimal() &&
-                entry.location.latitude.toDecimal() <= offsetSouthEastPoint.latitude.toDecimal() &&
-                entry.location.longitude.toDecimal() <= offsetSouthEastPoint.longitude.toDecimal()) {
-                // If the point is in the bounding box, add the offsetsVector of the GIS records to the vector
-                offsetsVector.insert(offsetsVector.end(), entry.offsetsOfGISRecords.begin(),
-                                     entry.offsetsOfGISRecords.end());
+                // Check if the point is within the bounding box
+                if (entry.location.latitude.toDecimal() <= offsetNorthWestPoint.latitude.toDecimal() &&
+                    entry.location.longitude.toDecimal() >= offsetNorthWestPoint.longitude.toDecimal() &&
+                    entry.location.latitude.toDecimal() >= offsetSouthEastPoint.latitude.toDecimal() &&
+                    entry.location.longitude.toDecimal() <= offsetSouthEastPoint.longitude.toDecimal()) {
+
+                    if (!entry.offsetsOfGISRecords.empty()) {
+                        for (auto offset: entry.offsetsOfGISRecords) {
+                            offsetsVector.push_back(offset);
+                        }
+                    }
+                    return offsetsVector;
+                }
             }
-        }
-    } else {
-        // Otherwise, recursively get the offsetsVector of the GIS records from the sub-quadrants
+        } else {
+            // It turns out the quadrant is not a leaf node and has sub-quadrants
+            // Try to find the intersection of the bounding box and the sub-quadrant and recursively call the method
 
-        std::vector<int> offsets;
-        // Check if the north-west quadrant is contained in the bounding box
-        if (offsetNorthWestPoint.latitude.toDecimal() <= northWest->getNorthWestPoint().latitude.toDecimal() &&
-            offsetNorthWestPoint.longitude.toDecimal() <= northWest->getNorthWestPoint().longitude.toDecimal() &&
-            offsetSouthEastPoint.latitude.toDecimal() >= northWest->getSouthEastPoint().latitude.toDecimal() &&
-            offsetSouthEastPoint.longitude.toDecimal() >= northWest->getSouthEastPoint().longitude.toDecimal()) {
-            // Get the offsetsVector of the GIS records from the north-west quadrant
-            std::vector<int> offsetsFromNorthWest = northWest->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                      offsetSouthEastPoint);
-            // Insert the offsetsVector from the north-west quadrant into the vector
-            offsets.insert(offsets.end(), offsetsFromNorthWest.begin(), offsetsFromNorthWest.end());
+            // This vector will contain the offsetsVector of the GIS records and be returned by the method
+            std::vector<int> newOffsetsVector;
+
+
+            // NW sub-quadrant
+            // We create a new bounding box for the NW sub-quadrant
+            DMS newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal())
+                           ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+            DMS newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal())
+                           ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+            Point newNwPoint = {newNwLat, newNwLon};
+
+            DMS newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal())
+                           ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+            DMS newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal())
+                           ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+            Point newSePoint = {newSeLat, newSeLon};
+
+            // Try to find the offsets within the new bounding box
+            newOffsetsVector = northWest->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+            for (int element: newOffsetsVector) {
+                offsetsVector.push_back(element);
+            }
+
+            // NE sub-quadrant
+            newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal())
+                       ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+            newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal())
+                       ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+            newNwPoint = {newNwLat, newNwLon};
+
+            newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal())
+                       ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+            newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal())
+                       ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+            newSePoint = {newSeLat, newSeLon};
+
+            // Try to find the offsets within the new bounding box
+            newOffsetsVector = northEast->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+            for (int element: newOffsetsVector) {
+                offsetsVector.push_back(element);
+            }
+
+            // SW sub-quadrant
+            newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal())
+                       ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+            newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal())
+                       ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+            newNwPoint = {newNwLat, newNwLon};
+
+            newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal())
+                       ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+            newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal())
+                       ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+            newSePoint = {newSeLat, newSeLon};
+
+            // Try to find the offsets within the new bounding box
+            newOffsetsVector = southWest->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+            for (int element: newOffsetsVector) {
+                offsetsVector.push_back(element);
+            }
+
+            // SE sub-quadrant
+            newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal())
+                       ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+            newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal())
+                       ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+            newNwPoint = {newNwLat, newNwLon};
+
+            newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal())
+                       ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+            newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal())
+                       ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+            newSePoint = {newSeLat, newSeLon};
+
+            // Try to find the offsets within the new bounding box
+            newOffsetsVector = southEast->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+            for (int element: newOffsetsVector) {
+                offsetsVector.push_back(element);
+            }
+
+//                // Try to find the offsets within the new bounding box
+//                newOffsetsVector = northWest->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+//                for (int element: newOffsetsVector) {
+//                    offsetsVector.push_back(element);
+//                }
+//
+//
+//                if (southWest->isPointWithinQuadrant(offsetNorthWestPoint) ||
+//                    southWest->isPointWithinQuadrant(offsetSouthEastPoint)) {
+//                    // We create a new bounding box for the NW sub-quadrant
+//                    DMS newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal()) ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+//                    DMS newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal()) ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+//                    Point newNwPoint = {newNwLat, newNwLon};
+//
+//                    DMS newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal()) ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+//                    DMS newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal()) ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+//                    Point newSePoint = {newSeLat, newSeLon};
+//
+//                    // Try to find the offsets within the new bounding box
+//                    newOffsetsVector = northWest->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+//                    for (int element: newOffsetsVector) {
+//                        offsetsVector.push_back(element);
+//                    }
+//                }
+//
+//                if (southEast->isPointWithinQuadrant(offsetNorthWestPoint) ||
+//                    southEast->isPointWithinQuadrant(offsetSouthEastPoint)) {
+//                    // We create a new bounding box for the NW sub-quadrant
+//                    DMS newNwLat = (offsetNorthWestPoint.latitude.toDecimal() >= northWestPoint.latitude.toDecimal()) ? northWestPoint.latitude : offsetNorthWestPoint.latitude;
+//                    DMS newNwLon = (offsetNorthWestPoint.longitude.toDecimal() <= northWestPoint.longitude.toDecimal()) ? northWestPoint.longitude : offsetNorthWestPoint.longitude;
+//                    Point newNwPoint = {newNwLat, newNwLon};
+//
+//                    DMS newSeLat = (offsetSouthEastPoint.latitude.toDecimal() <= southEastPoint.latitude.toDecimal()) ? southEastPoint.latitude : offsetSouthEastPoint.latitude;
+//                    DMS newSeLon = (offsetSouthEastPoint.longitude.toDecimal() >= southEastPoint.longitude.toDecimal()) ? southEastPoint.longitude : offsetSouthEastPoint.longitude;
+//                    Point newSePoint = {newSeLat, newSeLon};
+//
+//                    // Try to find the offsets within the new bounding box
+//                    newOffsetsVector = northWest->getOffsetsOfGISRecordsWithin(newNwPoint, newSePoint);
+//                    for (int element: newOffsetsVector) {
+//                        offsetsVector.push_back(element);
+//                    }
+//                }
+
+
         }
-        // Check if the north-east quadrant is contained in the bounding box
-        if (offsetNorthWestPoint.latitude.toDecimal() <= northEast->getNorthWestPoint().latitude.toDecimal() &&
-            offsetNorthWestPoint.longitude.toDecimal() <= northEast->getNorthWestPoint().longitude.toDecimal() &&
-            offsetSouthEastPoint.latitude.toDecimal() >= northEast->getSouthEastPoint().latitude.toDecimal() &&
-            offsetSouthEastPoint.longitude.toDecimal() >= northEast->getSouthEastPoint().longitude.toDecimal()) {
-            // Get the offsetsVector of the GIS records from the north-east quadrant
-            std::vector<int> offsetsFromNorthEast = northEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                      offsetSouthEastPoint);
-            // Insert the offsetsVector from the north-east quadrant into the vector
-            offsets.insert(offsets.end(), offsetsFromNorthEast.begin(), offsetsFromNorthEast.end());
-        }
-        // Check if the south-west quadrant is contained in the bounding box
-        if (offsetNorthWestPoint.latitude.toDecimal() <= southWest->getNorthWestPoint().latitude.toDecimal() &&
-            offsetNorthWestPoint.longitude.toDecimal() <= southWest->getNorthWestPoint().longitude.toDecimal() &&
-            offsetSouthEastPoint.latitude.toDecimal() >= southWest->getSouthEastPoint().latitude.toDecimal() &&
-            offsetSouthEastPoint.longitude.toDecimal() >= southWest->getSouthEastPoint().longitude.toDecimal()) {
-            // Get the offsetsVector of the GIS records from the south-west quadrant
-            std::vector<int> offsetsFromSouthWest = southWest->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                      offsetSouthEastPoint);
-            // Insert the offsetsVector from the south-west quadrant into the vector
-            offsets.insert(offsets.end(), offsetsFromSouthWest.begin(), offsetsFromSouthWest.end());
-        }
-        // Check if the south-east quadrant is contained in the bounding box
-        if (offsetNorthWestPoint.latitude.toDecimal() <= southEast->getNorthWestPoint().latitude.toDecimal() &&
-            offsetNorthWestPoint.longitude.toDecimal() <= southEast->getNorthWestPoint().longitude.toDecimal() &&
-            offsetSouthEastPoint.latitude.toDecimal() >= southEast->getSouthEastPoint().latitude.toDecimal() &&
-            offsetSouthEastPoint.longitude.toDecimal() >= southEast->getSouthEastPoint().longitude.toDecimal()) {
-            // Get the offsetsVector of the GIS records from the south-east quadrant
-            std::vector<int> offsetsFromSouthEast = southEast->getOffsetsOfGISRecords(offsetNorthWestPoint,
-                                                                                      offsetSouthEastPoint);
-            // Insert the offsetsVector from the south-east quadrant into the vector
-            offsets.insert(offsets.end(), offsetsFromSouthEast.begin(), offsetsFromSouthEast.end());
-        }
+
     }
-
     return offsetsVector;
+
 }
 
 std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecordsByLocation(Point location) const {
 
     // Check if the given location is contained in the quadrant
     // If not, throw an exception
-    if (!(location.latitude.toDecimal() < getNorthWestPoint().latitude.toDecimal() && location.longitude.toDecimal() < getSouthEastPoint().longitude.toDecimal())) {
+    if (!(location.latitude.toDecimal() < getNorthWestPoint().latitude.toDecimal() &&
+          location.longitude.toDecimal() < getSouthEastPoint().longitude.toDecimal())) {
         throw std::invalid_argument("The given bounding box is not contained in the quadrant.");
     }
 
@@ -319,7 +408,8 @@ std::vector<int> QuadTreeQuadrant::getOffsetsOfGISRecordsByLocation(Point locati
 
         for (const Entry &entry: bucket) {
 
-            if(entry.location.latitude.equals(location.latitude) && entry.location.longitude.equals(location.longitude)){
+            if (entry.location.latitude.equals(location.latitude) &&
+                entry.location.longitude.equals(location.longitude)) {
                 if (!entry.offsetsOfGISRecords.empty()) {
                     for (auto offset: entry.offsetsOfGISRecords) {
                         offsetsVector.push_back(offset);

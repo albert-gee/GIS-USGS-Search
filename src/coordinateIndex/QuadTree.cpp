@@ -13,7 +13,7 @@ void QuadTree::setBoundingBox(Point northWestPoint, Point southEastPoint) {
 
 std::string QuadTree::str() const {
     std::ostringstream os;
-    os << "Structure of the Coordinate Index:" << std::endl;
+    os << "Content of the Coordinate Index:" << std::endl;
 
     if(this->root != nullptr) {
         os << this->root->str(1);
@@ -55,8 +55,8 @@ void QuadTree::insert(const std::string& latitude, const std::string& longitude,
     }
 }
 
-std::vector<int> QuadTree::getOffsetsOfGISRecords(Point northWestPoint, Point southEastPoint) {
-    return this->root->getOffsetsOfGISRecords(northWestPoint, southEastPoint);
+std::vector<int> QuadTree::getOffsetsOfGISRecordsWithin(Point northWestPoint, Point southEastPoint) {
+    return this->root->getOffsetsOfGISRecordsWithin(northWestPoint, southEastPoint);
 }
 
 std::vector<int> QuadTree::getOffsetsOfGISRecordsByLocation(Point location) {
