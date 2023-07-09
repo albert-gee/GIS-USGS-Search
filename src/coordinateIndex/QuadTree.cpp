@@ -13,9 +13,25 @@ void QuadTree::setBoundingBox(Point northWestPoint, Point southEastPoint) {
 
 std::string QuadTree::str() const {
     std::ostringstream os;
+    os << "Structure of the Coordinate Index:" << std::endl;
 
     if(this->root != nullptr) {
         os << this->root->str(1);
+    } else {
+        os << "The QuadTree is empty" << std::endl;
+    }
+
+    os << std::endl;
+
+    return os.str();
+}
+
+std::string QuadTree::getContent() const {
+    std::ostringstream os;
+    os << "Content of the Coordinate Index:\n" << std::endl;
+
+    if(this->root != nullptr) {
+        os << this->root->getContent();
     } else {
         os << "The QuadTree is empty" << std::endl;
     }

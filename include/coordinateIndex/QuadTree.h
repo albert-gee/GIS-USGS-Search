@@ -26,7 +26,10 @@ public:
     std::vector<int> getOffsetsOfGISRecordsByLocation(Point location);
 
     // Returns a string representation of the structure of QuadTree
-    std::string str() const;
+    [[nodiscard]] std::string str() const;
+
+    // Returns a string representation of the content of QuadTree
+    [[nodiscard]] std::string getContent() const;
 
 private:
     unsigned long bucketCapacity;

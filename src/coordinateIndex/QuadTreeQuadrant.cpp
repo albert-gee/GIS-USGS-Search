@@ -31,7 +31,7 @@ bool QuadTreeQuadrant::isPointWithinQuadrant(Point point) const {
 
 std::string QuadTreeQuadrant::str(unsigned int indent) {
 
-    char indentCharacter = '-';
+    char indentCharacter = '.';
 
     std::ostringstream os;
     os << "\n";
@@ -76,8 +76,44 @@ std::string QuadTreeQuadrant::str(unsigned int indent) {
     return os.str();
 }
 
-// Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
-// divided into four sub-quadrants and the entry and all entries from the bucket are inserted into them.
+std::string QuadTreeQuadrant::getContent() {
+    std::ostringstream os;
+
+    // Check if the bucket is not empty
+    // If it is not empty, add the offsets of the GIS records from the bucket to output
+    if (!bucket.empty()) {
+
+        for (auto & i : bucket) {
+
+            if (!i.offsetsOfGISRecords.empty()) {
+
+                os << "(" << i.location.latitude.toDmsString() << ", " << i.location.longitude.toDmsString() << ")";
+
+                os << ":  ";
+                for (int offsetOfGISRecord : i.offsetsOfGISRecords) {
+                    os << std::to_string(offsetOfGISRecord);
+                    os << " ";
+                }
+            }
+            os << std::endl;
+        }
+
+    }
+
+    // Check if the quadrant is divided
+    if (northWest != nullptr) {
+
+        os << northWest->getContent();
+        os << northEast->getContent();
+
+        os << southWest->getContent();
+        os << southEast->getContent();
+    }
+
+    return os.str();
+}
+
+
 void QuadTreeQuadrant::insert(const Point location, int offsetOfGISRecord) {
 
     // Check if the point is within the quadrant

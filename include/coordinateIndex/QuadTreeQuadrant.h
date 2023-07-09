@@ -16,11 +16,15 @@ public:
 
     ~QuadTreeQuadrant();
 
-    // Insert an offset of a GIS record with its location into the quadrant
+    // Insert an entry into the quadrant. The entry is inserted into the bucket. If the bucket is full, the quadrant is
+    // divided into four sub-quadrants and the entry and all entries from the bucket are inserted into them.
     void insert(Point location, int offsetOfGISRecord);
 
     // Returns a string representation of the structure of this quadrant and its sub-quadrants
     std::string str(unsigned int indent);
+
+    // Returns a string representation of the content of this quadrant and its sub-quadrants
+    std::string getContent();
 
     // Get the offsets of the GIS records in the quadrant
     [[nodiscard]] std::vector<int> getOffsetsOfGISRecords(Point offsetNorthWestPoint, Point offsetSouthEastPoint) const;
