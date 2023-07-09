@@ -1,7 +1,6 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <list>
 #include "../../include/database/DbService.h"
 
 DbService::DbService(const std::string &databaseFileLocation) {
