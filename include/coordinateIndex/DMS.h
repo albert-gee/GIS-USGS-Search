@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 // Latitude and Longitude can be expressed in DMS format (degrees/minutes/seconds, e.g. 0820830W).
 // This struct describes a geographic coordinate in the DMS format.
@@ -47,10 +48,30 @@ struct DMS {
 
     // To human-readable decimal string, e.g. 38.5°
     [[nodiscard]] std::string toDecimalString() const {
-        std::ostringstream os;
         double value = degrees + (double) minutes / 60 + (double) seconds / 3600;
-        os << ((direction == 'N' || direction == 'E') ? value : -value) << "°";
-        return os.str();
+
+        std::ostringstream os;
+        os << std::fixed << std::setprecision(7);
+
+        // Apply direction to the value
+        os << ((direction == 'N' || direction == 'E') ? value : -value);
+
+        // Convert to string
+        std::string formattedValue = os.str();
+
+        // Truncate trailing zeros
+        size_t pos = formattedValue.find_last_not_of('0');
+        if (pos != std::string::npos && pos != formattedValue.size() - 1) {
+            if (formattedValue[pos] == '.')
+                formattedValue.erase(pos);
+            else
+                formattedValue.erase(pos + 1);
+        }
+
+        // Append the direction
+        formattedValue += "°";
+
+        return formattedValue;
     }
 
     // To human-readable DMS string, e.g. 38°30'0"N
