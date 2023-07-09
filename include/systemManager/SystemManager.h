@@ -20,14 +20,6 @@ public:
     // The delimiter used to separate the fields in the records
     static const char DELIM = '|';
 
-    // 1 and 3 are the feature name and state abbreviation columns
-    static const int FEATURE_NAME_COL = 1;
-    static const int STATE_ALPHA_COL = 3;
-
-    // 9 and 10 are the latitude and longitude columns in decimal degrees
-    static const int LATITUDE_COL = 9;
-    static const int LONGITUDE_COL = 10;
-
     SystemManager(NameIndex &nameIndex, const QuadTree &coordinateIndex, BufferPool &bufferPool,
                   DbService &databaseService, LogService &logService);
 
@@ -49,8 +41,8 @@ public:
     void whatIs(const string& featureName, const string& stateAbrv);
 
     // The "what_is_in" command.
-//    void whatIsIn(bool isFiltered, bool isDetailed, string filter, string latitude, string longitude,
-//                  double halfHeight, double halfWidth);
+    void whatIsIn(bool isFiltered, bool isDetailed, string &filter, string &latitude, string &longitude,
+                  string &halfHeight, string &halfWidth);
 
     // The "what_is_at" command.
     void whatIsAt(Point point);
